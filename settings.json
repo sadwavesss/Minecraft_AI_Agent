@@ -1,0 +1,6 @@
+{
+  "analysis_interval": 5000,
+  "threat_threshold": 0.7,
+  "enable_voice": false,
+  "max_threats_display": 3
+}

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Assistant Logs</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <a href="/admin">Логи</a>
+            <a href="/admin/settings">Настройки</a>
+        </nav>
+        
+        <div class="logs-container">
+            <div class="filters">
+                <select id="levelFilter">
+                    <option value="">Все уровни</option>
+                    <option value="INFO">INFO</option>
+                    <option value="WARNING">WARNING</option>
+                    <option value="ERROR">ERROR</option>
+                </select>
+                <input type="number" id="limitInput" placeholder="Лимит" value="100">
+                <button onclick="loadLogs()">Обновить</button>
+            </div>
+            
+            <div id="logsList" class="logs-list"></div>
+        </div>
+    </div>
+    <script src="/frontend/js/logs.js"></script>
+</body>
+</html>

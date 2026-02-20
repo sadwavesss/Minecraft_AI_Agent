@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+venv/
+.env
+
+# Logs / runtime
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Fabric/Gradle (mod)
+mod/minecraft-mod/.gradle/
+mod/minecraft-mod/build/
+mod/minecraft-mod/run/
+mod/minecraft-mod/out/
+mod/minecraft-mod/.idea/
+mod/minecraft-mod/*.ipr
+mod/minecraft-mod/*.iws
+mod/minecraft-mod/*.iml
