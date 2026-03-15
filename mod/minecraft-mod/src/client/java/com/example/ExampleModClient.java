@@ -2,7 +2,7 @@ package com.example;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
+import net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents;
 
 import com.example.assistant.AssistantConfig;
 import com.example.assistant.AssistantRuntime;
@@ -17,8 +17,12 @@ public class ExampleModClient implements ClientModInitializer {
 		runtime = new AssistantRuntime(cfg);
 
 		ClientTickEvents.END_CLIENT_TICK.register(runtime::onClientTick);
-		ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
-			// Chat event listener will be registered separately via mixin
+
+		ClientSendMessageEvents.CHAT.register((message) -> {
+			if (runtime != null) {
+				System.out.println("[AI Assistant] Player sent chat: " + message);
+				runtime.sendChatMessage(message);
+			}
 		});
 	}
 

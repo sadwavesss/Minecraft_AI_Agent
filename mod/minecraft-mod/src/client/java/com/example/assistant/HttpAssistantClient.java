@@ -89,7 +89,7 @@ public final class HttpAssistantClient {
     public CompletableFuture<RPResponse> getRP() {
         HttpRequest req = HttpRequest.newBuilder()
                 .uri(URI.create(baseUrl() + "/api/rp/"))
-                .timeout(Duration.ofSeconds(5))
+                .timeout(Duration.ofSeconds(15))
                 .GET()
                 .build();
 
@@ -126,7 +126,7 @@ public final class HttpAssistantClient {
 
         HttpRequest req = HttpRequest.newBuilder()
                 .uri(URI.create(baseUrl() + "/api/rp/chat"))
-                .timeout(Duration.ofSeconds(5))
+                .timeout(Duration.ofSeconds(30))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofByteArray(body))
                 .build();

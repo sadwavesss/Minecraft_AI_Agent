@@ -56,7 +56,7 @@ def get_model_info(model_type: str) -> dict:
     return {
         "name": model.name,
         "provider": model.provider,
-        "max_tokens": model.max_tokens,
-        "temperature": model.temperature,
+        "max_tokens": model.parameters.get("max_tokens"),
+        "temperature": model.parameters.get("temperature"),
         "description": model.description
     }

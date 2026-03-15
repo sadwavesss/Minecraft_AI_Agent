@@ -250,12 +250,18 @@ public final class AssistantRuntime {
         http.sendChat(text).thenAccept(rpResponse -> {
             System.out.println("[AI Assistant] Chat response received: " + (rpResponse != null ? "not null" : "null"));
             
-            // Chat response is auto-displayed by the mod event system
-            // This is just for logging/tracking
-            if (rpResponse != null && rpResponse.response != null) {
-                System.out.println("[AI Assistant] Chat response: " + rpResponse.response);
-            } else if (rpResponse != null) {
-                System.out.println("[AI Assistant] Chat response is null!");
+            if (rpResponse != null && rpResponse.response != null && !rpResponse.response.isBlank()) {
+                String msg = rpResponse.response.trim();
+                System.out.println("[AI Assistant] Chat response: " + msg);
+
+                Minecraft mc = Minecraft.getInstance();
+                mc.execute(() -> {
+                    if (mc.player != null) {
+                        mc.player.displayClientMessage(Component.literal("[AI] " + msg), false);
+                    }
+                });
+            } else {
+                System.out.println("[AI Assistant] Chat response is null or empty!");
             }
         }).exceptionally(ex -> {
             System.out.println("[AI Assistant] Chat request failed: " + ex);

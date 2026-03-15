@@ -1,43 +1,68 @@
 import os
+import re
 from typing import Optional
 import logging
 from groq import Groq
+from openai import OpenAI as OllamaClient
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 
 logger = logging.getLogger(__name__)
 
-# Thread pool for blocking Groq API calls
+OLLAMA_BASE_URL = "http://localhost:11434/v1"
+
+# Thread pool for blocking LLM API calls
 _executor = ThreadPoolExecutor(max_workers=2)
 
 
+def _strip_thinking(text: str) -> str:
+    """Strip <think>...</think> reasoning blocks from LLM output (Qwen3 etc.)."""
+    cleaned = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
+    return cleaned.strip()
+
+
 class GroqClient:
-    """Wrapper for Groq API calls with context about Minecraft game state."""
+    """Wrapper for LLM API calls (Groq or Ollama) with Minecraft game state context."""
 
     def __init__(self, llm_config=None):
         self.api_key = os.getenv("GROQ_API_KEY")
         self.client = None
         self.llm_config = llm_config
         self.model = None
-        
-        # Set model from config if provided, otherwise use default
+        self.provider = "groq"  # default
+
         if llm_config:
             self.model = llm_config.get_model_name()
+            active = llm_config.get_active_model()
+            self.provider = getattr(active, "provider", "groq")
         else:
-            self.model = "llama-3.1-8b-instant"  # Fallback default
-        
-        if self.api_key:
+            self.model = "llama-3.1-8b-instant"
+
+        if self.provider == "ollama":
             try:
-                self.client = Groq(api_key=self.api_key)
-                logger.info(f"Initialized Groq client with model: {self.model}")
+                self.client = OllamaClient(base_url=OLLAMA_BASE_URL, api_key="ollama")
+                print(f"[LLM] Using Ollama | model: {self.model} | url: {OLLAMA_BASE_URL}")
+                logger.info(f"Initialized Ollama client with model: {self.model}")
             except Exception as e:
-                logger.error(f"Failed to initialize Groq client: {e}")
+                logger.error(f"Failed to initialize Ollama client: {e}")
                 self.client = None
         else:
-            logger.warning("GROQ_API_KEY not set")
+            if self.api_key:
+                try:
+                    self.client = Groq(api_key=self.api_key)
+                    print(f"[LLM] Using Groq | model: {self.model}")
+                    logger.info(f"Initialized Groq client with model: {self.model}")
+                except Exception as e:
+                    logger.error(f"Failed to initialize Groq client: {e}")
+                    self.client = None
+            else:
+                print("[LLM] WARNING: GROQ_API_KEY not set — Groq unavailable")
+                logger.warning("GROQ_API_KEY not set")
 
     def is_available(self) -> bool:
-        """Check if Groq API is configured and ready."""
+        """Check if LLM API is configured and ready."""
+        if self.provider == "ollama":
+            return self.client is not None
         return self.client is not None and self.api_key is not None
 
     def _get_max_tokens(self) -> int:
@@ -110,7 +135,7 @@ Provide only the role-play response, nothing else."""
             api_params["messages"] = [{"role": "user", "content": prompt}]
             
             message = self.client.chat.completions.create(**api_params)
-            tip = message.choices[0].message.content.strip()
+            tip = _strip_thinking(message.choices[0].message.content)
             return tip if tip else None
         except Exception as e:
             logger.error(f"Groq API error: {e}")
@@ -153,7 +178,7 @@ Respond only with the RP response, nothing else."""
             api_params["messages"] = [{"role": "user", "content": prompt}]
             
             message = self.client.chat.completions.create(**api_params)
-            response = message.choices[0].message.content.strip()
+            response = _strip_thinking(message.choices[0].message.content)
             return response if response else None
         except Exception as e:
             logger.error(f"Groq chat API error: {e}")

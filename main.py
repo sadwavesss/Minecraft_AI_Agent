@@ -46,6 +46,10 @@ async def admin_logs_page():
 async def admin_settings_page():
     return FileResponse(BASE_DIR / "static" / "settings.html")
 
+@app.get("/admin/responses")
+async def admin_responses_page():
+    return FileResponse(BASE_DIR / "static" / "responses.html")
+
 @app.get("/")
 async def root():
     return {"message": "Admin panel at /admin"}

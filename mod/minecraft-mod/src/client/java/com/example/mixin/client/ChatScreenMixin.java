@@ -13,6 +13,6 @@ public class ChatScreenMixin {
     // Try to inject at return point of onClose/init to detect when user sends message
     @Inject(at = @At("HEAD"), method = "tick")
     private void onTick(CallbackInfo info) {
-        System.out.println("[AI Assistant] ChatScreenMixin.onTick called");
+        // no-op: tick injection retained for mixin compatibility
     }
 }

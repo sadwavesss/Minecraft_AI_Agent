@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ответы LLM — AI Assistant</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <a href="/admin">Логи</a>
+            <a href="/admin/responses" class="nav-active">Ответы LLM</a>
+            <a href="/admin/settings">Настройки</a>
+        </nav>
+
+        <div class="responses-container">
+            <div class="filters">
+                <div class="model-status" id="modelStatus">
+                    <span class="model-label">Модель:</span>
+                    <span id="modelName" class="model-badge">…</span>
+                    <span id="modelProvider" class="provider-badge">…</span>
+                </div>
+                <div class="filter-right">
+                    <select id="sourceFilter">
+                        <option value="">Все источники</option>
+                        <option value="groq">Groq</option>
+                        <option value="chat">Chat</option>
+                        <option value="fallback">Fallback</option>
+                    </select>
+                    <button id="clearBtn" class="btn-secondary" onclick="clearDisplay()">Очистить</button>
+                    <div class="ws-indicator" id="wsIndicator" title="WebSocket статус"></div>
+                </div>
+            </div>
+
+            <div id="responsesList" class="responses-list">
+                <div class="empty-state">Ожидание ответов LLM…</div>
+            </div>
+        </div>
+    </div>
+    <script src="/frontend/js/responses.js"></script>
+</body>
+</html>

@@ -1,4 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, WebSocket
+from fastapi.encoders import jsonable_encoder
+from starlette.websockets import WebSocketDisconnect
 from typing import Any, Dict, List, Optional, Set
 import os
 from dotenv import load_dotenv
@@ -27,6 +29,37 @@ _last_rp_response_time = 0
 _last_rp_response = None
 _min_interval_seconds = 20  # Default 20 seconds between routine RP responses
 _processed_log_ids: Set[int] = set()  # Track which logs we've responded to
+
+# Response history for the admin panel
+_response_history: List[Dict[str, Any]] = []
+MAX_RESPONSE_HISTORY = 200
+_response_ws_clients: List[WebSocket] = []
+
+
+def _add_to_history(response: Dict[str, Any], player_message: Optional[str] = None) -> Dict[str, Any]:
+    entry = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "response": response.get("response", ""),
+        "source": response.get("source", "unknown"),
+        "level": response.get("level", "INFO"),
+        "confidence": response.get("confidence", 0.0),
+        "player_message": player_message,
+    }
+    _response_history.append(entry)
+    if len(_response_history) > MAX_RESPONSE_HISTORY:
+        _response_history.pop(0)
+    return entry
+
+
+async def _broadcast_response(entry: Dict[str, Any]):
+    dead = []
+    for ws in _response_ws_clients:
+        try:
+            await ws.send_json(jsonable_encoder(entry))
+        except Exception:
+            dead.append(ws)
+    for ws in dead:
+        _response_ws_clients.remove(ws)
 
 
 def _safe_last_log() -> Optional[Any]:
@@ -317,9 +350,10 @@ async def get_rp_response() -> GroqAdvice:
             if _should_send_response(is_critical=is_critical) and _has_situation_changed(current_response):
                 _last_rp_response_time = time.time()
                 _last_rp_response = current_response
+                entry = _add_to_history(current_response)
+                await _broadcast_response(entry)
                 return GroqAdvice(**current_response)
             elif _last_rp_response:
-                # Return last response if rate-limited or no change
                 return GroqAdvice(**_last_rp_response)
 
     # Fallback to rule-based logic if Groq is unavailable or fails
@@ -329,14 +363,17 @@ async def get_rp_response() -> GroqAdvice:
     if _should_send_response(is_critical=is_critical) and _has_situation_changed(current_response):
         _last_rp_response_time = time.time()
         _last_rp_response = current_response
+        entry = _add_to_history(current_response)
+        await _broadcast_response(entry)
         return GroqAdvice(**current_response)
     elif _last_rp_response:
-        # Return last response if rate-limited or no change
         return GroqAdvice(**_last_rp_response)
     
     # First response (no previous response)
     _last_rp_response_time = time.time()
     _last_rp_response = current_response
+    entry = _add_to_history(current_response)
+    await _broadcast_response(entry)
     return GroqAdvice(**current_response)
 
 
@@ -385,13 +422,16 @@ async def player_chat_message(message: ChatMessage) -> GroqAdvice:
             
             threats = getattr(last, "threats_detected", None) or [] if last else []
             level = _determine_severity_level(last, threats) if last else "INFO"
-            return GroqAdvice(
+            result = GroqAdvice(
                 response=_format_rp_response(llm_response),
                 confidence=0.9,
                 level=level,
                 threats=threats,
                 source="chat",
             )
+            entry = _add_to_history(result.model_dump(), player_message=text)
+            await _broadcast_response(entry)
+            return result
         else:
             logger.warning("[Chat] LLM returned None")
             print("[AI Assistant API] LLM returned None")
@@ -400,13 +440,16 @@ async def player_chat_message(message: ChatMessage) -> GroqAdvice:
         print("[AI Assistant API] Groq client not available")
     
     # Fallback response
-    return GroqAdvice(
+    fallback = GroqAdvice(
         response="[RP] Интересное мнение, друже!",
         confidence=0.5,
         level="INFO",
         threats=[],
         source="fallback",
     )
+    entry = _add_to_history(fallback.model_dump(), player_message=text)
+    await _broadcast_response(entry)
+    return fallback
 
 
 @router.get("/models/available")
@@ -455,3 +498,24 @@ async def switch_llm_model(model_type: str) -> Dict[str, Any]:
             "message": str(e),
             "available_models": get_available_models()
         }
+
+
+@router.get("/history")
+async def get_response_history(limit: int = 100) -> List[Dict[str, Any]]:
+    """Get LLM response history (newest first)."""
+    return list(reversed(_response_history[-max(1, limit):]))
+
+
+@router.websocket("/ws")
+async def responses_websocket(websocket: WebSocket):
+    """WebSocket for real-time LLM response updates."""
+    await websocket.accept()
+    _response_ws_clients.append(websocket)
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        pass
+    finally:
+        if websocket in _response_ws_clients:
+            _response_ws_clients.remove(websocket)
