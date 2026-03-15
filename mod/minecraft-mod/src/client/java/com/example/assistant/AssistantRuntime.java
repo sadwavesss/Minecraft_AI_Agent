@@ -29,6 +29,10 @@ public final class AssistantRuntime {
     private long lastNightTick;
     private long lastNearHostileTick;
 
+    private float lastKnownHealth = 20.0f;
+    private long lastDeathTick = -1000;
+    private static final long DEATH_COOLDOWN_TICKS = 1200;
+
     private boolean wasNight;
 
     private String lastAdviceShown;
@@ -53,10 +57,12 @@ public final class AssistantRuntime {
 
         localTick += 1;
 
+        checkForDeath(client);
+
         if (!startupDone) {
             startupDone = true;
             sendStartup(client);
-            pullAdviceAndShow(client);
+            pullRPAndShow(client);
         }
 
         sendTickCountdown -= 1;
@@ -79,7 +85,7 @@ public final class AssistantRuntime {
 
         if (adviceTickCountdown <= 0) {
             adviceTickCountdown = Math.max(1, cfg.adviceIntervalTicks);
-            pullAdviceAndShow(client);
+            pullRPAndShow(client);
         }
     }
 
@@ -104,7 +110,7 @@ public final class AssistantRuntime {
         }
 
         // hunger_low (throttle ~ 15s)
-        if (food <= 6 && (localTick - lastHungerLowTick) >= 300) {
+        if (food <= 8 && (localTick - lastHungerLowTick) >= 300) {
             lastHungerLowTick = localTick;
 
             Map<String, Object> payload = new HashMap<>();
@@ -210,13 +216,13 @@ public final class AssistantRuntime {
         http.postLog(payload);
     }
 
-    private void pullAdviceAndShow(Minecraft client) {
-        http.getAdvice().thenAccept(advice -> {
-            if (advice == null || advice.advice == null || advice.advice.isBlank()) {
+    private void pullRPAndShow(Minecraft client) {
+        http.getRP().thenAccept(rpResponse -> {
+            if (rpResponse == null || rpResponse.response == null || rpResponse.response.isBlank()) {
                 return;
             }
 
-            String msg = advice.advice.trim();
+            String msg = rpResponse.response.trim();
             if (msg.equals(lastAdviceShown)) {
                 return;
             }
@@ -227,8 +233,34 @@ public final class AssistantRuntime {
                 if (client.player == null) {
                     return;
                 }
-                client.player.displayClientMessage(Component.literal("[AI] " + msg), true);
+                // Display in chat (false) instead of action bar (true)
+                client.player.displayClientMessage(Component.literal("[AI] " + msg), false);
             });
+        });
+    }
+
+    public void sendChatMessage(String text) {
+        if (text == null || text.isBlank()) {
+            System.out.println("[AI Assistant] sendChatMessage: text is null or blank");
+            return;
+        }
+
+        System.out.println("[AI Assistant] sendChatMessage called with: " + text);
+        
+        http.sendChat(text).thenAccept(rpResponse -> {
+            System.out.println("[AI Assistant] Chat response received: " + (rpResponse != null ? "not null" : "null"));
+            
+            // Chat response is auto-displayed by the mod event system
+            // This is just for logging/tracking
+            if (rpResponse != null && rpResponse.response != null) {
+                System.out.println("[AI Assistant] Chat response: " + rpResponse.response);
+            } else if (rpResponse != null) {
+                System.out.println("[AI Assistant] Chat response is null!");
+            }
+        }).exceptionally(ex -> {
+            System.out.println("[AI Assistant] Chat request failed: " + ex);
+            ex.printStackTrace();
+            return null;
         });
     }
 
@@ -253,5 +285,46 @@ public final class AssistantRuntime {
 
             runtimeSendIntervalTicks = ticks;
         });
+    }
+
+    private void checkForDeath(Minecraft client) {
+        if (client.player == null) {
+            return;
+        }
+
+        float currentHealth = client.player.getHealth();
+
+        if (lastKnownHealth > 0.0f && currentHealth <= 0.0f) {
+            if ((localTick - lastDeathTick) >= DEATH_COOLDOWN_TICKS) {
+                lastDeathTick = localTick;
+                sendDeathEvent(client);
+            }
+        }
+
+        lastKnownHealth = currentHealth;
+    }
+
+    private void sendDeathEvent(Minecraft client) {
+        String cause = "unknown";
+        try {
+            if (client.player.getLastDamageSource() != null) {
+                cause = client.player.getLastDamageSource().getMsgId();
+            }
+        } catch (Exception e) {
+            System.out.println("[AI Assistant] Error getting death cause: " + e);
+        }
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("event_type", "death");
+        Map<String, Object> eventData = new HashMap<>();
+        eventData.put("cause", cause);
+        payload.put("event_data", eventData);
+        payload.put("level", "ERROR");
+        payload.put("message", "death: cause=" + cause);
+        payload.put("player_health", 0.0);
+
+        http.postLog(payload);
+
+        System.out.println("[AI Assistant] Death detected: " + cause);
     }
 }

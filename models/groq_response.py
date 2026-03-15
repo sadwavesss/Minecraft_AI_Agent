@@ -3,11 +3,16 @@ from typing import Optional
 
 
 class GroqAdvice(BaseModel):
-    """Response model for LLM-generated advice."""
+    """Response model for LLM-generated RP response."""
 
-    advice: str
+    response: str
     confidence: float
     level: str  # INFO, WARNING, CRITICAL
     threats: list = []
     source: str = "groq"  # Indicates this came from Groq LLM
-    fallback: bool = False  # True if using fallback advice due to API error
+    fallback: bool = False  # True if using fallback response due to API error
+
+
+class ChatMessage(BaseModel):
+    """Chat message from player."""
+    text: str

@@ -1,0 +1,28 @@
+{
+  "model_type": "llama",
+  "models": {
+    "qwen": {
+      "name": "qwen/qwen3-32b",
+      "provider": "groq",
+      "description": "Fast and capable Qwen model",
+      "parameters": {
+        "max_tokens": 100,
+        "temperature": 0.7,
+        "reasoning_effort": "none"
+      }
+    },
+    "llama": {
+      "name": "llama-3.1-8b-instant",
+      "provider": "groq",
+      "description": "Fast Llama 3.1 8B instant model",
+      "parameters": {
+        "max_tokens": 100,
+        "temperature": 0.8
+      }
+    }
+  },
+  "prompts": {
+    "state_based": "You are a role-playing Minecraft game companion. Based on the player's recent game state, provide a SHORT (1-2 sentences) humorous or sarcastic response in Russian.\n\nRecent game events:\n{context}\n\nRules:\n- Keep it SHORT (max 1-2 sentences)\n- Be SPECIFIC to what's happening\n- Use Russian language\n\nProvide only the role-play response, nothing else.",
+    "chat_based": "You are a role-playing Minecraft game companion talking to a player. The player just said:\n\"{player_message}\"\n\nCurrent game context:\n{context}\n\nRespond in character as a helpful, humorous companion in Russian. Keep it SHORT (1 sentence max).\nRespond only with the RP response, nothing else."
+  }
+}

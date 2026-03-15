@@ -1,5 +1,6 @@
 let ws = null;
 let reconnectTimer = null;
+const MAX_DISPLAY_LOGS = 50;  // Limit to prevent page overflow
 
 async function loadLogs() {
     const level = document.getElementById('levelFilter').value;
@@ -12,15 +13,24 @@ async function loadLogs() {
     displayLogs(logs);
 }
 
+function truncateMessage(message, maxLength = 120) {
+    if (typeof message !== 'string') return '';
+    if (message.length <= maxLength) return message;
+    return message.substring(0, maxLength) + '...';
+}
+
 function displayLogs(logs) {
     const container = document.getElementById('logsList');
-    container.innerHTML = logs.map(log => `
+    // Limit to most recent logs to prevent page overflow
+    const displayLogs = logs.slice(-MAX_DISPLAY_LOGS);
+    
+    container.innerHTML = displayLogs.map(log => `
         <div class="log-entry level-${log.level.toLowerCase()}">
             <div class="log-header">
                 <span class="timestamp">${new Date(log.timestamp).toLocaleString()}</span>
                 <span class="level">${log.level}</span>
             </div>
-            <div class="log-message">${log.message}</div>
+            <div class="log-message" title="${log.message}">${truncateMessage(log.message, 120)}</div>
             ${log.threats_detected ? 
                 `<div class="threats">Угрозы: ${log.threats_detected.map(t => t.type).join(', ')}</div>` : ''}
             ${log.confidence ? `<div class="confidence">Точность: ${(log.confidence*100).toFixed(1)}%</div>` : ''}
@@ -61,9 +71,14 @@ function prependLog(log) {
             <span class="timestamp">${new Date(log.timestamp).toLocaleString()}</span>
             <span class="level">${log.level}</span>
         </div>
-        <div class="log-message">${log.message}</div>
+        <div class="log-message" title="${log.message}">${truncateMessage(log.message, 120)}</div>
     `;
     container.insertBefore(entry, container.firstChild);
+    
+    // Remove old logs if too many (keep only MAX_DISPLAY_LOGS)
+    while (container.children.length > MAX_DISPLAY_LOGS) {
+        container.removeChild(container.lastChild);
+    }
 }
 
 loadLogs();

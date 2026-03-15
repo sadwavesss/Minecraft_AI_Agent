@@ -6,8 +6,13 @@ from fastapi.responses import FileResponse
 from pathlib import Path
 from api import logs, settings
 from api import advice
+from api.llm_config_manager import get_llm_config
 
 app = FastAPI(title="AI Assistant Admin")
+
+# Initialize LLM config
+llm_config = get_llm_config()
+print(f"[LLM Config] Loaded model: {llm_config.model_type}")
 
 
 @app.exception_handler(RequestValidationError)

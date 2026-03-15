@@ -2,38 +2,84 @@ import os
 from typing import Optional
 import logging
 from groq import Groq
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
 logger = logging.getLogger(__name__)
+
+# Thread pool for blocking Groq API calls
+_executor = ThreadPoolExecutor(max_workers=2)
 
 
 class GroqClient:
     """Wrapper for Groq API calls with context about Minecraft game state."""
 
-    def __init__(self):
+    def __init__(self, llm_config=None):
         self.api_key = os.getenv("GROQ_API_KEY")
         self.client = None
-        self.model = "mixtral-8x7b-32768"
+        self.llm_config = llm_config
+        self.model = None
+        
+        # Set model from config if provided, otherwise use default
+        if llm_config:
+            self.model = llm_config.get_model_name()
+        else:
+            self.model = "llama-3.1-8b-instant"  # Fallback default
         
         if self.api_key:
             try:
                 self.client = Groq(api_key=self.api_key)
+                logger.info(f"Initialized Groq client with model: {self.model}")
             except Exception as e:
                 logger.error(f"Failed to initialize Groq client: {e}")
                 self.client = None
+        else:
+            logger.warning("GROQ_API_KEY not set")
 
     def is_available(self) -> bool:
         """Check if Groq API is configured and ready."""
         return self.client is not None and self.api_key is not None
 
+    def _get_max_tokens(self) -> int:
+        """Get max tokens from config or default."""
+        if self.llm_config:
+            return self.llm_config.get_parameter("max_tokens", 100)
+        return 100
+
+    def _get_temperature(self) -> float:
+        """Get temperature from config or default."""
+        if self.llm_config:
+            return self.llm_config.get_parameter("temperature", 0.7)
+        return 0.7
+
+    def _build_api_params(self) -> dict:
+        """Build API parameters based on model config."""
+        params = {
+            "model": self.model,
+            "max_tokens": self._get_max_tokens(),
+            "messages": [],  # Will be set by caller
+        }
+        
+        # Add temperature if it exists
+        if self.llm_config and self.llm_config.has_parameter("temperature"):
+            params["temperature"] = self._get_temperature()
+        
+        # Add reasoning_effort if it exists (only for Qwen)
+        if self.llm_config and self.llm_config.has_parameter("reasoning_effort"):
+            params["reasoning_effort"] = self.llm_config.get_parameter("reasoning_effort")
+        
+        return params
+
     def generate_tip(self, recent_logs: list) -> Optional[str]:
         """
-        Generate a short tip based on recent game state logs.
+        Generate a role-play response based on recent game state logs.
+        BLOCKING - should be called from thread pool!
 
         Args:
             recent_logs: List of recent LogEntry objects (last 5 events)
 
         Returns:
-            Short tip string or None if API call fails
+            Short RP response string or None if API call fails
         """
         if not self.is_available():
             return None
@@ -41,7 +87,12 @@ class GroqClient:
         # Format recent logs into a context string
         context = self._format_logs_context(recent_logs)
 
-        prompt = f"""You are a helpful Minecraft game assistant. Based on the player's recent game state, provide a SHORT (1-2 sentences) and ACTIONABLE tip in Russian.
+        # Get prompt template from config
+        if self.llm_config:
+            prompt_template = self.llm_config.get_state_prompt_template()
+            prompt = prompt_template.format(context=context)
+        else:
+            prompt = f"""You are a role-playing Minecraft game companion. Based on the player's recent game state, provide a SHORT (1-2 sentences) humorous or sarcastic response in Russian.
 
 Recent game events:
 {context}
@@ -49,22 +100,101 @@ Recent game events:
 Rules:
 - Keep it SHORT (max 1-2 sentences)
 - Be SPECIFIC to what's happening
-- Include what the player should DO (actionable)
 - Use Russian language
-- Focus on survival and safety
 
-Provide only the tip, nothing else."""
+Provide only the role-play response, nothing else."""
 
         try:
-            message = self.client.messages.create(
-                model=self.model,
-                max_tokens=100,
-                messages=[{"role": "user", "content": prompt}],
-            )
-            tip = message.content[0].text.strip()
+            # Build API parameters based on model configuration
+            api_params = self._build_api_params()
+            api_params["messages"] = [{"role": "user", "content": prompt}]
+            
+            message = self.client.chat.completions.create(**api_params)
+            tip = message.choices[0].message.content.strip()
             return tip if tip else None
         except Exception as e:
             logger.error(f"Groq API error: {e}")
+            return None
+
+    def generate_chat_response(self, player_message: str, recent_logs: list) -> Optional[str]:
+        """
+        Generate a role-play response to player's chat message.
+        BLOCKING - should be called from thread pool!
+
+        Args:
+            player_message: The player's chat message
+            recent_logs: List of recent LogEntry objects (last 5 events)
+
+        Returns:
+            RP response to player's message or None if API call fails
+        """
+        if not self.is_available():
+            return None
+
+        context = self._format_logs_context(recent_logs)
+
+        # Get prompt template from config
+        if self.llm_config:
+            prompt_template = self.llm_config.get_chat_prompt_template()
+            prompt = prompt_template.format(player_message=player_message, context=context)
+        else:
+            prompt = f"""You are a role-playing Minecraft game companion talking to a player. The player just said:
+"{player_message}"
+
+Current game context:
+{context}
+
+Respond in character as a helpful, humorous companion in Russian. Keep it SHORT (1 sentence max).
+Respond only with the RP response, nothing else."""
+
+        try:
+            # Build API parameters based on model configuration
+            api_params = self._build_api_params()
+            api_params["messages"] = [{"role": "user", "content": prompt}]
+            
+            message = self.client.chat.completions.create(**api_params)
+            response = message.choices[0].message.content.strip()
+            return response if response else None
+        except Exception as e:
+            logger.error(f"Groq chat API error: {e}")
+            return None
+
+    async def generate_tip_async(self, recent_logs: list) -> Optional[str]:
+        """
+        Async wrapper for generate_tip that doesn't block the event loop.
+        
+        Args:
+            recent_logs: List of recent LogEntry objects
+            
+        Returns:
+            Short RP response string or None if API call fails
+        """
+        try:
+            # Run blocking call in thread pool
+            loop = asyncio.get_event_loop()
+            tip = await loop.run_in_executor(_executor, self.generate_tip, recent_logs)
+            return tip
+        except Exception as e:
+            logger.error(f"Async generate_tip error: {e}")
+            return None
+
+    async def generate_chat_response_async(self, player_message: str, recent_logs: list) -> Optional[str]:
+        """
+        Async wrapper for generate_chat_response that doesn't block the event loop.
+        
+        Args:
+            player_message: The player's chat message
+            recent_logs: List of recent LogEntry objects
+            
+        Returns:
+            RP response or None if API call fails
+        """
+        try:
+            loop = asyncio.get_event_loop()
+            response = await loop.run_in_executor(_executor, self.generate_chat_response, player_message, recent_logs)
+            return response
+        except Exception as e:
+            logger.error(f"Async generate_chat_response error: {e}")
             return None
 
     def _format_logs_context(self, recent_logs: list) -> str:

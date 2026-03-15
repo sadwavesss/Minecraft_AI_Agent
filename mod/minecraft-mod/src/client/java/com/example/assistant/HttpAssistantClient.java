@@ -86,9 +86,9 @@ public final class HttpAssistantClient {
                 });
     }
 
-    public CompletableFuture<AdviceResponse> getAdvice() {
+    public CompletableFuture<RPResponse> getRP() {
         HttpRequest req = HttpRequest.newBuilder()
-                .uri(URI.create(baseUrl() + "/api/advice/"))
+                .uri(URI.create(baseUrl() + "/api/rp/"))
                 .timeout(Duration.ofSeconds(5))
                 .GET()
                 .build();
@@ -97,25 +97,67 @@ public final class HttpAssistantClient {
                 .thenApply(resp -> {
                     int code = resp.statusCode();
                     if (code < 200 || code >= 300) {
-                        System.out.println("[AI Assistant] GET /api/advice/ failed: HTTP " + code);
+                        System.out.println("[AI Assistant] GET /api/rp/ failed: HTTP " + code);
                         return null;
                     }
 
                     try {
-                        return GSON.fromJson(resp.body(), AdviceResponse.class);
+                        return GSON.fromJson(resp.body(), RPResponse.class);
                     } catch (Exception e) {
-                        System.out.println("[AI Assistant] GET /api/advice/ parse error: " + e);
+                        System.out.println("[AI Assistant] GET /api/rp/ parse error: " + e);
                         return null;
                     }
                 })
                 .exceptionally(ex -> {
-                    System.out.println("[AI Assistant] GET /api/advice/ exception: " + ex);
+                    System.out.println("[AI Assistant] GET /api/rp/ exception: " + ex);
                     return null;
                 });
     }
 
-    public static final class AdviceResponse {
-        public String advice;
+    public CompletableFuture<RPResponse> sendChat(String text) {
+        System.out.println("[AI Assistant] HttpAssistantClient.sendChat called with: " + text);
+        
+        Map<String, String> payload = Map.of("text", text);
+        String json = GSON.toJson(payload);
+        byte[] body = json.getBytes(StandardCharsets.UTF_8);
+        
+        System.out.println("[AI Assistant] Sending to: " + baseUrl() + "/api/rp/chat");
+        System.out.println("[AI Assistant] Payload: " + json);
+
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create(baseUrl() + "/api/rp/chat"))
+                .timeout(Duration.ofSeconds(5))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofByteArray(body))
+                .build();
+
+        return http.sendAsync(req, HttpResponse.BodyHandlers.ofString())
+                .thenApply(resp -> {
+                    int code = resp.statusCode();
+                    System.out.println("[AI Assistant] POST /api/rp/chat response code: " + code);
+                    
+                    if (code < 200 || code >= 300) {
+                        System.out.println("[AI Assistant] POST /api/rp/chat failed: HTTP " + code);
+                        System.out.println("[AI Assistant] Response body: " + resp.body());
+                        return null;
+                    }
+
+                    try {
+                        return GSON.fromJson(resp.body(), RPResponse.class);
+                    } catch (Exception e) {
+                        System.out.println("[AI Assistant] POST /api/rp/chat parse error: " + e);
+                        return null;
+                    }
+                })
+                .exceptionally(ex -> {
+                    System.out.println("[AI Assistant] POST /api/rp/chat exception: " + ex);
+                    ex.printStackTrace();
+                    return null;
+                });
+    }
+
+    public static final class RPResponse {
+        public String response;
         public double confidence;
         public String level;
     }
