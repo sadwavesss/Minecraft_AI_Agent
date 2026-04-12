@@ -28,6 +28,7 @@ AI-ассистент для Minecraft, работающий в реальном
       |-- api/groq_client.py     — обёртка над Groq API / Ollama
       |-- api/llm_config_manager.py — загрузка llm_config.json
       |-- api/settings.py        — настройки сервера
+      |-- api/analytics.py       — послематчевая аналитика
       v
    LLM (Groq API или Ollama локально)
 ```
@@ -51,7 +52,8 @@ D:\KP MC ASSISTANT\
 │   ├── groq_client.py             — GroqClient: Groq API + Ollama (openai-совместимый)
 │   ├── llm_config_manager.py      — загрузка/сохранение llm_config.json
 │   ├── logs.py                    — /api/logs/ роутер, in-memory logs_db
-│   └── settings.py                — /api/settings/ роутер
+│   ├── settings.py                — /api/settings/ роутер
+│   └── analytics.py               — /api/analytics/ аналитика после сессии
 │
 ├── models/
 │   ├── groq_response.py           — GroqAdvice (ответ LLM), ChatMessage (сообщение игрока)
@@ -113,8 +115,10 @@ D:\KP MC ASSISTANT\
 | POST | `/api/rp/models/switch` | Сменить активную модель |
 | GET | `/api/settings/` | Получить настройки |
 | POST | `/api/settings/` | Обновить настройки |
+| GET | `/api/analytics/session_summary` | Получить сгенерированный LLM тактический отчет сессии |
 | GET | `/admin` | Веб-панель администратора (логи) |
 | GET | `/admin/responses` | Веб-панель ответов LLM (live) |
+| GET | `/admin/analytics` | Веб-панель аналитики после матча |
 | GET | `/admin/settings` | Веб-панель настроек |
 
 ---
