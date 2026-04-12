@@ -247,3 +247,61 @@ Respond only with the RP response, nothing else."""
                 lines.append(f"- Threats detected: {len(threats)} active")
 
         return "\n".join(lines) if lines else "No recent events recorded."
+
+    def generate_analytics(self, session_summary: dict) -> Optional[str]:
+        """
+        Generate post-match tactical analysis based on session summary.
+        BLOCKING - should be called from thread pool!
+
+        Args:
+            session_summary: Dict containing aggregated session stats
+
+        Returns:
+            Detailed markdown response with tactical analysis or None if fails
+        """
+        if not self.is_available():
+            return None
+
+        prompt = f"""You are an elite eSports coach and Minecraft tactical analyst.
+The player has just finished a game session. Here is their performance summary:
+
+Total Logs Analyzed: {session_summary.get('total_logs', 0)}
+Deaths: {session_summary.get('deaths', 0)}
+Low Health Warnings: {session_summary.get('low_health_warnings', 0)}
+Hostile Encounters: {session_summary.get('hostile_encounters', 0)}
+
+Significant events timeline:
+{chr(10).join(session_summary.get('timeline', []))}
+
+Provide a highly engaging, structured tactical review in Russian.
+Include:
+1. Оценка выживаемости (Survival Rating)
+2. Главные ошибки (Critical Mistakes)
+3. Советы на следующую сессию (Tips for next session)
+Format using markdown for readability."""
+
+        try:
+            api_params = self._build_api_params()
+            # We bypass max_tokens here for a full report if it's set too low for tips
+            original_max_tokens = api_params.get("max_tokens", 100)
+            if original_max_tokens < 500:
+                api_params["max_tokens"] = 800
+
+            api_params["messages"] = [{"role": "user", "content": prompt}]
+            
+            message = self.client.chat.completions.create(**api_params)
+            response = _strip_thinking(message.choices[0].message.content)
+            return response if response else None
+        except Exception as e:
+            logger.error(f"Groq analytics API error: {e}")
+            return None
+
+    async def generate_analytics_async(self, session_summary: dict) -> Optional[str]:
+        """Async wrapper for generate_analytics."""
+        try:
+            loop = asyncio.get_event_loop()
+            response = await loop.run_in_executor(_executor, self.generate_analytics, session_summary)
+            return response
+        except Exception as e:
+            logger.error(f"Async generate_analytics error: {e}")
+            return None

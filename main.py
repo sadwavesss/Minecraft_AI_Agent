@@ -6,6 +6,7 @@ from fastapi.responses import FileResponse
 from pathlib import Path
 from api import logs, settings
 from api import advice
+from api import analytics
 from api.llm_config_manager import get_llm_config
 
 app = FastAPI(title="AI Assistant Admin")
@@ -29,6 +30,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 app.include_router(logs.router)
 app.include_router(settings.router)
 app.include_router(advice.router)
+app.include_router(analytics.router)
 
 # Статические файлы
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -49,6 +51,10 @@ async def admin_settings_page():
 @app.get("/admin/responses")
 async def admin_responses_page():
     return FileResponse(BASE_DIR / "static" / "responses.html")
+
+@app.get("/admin/analytics")
+async def admin_analytics_page():
+    return FileResponse(BASE_DIR / "static" / "analytics.html")
 
 @app.get("/")
 async def root():
