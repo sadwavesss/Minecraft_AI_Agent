@@ -305,3 +305,61 @@ Format using markdown for readability."""
         except Exception as e:
             logger.error(f"Async generate_analytics error: {e}")
             return None
+
+    def search_crafting_recipe(self, query: str) -> Optional[dict]:
+        """
+        Uses LLM to search for a Minecraft crafting recipe and returns structured JSON representing a 3x3 grid.
+        BLOCKING - should be called from thread pool!
+        """
+        if not self.is_available():
+            return None
+
+        prompt = f"""You are a perfect Minecraft Wiki. The user is asking to craft: "{query}".
+Respond ONLY with a valid JSON object representing the 3x3 crafting grid. Do NOT wrap it in markdown blockquotes like ```json.
+Format:
+{{
+  "name": "Название предмета на русском",
+  "description": "Коротко как применяется",
+  "grid": [
+    ["пусто", "пусто", "пусто"],
+    ["пусто", "пусто", "пусто"],
+    ["пусто", "пусто", "пусто"]
+  ]
+}}
+Empty slots MUST be exactly the string "пусто". Fill the 3x3 array strictly.
+If the item doesn't exist or is uncraftable, set grid all "пусто" and write "Невозможно скрафтить" in description."""
+
+        try:
+            api_params = self._build_api_params()
+            api_params["messages"] = [{"role": "user", "content": prompt}]
+            # Disable temp for deterministic recipes
+            api_params["temperature"] = 0.0
+            
+            message = self.client.chat.completions.create(**api_params)
+            response = _strip_thinking(message.choices[0].message.content)
+            
+            # Clean up potential markdown formatting mistakenly left by LLM
+            import json
+            response = response.strip()
+            if response.startswith("```json"):
+                response = response[7:]
+            if response.startswith("```"):
+                response = response[3:]
+            if response.endswith("```"):
+                response = response[:-3]
+            response = response.strip()
+
+            return json.loads(response)
+        except Exception as e:
+            logger.error(f"Groq wiki API error: {e}")
+            return None
+
+    async def search_crafting_recipe_async(self, query: str) -> Optional[dict]:
+        """Async wrapper for search_crafting_recipe."""
+        try:
+            loop = asyncio.get_event_loop()
+            response = await loop.run_in_executor(_executor, self.search_crafting_recipe, query)
+            return response
+        except Exception as e:
+            logger.error(f"Async search_crafting_recipe error: {e}")
+            return None
