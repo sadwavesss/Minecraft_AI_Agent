@@ -8,7 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from backend.api.routes import router
-from backend.api.routes import start_services, stop_services
+from backend.core.container import container
+from backend.services.hotkey_service import hotkey_service
 
 OVERLAY_PROCESS = None
 
@@ -28,13 +29,15 @@ async def lifespan(app: FastAPI):
     OVERLAY_PROCESS = launch_overlay_process()
 
     print("[INFO] Инициализация захвата экрана и сервисов...")
-    start_services()
+    container.start_all()
+    hotkey_service.start()
     print("[SUCCESS] Все базовые сервисы запущены! Сервер готов.")
     
     yield
     
     print("[INFO] Остановка сервисов...")
-    stop_services()
+    hotkey_service.stop()
+    container.stop_all()
     
     if OVERLAY_PROCESS is not None:
         OVERLAY_PROCESS.terminate()
@@ -47,4 +50,5 @@ app.include_router(router, prefix="/api")
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("backend.main:app", host="0.0.0.0", port=8000, reload=True)
+    # log_level="warning" уберет сообщения о каждом GET/POST запросе
+    uvicorn.run("backend.main:app", host="0.0.0.0", port=8000, reload=True, log_level="warning")

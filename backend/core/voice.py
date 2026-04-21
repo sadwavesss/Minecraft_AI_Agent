@@ -49,11 +49,60 @@ class VoiceListener:
                 frames_per_buffer=1024
             )
             self.is_listening = True
-            print("[INFO] Микрофон активирован. Слушаю...")
-            threading.Thread(target=self._listen_loop, daemon=True).start()
+            self.recording_buffer = []
+            self.is_recording = False
+            print("[INFO] Микрофон активирован.")
+            # Фоновый поток теперь просто читает данные в буфер, если идет запись
+            threading.Thread(target=self._read_loop, daemon=True).start()
         except Exception as e:
             print(f"[ERROR] Не удалось активировать микрофон: {e}")
             self.is_listening = False
+
+    def start_recording(self):
+        if not self.is_recording:
+            self.is_recording = True
+            self.recording_buffer = []
+            print("[INFO] Запись голоса начата...")
+
+    def stop_recording(self):
+        if self.is_recording:
+            self.is_recording = False
+            if len(self.recording_buffer) > 4000:
+                audio_np = np.array(self.recording_buffer)
+                self._process_audio(audio_np)
+            self.recording_buffer = []
+
+    def _read_loop(self):
+        while self.is_listening:
+            try:
+                data = self.stream.read(1024, exception_on_overflow=False)
+                if self.is_recording:
+                    audio_data = np.frombuffer(data, dtype=np.int16).astype(np.float32) / 32768.0
+                    self.recording_buffer.extend(audio_data)
+            except Exception as e:
+                print(f"[ERROR] Audio read error: {e}")
+                break
+
+    def _process_audio(self, audio_np):
+        if not self.model_loaded:
+            print("[WAIT] Модель всё ещё загружается...")
+            return
+        
+        try:
+            segments, _ = self.model.transcribe(
+                audio_np, 
+                language="ru", 
+                beam_size=5,        # Исправлено на 1 для скорости
+                best_of=1,
+                vad_filter=True,
+                initial_prompt="Игровой помощник. Кратко."
+            )
+            
+            text = " ".join([seg.text for seg in segments]).strip()
+            if text and self.on_transcription:
+                self.on_transcription(text)
+        except Exception as e:
+            print(f"[ERROR] Transcription failed: {e}")
 
     def stop(self):
         self.is_listening = False
@@ -65,61 +114,3 @@ class VoiceListener:
                 pass
             self.stream = None
         print("[INFO] Микрофон остановлен.")
-
-    def _listen_loop(self):
-        buffer = []
-        silence_start = None
-        recording_started = False
-        
-        while self.is_listening:
-            data = self.stream.read(1024, exception_on_overflow=False)
-            audio_data = np.frombuffer(data, dtype=np.int16).astype(np.float32) / 32768.0
-            audio_data = audio_data * 1.5
-            rms = np.sqrt(np.mean(audio_data**2))
-
-            if rms > self.threshold:
-                buffer.extend(audio_data)
-                silence_start = None
-                recording_started = True
-            else:
-                if recording_started:
-                    if silence_start is None:
-                        silence_start = time.time()
-                    
-                    if time.time() - silence_start > self.silence_duration:
-                        # Сократили минимальный порог накопления для более быстрой реакции
-                        if len(buffer) > 4000: 
-                            audio_np = np.array(buffer)
-                            
-                            # САМЫЙ ВАЖНЫЙ БЛОК ДЛЯ СКОРОСТИ
-                            if not self.model_loaded:
-                                print("[WAIT] Модель всё ещё загружается, подождите немного...")
-                            else:
-                                segments, _ = self.model.transcribe(
-                                    audio_np, 
-                                    language="ru", 
-                                    beam_size=5,        # 1 вместо 5 (ускорение в 5 раз)
-                                    best_of=1,          # Не перебирать варианты
-                                    vad_filter=True,    # Внутренний VAD для очистки мусора
-                                    initial_prompt="Игровой помощник. Кратко." # Помогает базе не тупить
-                                )
-                                
-                                text = " ".join([seg.text for seg in segments]).strip()
-                                if text and self.on_transcription:
-                                    self.on_transcription(text)
-                        
-                        buffer = []
-                        recording_started = False
-                        silence_start = None
-                else:
-                    buffer = []
-class WhisperService:
-    def __init__(self, model_name=None, device=None):
-        self.model = WhisperModel(
-            model_name or settings.whisper_model, 
-            device=device or settings.whisper_device
-        )
-
-    def transcribe_file(self, filename: str):
-        segments, _ = self.model.transcribe(filename)
-        return " ".join([segment.text for segment in segments])

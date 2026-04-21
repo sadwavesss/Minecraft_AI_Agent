@@ -1,27 +1,29 @@
 # Ядро и API
-fastapi==0.110.0
-uvicorn==0.27.1
-google-generativeai==0.4.1
-pyyaml==6.0.1
+fastapi
+uvicorn
+google-generativeai
+pyyaml
 
 # Захват экрана и обработка изображений
-dxcam==0.0.5
-opencv-python==4.9.0.80
-Pillow==11.0.0
+dxcam
+opencv-python
+Pillow
 
 # Голос (STT и TTS)
-faster-whisper==1.0.1
-piper-tts==1.2.0
-PyAudio==0.2.14
+faster-whisper
+PyAudio
+torch
+torchaudio
+sounddevice
 
 # Интерфейс (Оверлей)
-PyQt6==6.6.1
-
-# Захват экрана fallback
-mss==8.0.0
+PyQt6
 
 # Утилиты
-numpy==2.1.0
-python-multipart==0.0.9
-pydantic-settings==2.2.1
-python-dotenv==1.0.1
+numpy
+python-multipart
+pydantic-settings
+python-dotenv
+chromadb
+pynput
+sentence-transformers
