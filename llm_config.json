@@ -12,9 +12,9 @@
       }
     },
     "llama": {
-      "name": "llama-3.1-8b-instant",
+      "name": "llama-3.3-70b-versatile",
       "provider": "groq",
-      "description": "Fast Llama 3.1 8B instant model",
+      "description": "Smart Llama 3.3 70B versatile model",
       "parameters": {
         "max_tokens": 100,
         "temperature": 0.8

@@ -314,11 +314,14 @@ Format using markdown for readability."""
         if not self.is_available():
             return None
 
-        prompt = f"""You are a perfect Minecraft Wiki. The user is asking to craft: "{query}".
-Respond ONLY with a valid JSON object representing the 3x3 crafting grid. Do NOT wrap it in markdown blockquotes like ```json.
+        prompt = f"""You are a perfect Minecraft Wiki for Java Edition version 1.20+. The user wants to craft: "{query}".
+First, identify this item in English and retrieve its exact standard Minecraft vanilla 3x3 crafting recipe.
+Then, translate the ingredients fully into Russian.
+Respond ONLY with a JSON object. Do not wrap it in ```json.
 Format:
 {{
-  "name": "Название предмета на русском",
+  "english_thought": "Step-by-step thinking about the English name and exact vanilla recipe layout",
+  "name": "Точное название предмета на русском",
   "description": "Коротко как применяется",
   "grid": [
     ["пусто", "пусто", "пусто"],
@@ -327,7 +330,7 @@ Format:
   ]
 }}
 Empty slots MUST be exactly the string "пусто". Fill the 3x3 array strictly.
-If the item doesn't exist or is uncraftable, set grid all "пусто" and write "Невозможно скрафтить" in description."""
+If the item is completely uncraftable (like Bedrock or Spawn Eggs), set grid all "пусто" and write "Невозможно скрафтить в выживании" in description."""
 
         try:
             api_params = self._build_api_params()
@@ -335,10 +338,17 @@ If the item doesn't exist or is uncraftable, set grid all "пусто" and write
             # Disable temp for deterministic recipes
             api_params["temperature"] = 0.0
             
+            # Increase max_tokens since JSON recipes and thinking take > 100 tokens
+            api_params["max_tokens"] = 500
+            
+            # Force JSON mode for better reliability (if using Groq SDK)
+            if "groq" in str(type(self.client)).lower():
+                api_params["response_format"] = {"type": "json_object"}
+            
             message = self.client.chat.completions.create(**api_params)
             response = _strip_thinking(message.choices[0].message.content)
             
-            # Clean up potential markdown formatting mistakenly left by LLM
+            # Clean up potential markdown formatting
             import json
             response = response.strip()
             if response.startswith("```json"):
