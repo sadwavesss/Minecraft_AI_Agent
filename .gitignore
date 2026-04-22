@@ -1,24 +1,53 @@
 # Python
 __pycache__/
 *.py[cod]
+*$py.class
 *.pyo
 *.pyd
+*.so
 *.egg-info/
+*.egg
+.Python
+.installed.cfg
+
+# Virtual environments
 .venv/
 venv/
+env/
+ENV/
+
+# Python build artifacts
+build/
+dist/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+
+# Environment variables
 .env
 
 # Logs / runtime
 *.log
 
-# OS
-.DS_Store
-Thumbs.db
-
-# IDE
+# IDEs
 .vscode/
 .idea/
 *.iml
+*.ipr
+*.iws
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
 
 # Fabric/Gradle (mod)
 mod/minecraft-mod/.gradle/
@@ -29,3 +58,11 @@ mod/minecraft-mod/.idea/
 mod/minecraft-mod/*.ipr
 mod/minecraft-mod/*.iws
 mod/minecraft-mod/*.iml
+
+# Local/Temp files
+scratch/
+test.py
+check_libs.py
+gvdzfs.py
+explanation.txt
+config.yaml
