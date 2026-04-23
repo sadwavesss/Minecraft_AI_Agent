@@ -1,0 +1,2090 @@
+[
+  {
+    "id": "minecraft:dirt",
+    "kind": "block",
+    "display_name_ru": "земля",
+    "display_name_en": "dirt",
+    "aliases_ru": ["земля", "землю", "земли", "блок земли", "блок земля"],
+    "aliases_en": ["dirt", "dirt block"]
+  },
+  {
+    "id": "minecraft:grass_block",
+    "kind": "block",
+    "display_name_ru": "травяной блок",
+    "display_name_en": "grass block",
+    "aliases_ru": ["травяной блок", "блок травы", "травяной"],
+    "aliases_en": ["grass block"]
+  },
+  {
+    "id": "minecraft:stone",
+    "kind": "block",
+    "display_name_ru": "камень",
+    "display_name_en": "stone",
+    "aliases_ru": ["камень", "камня", "камню", "блок камня"],
+    "aliases_en": ["stone", "stone block"]
+  },
+  {
+    "id": "minecraft:cobblestone",
+    "kind": "block",
+    "display_name_ru": "булыжник",
+    "display_name_en": "cobblestone",
+    "aliases_ru": ["булыжник", "булыги", "булыга"],
+    "aliases_en": ["cobblestone"]
+  },
+  {
+    "id": "minecraft:oak_planks",
+    "kind": "block",
+    "display_name_ru": "дубовые доски",
+    "display_name_en": "oak planks",
+    "aliases_ru": ["дубовые доски", "дубовые", "дубовые дощечки"],
+    "aliases_en": ["oak planks", "oak plank", "oak boards"]
+  },
+  {
+    "id": "minecraft:birch_planks",
+    "kind": "block",
+    "display_name_ru": "березовые доски",
+    "display_name_en": "birch planks",
+    "aliases_ru": ["березовые доски", "берёзовые доски", "березовые", "берёзовые"],
+    "aliases_en": ["birch planks", "birch plank", "birch boards"]
+  },
+  {
+    "id": "minecraft:spruce_planks",
+    "kind": "block",
+    "display_name_ru": "еловые доски",
+    "display_name_en": "spruce planks",
+    "aliases_ru": ["еловые доски", "еловые", "еловые дощечки"],
+    "aliases_en": ["spruce planks", "spruce plank", "spruce boards"]
+  },
+  {
+    "id": "minecraft:oak_log",
+    "kind": "block",
+    "display_name_ru": "дубовое бревно",
+    "display_name_en": "oak log",
+    "aliases_ru": ["дубовое бревно", "дубовое дерево", "дубовый ствол"],
+    "aliases_en": ["oak log"]
+  },
+  {
+    "id": "minecraft:birch_log",
+    "kind": "block",
+    "display_name_ru": "березовое бревно",
+    "display_name_en": "birch log",
+    "aliases_ru": ["березовое бревно", "берёзовое бревно", "березовый ствол", "берёзовый ствол"],
+    "aliases_en": ["birch log"]
+  },
+  {
+    "id": "minecraft:spruce_log",
+    "kind": "block",
+    "display_name_ru": "еловое бревно",
+    "display_name_en": "spruce log",
+    "aliases_ru": ["еловое бревно", "еловый ствол"],
+    "aliases_en": ["spruce log"]
+  },
+  {
+    "id": "minecraft:sand",
+    "kind": "block",
+    "display_name_ru": "песок",
+    "display_name_en": "sand",
+    "aliases_ru": ["песок", "песка"],
+    "aliases_en": ["sand"]
+  },
+  {
+    "id": "minecraft:gravel",
+    "kind": "block",
+    "display_name_ru": "гравий",
+    "display_name_en": "gravel",
+    "aliases_ru": ["гравий", "гравия"],
+    "aliases_en": ["gravel"]
+  },
+  {
+    "id": "minecraft:glass",
+    "kind": "block",
+    "display_name_ru": "стекло",
+    "display_name_en": "glass",
+    "aliases_ru": ["стекло", "стекла"],
+    "aliases_en": ["glass"]
+  },
+  {
+    "id": "minecraft:torch",
+    "kind": "item",
+    "display_name_ru": "факел",
+    "display_name_en": "torch",
+    "aliases_ru": ["факел", "факелы", "факела"],
+    "aliases_en": ["torch", "torches"]
+  },
+  {
+    "id": "minecraft:apple",
+    "kind": "item",
+    "display_name_ru": "яблоко",
+    "display_name_en": "apple",
+    "aliases_ru": ["яблоко", "яблоки", "яблока"],
+    "aliases_en": ["apple", "apples"]
+  },
+  {
+    "id": "minecraft:bread",
+    "kind": "item",
+    "display_name_ru": "хлеб",
+    "display_name_en": "bread",
+    "aliases_ru": ["хлеб"],
+    "aliases_en": ["bread"]
+  },
+  {
+    "id": "minecraft:arrow",
+    "kind": "item",
+    "display_name_ru": "стрела",
+    "display_name_en": "arrow",
+    "aliases_ru": ["стрела", "стрелы", "стрел"],
+    "aliases_en": ["arrow", "arrows"]
+  },
+  {
+    "id": "minecraft:bow",
+    "kind": "item",
+    "display_name_ru": "лук",
+    "display_name_en": "bow",
+    "aliases_ru": ["лук"],
+    "aliases_en": ["bow"]
+  },
+  {
+    "id": "minecraft:shield",
+    "kind": "item",
+    "display_name_ru": "щит",
+    "display_name_en": "shield",
+    "aliases_ru": ["щит", "щиты"],
+    "aliases_en": ["shield"]
+  },
+  {
+    "id": "minecraft:diamond",
+    "kind": "item",
+    "display_name_ru": "алмаз",
+    "display_name_en": "diamond",
+    "aliases_ru": ["алмаз", "алмазы", "алмаза"],
+    "aliases_en": ["diamond", "diamonds"]
+  },
+  {
+    "id": "minecraft:stick",
+    "kind": "item",
+    "display_name_ru": "палка",
+    "display_name_en": "stick",
+    "aliases_ru": ["палка", "палки", "палок"],
+    "aliases_en": ["stick", "sticks"]
+  },
+  {
+    "id": "minecraft:diamond_sword",
+    "kind": "item",
+    "display_name_ru": "алмазный меч",
+    "display_name_en": "diamond sword",
+    "aliases_ru": ["алмазный меч", "меч"],
+    "aliases_en": ["diamond sword", "sword"]
+  },
+  {
+    "id": "minecraft:netherite_sword",
+    "kind": "item",
+    "display_name_ru": "незеритовый меч",
+    "display_name_en": "netherite sword",
+    "aliases_ru": ["незеритовый меч"],
+    "aliases_en": ["netherite sword"]
+  },
+  {
+    "id": "minecraft:iron_sword",
+    "kind": "item",
+    "display_name_ru": "железный меч",
+    "display_name_en": "iron sword",
+    "aliases_ru": ["железный меч"],
+    "aliases_en": ["iron sword"]
+  },
+  {
+    "id": "minecraft:stone_sword",
+    "kind": "item",
+    "display_name_ru": "каменный меч",
+    "display_name_en": "stone sword",
+    "aliases_ru": ["каменный меч"],
+    "aliases_en": ["stone sword"]
+  },
+  {
+    "id": "minecraft:wooden_sword",
+    "kind": "item",
+    "display_name_ru": "деревянный меч",
+    "display_name_en": "wooden sword",
+    "aliases_ru": ["деревянный меч"],
+    "aliases_en": ["wooden sword"]
+  },
+  {
+    "id": "minecraft:golden_sword",
+    "kind": "item",
+    "display_name_ru": "золотой меч",
+    "display_name_en": "golden sword",
+    "aliases_ru": ["золотой меч"],
+    "aliases_en": ["golden sword"]
+  },
+  {
+    "id": "minecraft:diamond_pickaxe",
+    "kind": "item",
+    "display_name_ru": "алмазная кирка",
+    "display_name_en": "diamond pickaxe",
+    "aliases_ru": ["алмазная кирка", "алмазную кирку", "кирка"],
+    "aliases_en": ["diamond pickaxe", "pickaxe"]
+  },
+  {
+    "id": "minecraft:iron_pickaxe",
+    "kind": "item",
+    "display_name_ru": "железная кирка",
+    "display_name_en": "iron pickaxe",
+    "aliases_ru": ["железная кирка", "железную кирку"],
+    "aliases_en": ["iron pickaxe"]
+  },
+  {
+    "id": "minecraft:diamond_axe",
+    "kind": "item",
+    "display_name_ru": "алмазный топор",
+    "display_name_en": "diamond axe",
+    "aliases_ru": ["алмазный топор", "алмазный топорик", "топор"],
+    "aliases_en": ["diamond axe", "axe"]
+  },
+  {
+    "id": "minecraft:iron_axe",
+    "kind": "item",
+    "display_name_ru": "железный топор",
+    "display_name_en": "iron axe",
+    "aliases_ru": ["железный топор"],
+    "aliases_en": ["iron axe"]
+  },
+  {
+    "id": "minecraft:diamond_shovel",
+    "kind": "item",
+    "display_name_ru": "алмазная лопата",
+    "display_name_en": "diamond shovel",
+    "aliases_ru": ["алмазная лопата", "алмазную лопату", "лопата"],
+    "aliases_en": ["diamond shovel", "shovel"]
+  },
+  {
+    "id": "minecraft:iron_shovel",
+    "kind": "item",
+    "display_name_ru": "железная лопата",
+    "display_name_en": "iron shovel",
+    "aliases_ru": ["железная лопата", "железную лопату"],
+    "aliases_en": ["iron shovel"]
+  },
+  {
+    "id": "minecraft:diamond_hoe",
+    "kind": "item",
+    "display_name_ru": "алмазная мотыга",
+    "display_name_en": "diamond hoe",
+    "aliases_ru": ["алмазная мотыга", "алмазную мотыгу", "мотыга"],
+    "aliases_en": ["diamond hoe", "hoe"]
+  },
+  {
+    "id": "minecraft:iron_hoe",
+    "kind": "item",
+    "display_name_ru": "железная мотыга",
+    "display_name_en": "iron hoe",
+    "aliases_ru": ["железная мотыга", "железную мотыгу"],
+    "aliases_en": ["iron hoe"]
+  },
+  {
+    "id": "minecraft:diamond_helmet",
+    "kind": "item",
+    "display_name_ru": "алмазный шлем",
+    "display_name_en": "diamond helmet",
+    "aliases_ru": ["алмазный шлем", "шлем"],
+    "aliases_en": ["diamond helmet", "helmet"]
+  },
+  {
+    "id": "minecraft:diamond_chestplate",
+    "kind": "item",
+    "display_name_ru": "алмазный нагрудник",
+    "display_name_en": "diamond chestplate",
+    "aliases_ru": ["алмазный нагрудник", "нагрудник"],
+    "aliases_en": ["diamond chestplate", "chestplate"]
+  },
+  {
+    "id": "minecraft:diamond_leggings",
+    "kind": "item",
+    "display_name_ru": "алмазные поножи",
+    "display_name_en": "diamond leggings",
+    "aliases_ru": ["алмазные поножи", "поножи"],
+    "aliases_en": ["diamond leggings", "leggings"]
+  },
+  {
+    "id": "minecraft:diamond_boots",
+    "kind": "item",
+    "display_name_ru": "алмазные ботинки",
+    "display_name_en": "diamond boots",
+    "aliases_ru": ["алмазные ботинки", "ботинки"],
+    "aliases_en": ["diamond boots", "boots"]
+  },
+  {
+    "id": "minecraft:chest",
+    "kind": "block",
+    "display_name_ru": "сундук",
+    "display_name_en": "chest",
+    "aliases_ru": ["сундук", "сундуки"],
+    "aliases_en": ["chest"]
+  },
+  {
+    "id": "minecraft:crafting_table",
+    "kind": "block",
+    "display_name_ru": "верстак",
+    "display_name_en": "crafting table",
+    "aliases_ru": ["верстак"],
+    "aliases_en": ["crafting table", "workbench"]
+  },
+  {
+    "id": "minecraft:furnace",
+    "kind": "block",
+    "display_name_ru": "печь",
+    "display_name_en": "furnace",
+    "aliases_ru": ["печь", "печка"],
+    "aliases_en": ["furnace"]
+  },
+  {
+    "id": "minecraft:shulker_box",
+    "kind": "block",
+    "display_name_ru": "шалкеровый ящик",
+    "display_name_en": "shulker box",
+    "aliases_ru": ["шалкеровый ящик", "шалкер", "шалкербокс"],
+    "aliases_en": ["shulker box"]
+  },
+  {
+    "id": "minecraft:coal",
+    "kind": "item",
+    "display_name_ru": "уголь",
+    "display_name_en": "coal",
+    "aliases_ru":["уголь", "угля", "каменный уголь"],
+    "aliases_en": ["coal"]
+  },
+  {
+    "id": "minecraft:iron_ingot",
+    "kind": "item",
+    "display_name_ru": "железный слиток",
+    "display_name_en": "iron ingot",
+    "aliases_ru": ["железный слиток", "железо", "слиток железа"],
+    "aliases_en": ["iron ingot", "iron"]
+  },
+  {
+    "id": "minecraft:gold_ingot",
+    "kind": "item",
+    "display_name_ru": "золотой слиток",
+    "display_name_en": "gold ingot",
+    "aliases_ru":["золотой слиток", "золото", "слиток золота", "голда"],
+    "aliases_en": ["gold ingot", "gold"]
+  },
+  {
+    "id": "minecraft:netherite_ingot",
+    "kind": "item",
+    "display_name_ru": "незеритовый слиток",
+    "display_name_en": "netherite ingot",
+    "aliases_ru": ["незеритовый слиток", "незерит", "слиток незерита"],
+    "aliases_en": ["netherite ingot", "netherite"]
+  },
+  {
+    "id": "minecraft:emerald",
+    "kind": "item",
+    "display_name_ru": "изумруд",
+    "display_name_en": "emerald",
+    "aliases_ru": ["изумруд", "изумруды", "эмеральд"],
+    "aliases_en": ["emerald", "emeralds"]
+  },
+  {
+    "id": "minecraft:lapis_lazuli",
+    "kind": "item",
+    "display_name_ru": "лазурит",
+    "display_name_en": "lapis lazuli",
+    "aliases_ru": ["лазурит", "лазурита", "лазуриты"],
+    "aliases_en":["lapis lazuli", "lapis"]
+  },
+  {
+    "id": "minecraft:redstone",
+    "kind": "item",
+    "display_name_ru": "редстоун",
+    "display_name_en": "redstone dust",
+    "aliases_ru":["редстоун", "красная пыль", "красный камень", "реда", "рэдстоун"],
+    "aliases_en": ["redstone dust", "redstone"]
+  },
+  {
+    "id": "minecraft:water_bucket",
+    "kind": "item",
+    "display_name_ru": "ведро воды",
+    "display_name_en": "water bucket",
+    "aliases_ru":["ведро воды", "ведро с водой", "вода"],
+    "aliases_en": ["water bucket", "bucket of water", "water"]
+  },
+  {
+    "id": "minecraft:lava_bucket",
+    "kind": "item",
+    "display_name_ru": "ведро лавы",
+    "display_name_en": "lava bucket",
+    "aliases_ru":["ведро лавы", "ведро с лавой", "лава"],
+    "aliases_en": ["lava bucket", "bucket of lava", "lava"]
+  },
+  {
+    "id": "minecraft:obsidian",
+    "kind": "block",
+    "display_name_ru": "обсидиан",
+    "display_name_en": "obsidian",
+    "aliases_ru":["обсидиан", "обсидиана", "обсидиан блок"],
+    "aliases_en": ["obsidian"]
+  },
+  {
+    "id": "minecraft:bedrock",
+    "kind": "block",
+    "display_name_ru": "бедрок",
+    "display_name_en": "bedrock",
+    "aliases_ru":["бедрок", "коренная порода", "бедрока"],
+    "aliases_en": ["bedrock"]
+  },
+  {
+    "id": "minecraft:ender_pearl",
+    "kind": "item",
+    "display_name_ru": "эндер-жемчуг",
+    "display_name_en": "ender pearl",
+    "aliases_ru":["эндер-жемчуг", "жемчуг энда", "перл", "жемчуг края", "эндер перл"],
+    "aliases_en": ["ender pearl", "pearl"]
+  },
+  {
+    "id": "minecraft:blaze_rod",
+    "kind": "item",
+    "display_name_ru": "огненный стержень",
+    "display_name_en": "blaze rod",
+    "aliases_ru":["огненный стержень", "палочка ифрита", "стержень ифрита"],
+    "aliases_en": ["blaze rod"]
+  },
+  {
+    "id": "minecraft:slime_ball",
+    "kind": "item",
+    "display_name_ru": "сгусток слизи",
+    "display_name_en": "slimeball",
+    "aliases_ru":["сгусток слизи", "слизь", "шарик слизи", "слаймбол"],
+    "aliases_en": ["slimeball", "slime", "slime ball"]
+  },
+  {
+    "id": "minecraft:string",
+    "kind": "item",
+    "display_name_ru": "нить",
+    "display_name_en": "string",
+    "aliases_ru":["нить", "нитки", "нитка", "паутина"],
+    "aliases_en": ["string", "silk"]
+  },
+  {
+    "id": "minecraft:gunpowder",
+    "kind": "item",
+    "display_name_ru": "порох",
+    "display_name_en": "gunpowder",
+    "aliases_ru": ["порох", "пороха"],
+    "aliases_en":["gunpowder"]
+  },
+  {
+    "id": "minecraft:bone",
+    "kind": "item",
+    "display_name_ru": "кость",
+    "display_name_en": "bone",
+    "aliases_ru": ["кость", "кости", "косточка"],
+    "aliases_en":["bone", "bones"]
+  },
+  {
+    "id": "minecraft:rotten_flesh",
+    "kind": "item",
+    "display_name_ru": "гнилая плоть",
+    "display_name_en": "rotten flesh",
+    "aliases_ru":["гнилая плоть", "плоть", "гниль", "мясо зомби"],
+    "aliases_en":["rotten flesh", "zombie meat"]
+  },
+  {
+    "id": "minecraft:cooked_beef",
+    "kind": "item",
+    "display_name_ru": "жареная говядина",
+    "display_name_en": "cooked beef",
+    "aliases_ru":["жареная говядина", "стейк", "мясо"],
+    "aliases_en":["cooked beef", "steak"]
+  },
+  {
+    "id": "minecraft:golden_apple",
+    "kind": "item",
+    "display_name_ru": "золотое яблоко",
+    "display_name_en": "golden apple",
+    "aliases_ru":["золотое яблоко", "гэпл", "золотые яблоки", "гэппл"],
+    "aliases_en":["golden apple", "gapple"]
+  },
+  {
+    "id": "minecraft:elytra",
+    "kind": "item",
+    "display_name_ru": "элитры",
+    "display_name_en": "elytra",
+    "aliases_ru":["элитры", "крылья", "элитра"],
+    "aliases_en": ["elytra", "wings"]
+  },
+  {
+    "id": "minecraft:totem_of_undying",
+    "kind": "item",
+    "display_name_ru": "тотем бессмертия",
+    "display_name_en": "totem of undying",
+    "aliases_ru":["тотем бессмертия", "тотем", "тотемчик"],
+    "aliases_en":["totem of undying", "totem"]
+  },
+  {
+    "id": "minecraft:tnt",
+    "kind": "block",
+    "display_name_ru": "динамит",
+    "display_name_en": "tnt",
+    "aliases_ru":["динамит", "тнт", "взрывчатка"],
+    "aliases_en": ["tnt", "dynamite"]
+  },
+  {
+    "id": "minecraft:anvil",
+    "kind": "block",
+    "display_name_ru": "наковальня",
+    "display_name_en": "anvil",
+    "aliases_ru":["наковальня", "наковальню", "наковальни", "наковален"],
+    "aliases_en": ["anvil", "anvils"]
+  },
+  {
+    "id": "minecraft:bookshelf",
+    "kind": "block",
+    "display_name_ru": "книжная полка",
+    "display_name_en": "bookshelf",
+    "aliases_ru":["книжная полка", "книжные полки", "полка", "полки"],
+    "aliases_en": ["bookshelf", "bookshelves"]
+  },
+  {
+    "id": "minecraft:flint_and_steel",
+    "kind": "item",
+    "display_name_ru": "огниво",
+    "display_name_en": "flint and steel",
+    "aliases_ru": ["огниво", "зажигалка"],
+    "aliases_en": ["flint and steel", "lighter", "flint"]
+  },
+  {
+    "id": "minecraft:fishing_rod",
+    "kind": "item",
+    "display_name_ru": "удочка",
+    "display_name_en": "fishing rod",
+    "aliases_ru":["удочка", "удочку", "удилище"],
+    "aliases_en":["fishing rod", "rod"]
+  },
+  {
+    "id": "minecraft:glass_bottle",
+    "kind": "item",
+    "display_name_ru": "пузырёк",
+    "display_name_en": "glass bottle",
+    "aliases_ru":["пузырек", "пузырёк", "пузырька", "пузырьков", "пузырьки", "колба", "бутылочка", "бутылочку", "стеклянный пузырек", "пустая колба"],
+    "aliases_en":["glass bottle", "bottle", "bottles", "empty bottle"]
+  },
+  {
+    "id": "minecraft:potion{Potion:\"minecraft:water\"}",
+    "kind": "item",
+    "display_name_ru": "пузырёк воды",
+    "display_name_en": "water bottle",
+    "aliases_ru":["пузырек воды", "пузырёк воды", "бутылочка воды", "колба с водой", "вода"],
+    "aliases_en": ["water bottle", "potion"]
+  },
+  {
+    "id": "minecraft:splash_potion",
+    "kind": "item",
+    "display_name_ru": "взрывное зелье",
+    "display_name_en": "splash potion",
+    "aliases_ru":["взрывное зелье", "сплэш зелье"],
+    "aliases_en": ["splash potion"]
+  },
+  {
+    "id": "minecraft:lingering_potion",
+    "kind": "item",
+    "display_name_ru": "оседающее зелье",
+    "display_name_en": "lingering potion",
+    "aliases_ru": ["оседающее зелье", "туманное зелье"],
+    "aliases_en": ["lingering potion"]
+  },
+  {
+    "id": "minecraft:experience_bottle",
+    "kind": "item",
+    "display_name_ru": "пузырёк опыта",
+    "display_name_en": "bottle o' enchanting",
+    "aliases_ru":["пузырек опыта", "пузырёк опыта", "бутылочка опыта", "опыт"],
+    "aliases_en":["bottle o' enchanting", "experience bottle", "exp bottle", "xp bottle"]
+  },
+  {
+    "id": "minecraft:honey_bottle",
+    "kind": "item",
+    "display_name_ru": "бутылочка мёда",
+    "display_name_en": "honey bottle",
+    "aliases_ru":["бутылочка меда", "бутылочка мёда", "мед", "мёд"],
+    "aliases_en": ["honey bottle", "honey"]
+  },
+  {
+    "id": "minecraft:potion{Potion:\"minecraft:healing\"}",
+    "kind": "item",
+    "display_name_ru": "зелье лечения",
+    "display_name_en": "potion of healing",
+    "aliases_ru": ["зелье лечения", "зелье хилла", "хиллка", "зелье здоровья"],
+    "aliases_en": ["potion of healing", "healing potion"]
+  },
+  {
+    "id": "minecraft:potion{Potion:\"minecraft:swiftness\"}",
+    "kind": "item",
+    "display_name_ru": "зелье стремительности",
+    "display_name_en": "potion of swiftness",
+    "aliases_ru":["зелье стремительности", "зелье скорости", "спид", "зелье на скорость"],
+    "aliases_en":["potion of swiftness", "speed potion", "swiftness potion"]
+  },
+  {
+    "id": "minecraft:potion{Potion:\"minecraft:strength\"}",
+    "kind": "item",
+    "display_name_ru": "зелье силы",
+    "display_name_en": "potion of strength",
+    "aliases_ru": ["зелье силы", "сила", "зелье на силу"],
+    "aliases_en": ["potion of strength", "strength potion"]
+  },
+  {
+    "id": "minecraft:potion{Potion:\"minecraft:fire_resistance\"}",
+    "kind": "item",
+    "display_name_ru": "зелье огнестойкости",
+    "display_name_en": "potion of fire resistance",
+    "aliases_ru":["зелье огнестойкости", "огнестойкость", "зелье от огня", "зелье защиты от огня"],
+    "aliases_en":["potion of fire resistance", "fire res potion", "fire resistance potion"]
+  },
+  {
+    "id": "minecraft:potion{Potion:\"minecraft:invisibility\"}",
+    "kind": "item",
+    "display_name_ru": "зелье невидимости",
+    "display_name_en": "potion of invisibility",
+    "aliases_ru":["зелье невидимости", "невидимость", "зелье инвиза", "инвиз"],
+    "aliases_en":["potion of invisibility", "invis potion", "invisibility potion"]
+  },
+  {
+    "id": "minecraft:potion{Potion:\"minecraft:night_vision\"}",
+    "kind": "item",
+    "display_name_ru": "зелье ночного зрения",
+    "display_name_en": "potion of night vision",
+    "aliases_ru": ["зелье ночного зрения", "ночное зрение"],
+    "aliases_en": ["potion of night vision", "night vision potion"]
+  },
+  {
+    "id": "minecraft:splash_potion{Potion:\"minecraft:healing\"}",
+    "kind": "item",
+    "display_name_ru": "взрывное зелье лечения",
+    "display_name_en": "splash potion of healing",
+    "aliases_ru":["взрывное зелье лечения", "сплэш зелье лечения", "сплэш хилла", "взрывное зелье здоровья"],
+    "aliases_en": ["splash potion of healing", "splash healing potion"]
+  },
+  {
+    "id": "minecraft:acacia_boat",
+    "kind": "item",
+    "display_name_ru": "акациевая лодка",
+    "display_name_en": "acacia boat",
+    "aliases_ru": ["акациевая лодка", "лодка из акации"],
+    "aliases_en": ["acacia boat"]
+  },
+  {
+    "id": "minecraft:acacia_button",
+    "kind": "block",
+    "display_name_ru": "акациевая кнопка",
+    "display_name_en": "acacia button",
+    "aliases_ru": ["акациевая кнопка", "кнопка из акации"],
+    "aliases_en": ["acacia button"]
+  },
+  {
+    "id": "minecraft:acacia_chest_boat",
+    "kind": "item",
+    "display_name_ru": "акациевая лодка с сундуком",
+    "display_name_en": "acacia boat with chest",
+    "aliases_ru": ["акациевая лодка с сундуком", "лодка с сундуком из акации"],
+    "aliases_en": ["acacia chest boat"]
+  },
+  {
+    "id": "minecraft:acacia_door",
+    "kind": "block",
+    "display_name_ru": "акациевая дверь",
+    "display_name_en": "acacia door",
+    "aliases_ru": ["акациевая дверь", "дверь из акации"],
+    "aliases_en": ["acacia door"]
+  },
+  {
+    "id": "minecraft:acacia_fence",
+    "kind": "block",
+    "display_name_ru": "акациевый забор",
+    "display_name_en": "acacia fence",
+    "aliases_ru": ["акациевый забор", "забор из акации"],
+    "aliases_en": ["acacia fence"]
+  },
+  {
+    "id": "minecraft:acacia_fence_gate",
+    "kind": "block",
+    "display_name_ru": "акациевая калитка",
+    "display_name_en": "acacia fence gate",
+    "aliases_ru": ["акациевая калитка", "калитка из акации"],
+    "aliases_en": ["acacia fence gate"]
+  },
+  {
+    "id": "minecraft:acacia_hanging_sign",
+    "kind": "block",
+    "display_name_ru": "подвесная табличка из акации",
+    "display_name_en": "acacia hanging sign",
+    "aliases_ru": ["подвесная табличка из акации", "акациевая подвесная табличка"],
+    "aliases_en": ["acacia hanging sign"]
+  },
+  {
+    "id": "minecraft:acacia_leaves",
+    "kind": "block",
+    "display_name_ru": "листья акации",
+    "display_name_en": "acacia leaves",
+    "aliases_ru": ["листья акации", "акациевая листва"],
+    "aliases_en": ["acacia leaves"]
+  },
+  {
+    "id": "minecraft:acacia_log",
+    "kind": "block",
+    "display_name_ru": "акациевое бревно",
+    "display_name_en": "acacia log",
+    "aliases_ru": ["акациевое бревно", "бревно акации"],
+    "aliases_en": ["acacia log"]
+  },
+  {
+    "id": "minecraft:acacia_planks",
+    "kind": "block",
+    "display_name_ru": "акациевые доски",
+    "display_name_en": "acacia planks",
+    "aliases_ru": ["акациевые доски", "доски из акации"],
+    "aliases_en": ["acacia planks"]
+  },
+  {
+    "id": "minecraft:acacia_pressure_plate",
+    "kind": "block",
+    "display_name_ru": "акациевая нажимная пластина",
+    "display_name_en": "acacia pressure plate",
+    "aliases_ru": ["акациевая нажимная пластина", "плита из акации"],
+    "aliases_en": ["acacia pressure plate"]
+  },
+  {
+    "id": "minecraft:acacia_sapling",
+    "kind": "block",
+    "display_name_ru": "саженец акации",
+    "display_name_en": "acacia sapling",
+    "aliases_ru": ["саженец акации", "росток акации"],
+    "aliases_en": ["acacia sapling"]
+  },
+  {
+    "id": "minecraft:acacia_sign",
+    "kind": "block",
+    "display_name_ru": "акациевая табличка",
+    "display_name_en": "acacia sign",
+    "aliases_ru": ["акациевая табличка", "табличка из акации"],
+    "aliases_en": ["acacia sign"]
+  },
+  {
+    "id": "minecraft:acacia_slab",
+    "kind": "block",
+    "display_name_ru": "акациевая плита",
+    "display_name_en": "acacia slab",
+    "aliases_ru": ["акациевая плита", "полублок из акации"],
+    "aliases_en": ["acacia slab"]
+  },
+  {
+    "id": "minecraft:acacia_stairs",
+    "kind": "block",
+    "display_name_ru": "акациевые ступеньки",
+    "display_name_en": "acacia stairs",
+    "aliases_ru": ["акациевые ступеньки", "ступеньки из акации"],
+    "aliases_en": ["acacia stairs"]
+  },
+  {
+    "id": "minecraft:acacia_trapdoor",
+    "kind": "block",
+    "display_name_ru": "акациевый люк",
+    "display_name_en": "acacia trapdoor",
+    "aliases_ru": ["акациевый люк", "люк из акации"],
+    "aliases_en": ["acacia trapdoor"]
+  },
+  {
+    "id": "minecraft:acacia_wood",
+    "kind": "block",
+    "display_name_ru": "акация",
+    "display_name_en": "acacia wood",
+    "aliases_ru": ["акация", "древесина акации"],
+    "aliases_en": ["acacia wood"]
+  },
+  {
+    "id": "minecraft:activator_rail",
+    "kind": "block",
+    "display_name_ru": "активирующие рельсы",
+    "display_name_en": "activator rail",
+    "aliases_ru": ["активирующие рельсы", "активатор рельс"],
+    "aliases_en": ["activator rail"]
+  },
+  {
+    "id": "minecraft:amethyst_block",
+    "kind": "block",
+    "display_name_ru": "аметистовый блок",
+    "display_name_en": "block of amethyst",
+    "aliases_ru": ["аметистовый блок", "блок аметиста"],
+    "aliases_en": ["amethyst block"]
+  },
+  {
+    "id": "minecraft:amethyst_cluster",
+    "kind": "block",
+    "display_name_ru": "аметистовая друза",
+    "display_name_en": "amethyst cluster",
+    "aliases_ru": ["аметистовая друза", "кристалл аметиста"],
+    "aliases_en": ["amethyst cluster"]
+  },
+  {
+    "id": "minecraft:amethyst_shard",
+    "kind": "item",
+    "display_name_ru": "осколок аметиста",
+    "display_name_en": "amethyst shard",
+    "aliases_ru": ["осколок аметиста", "аметист"],
+    "aliases_en": ["amethyst shard"]
+  },
+  {
+    "id": "minecraft:ancient_debris",
+    "kind": "block",
+    "display_name_ru": "древние обломки",
+    "display_name_en": "ancient debris",
+    "aliases_ru": ["древние обломки", "дебрис"],
+    "aliases_en": ["ancient debris"]
+  },
+  {
+    "id": "minecraft:andesite",
+    "kind": "block",
+    "display_name_ru": "андезит",
+    "display_name_en": "andesite",
+    "aliases_ru": ["андезит"],
+    "aliases_en": ["andesite"]
+  },
+  {
+    "id": "minecraft:angler_pottery_sherd",
+    "kind": "item",
+    "display_name_ru": "керамический осколок с удочкой",
+    "display_name_en": "angler pottery sherd",
+    "aliases_ru": ["керамический осколок с удочкой", "глиняный осколок рыбака"],
+    "aliases_en": ["angler pottery sherd"]
+  },
+  {
+    "id": "minecraft:axolotl_bucket",
+    "kind": "item",
+    "display_name_ru": "аксолотль в ведре",
+    "display_name_en": "bucket of axolotl",
+    "aliases_ru": ["аксолотль в ведре", "ведро с аксолотлем"],
+    "aliases_en": ["axolotl bucket"]
+  },
+  {
+    "id": "minecraft:bamboo",
+    "kind": "block",
+    "display_name_ru": "бамбук",
+    "display_name_en": "bamboo",
+    "aliases_ru": ["бамбук"],
+    "aliases_en": ["bamboo"]
+  },
+  {
+    "id": "minecraft:bamboo_block",
+    "kind": "block",
+    "display_name_ru": "бамбуковый блок",
+    "display_name_en": "block of bamboo",
+    "aliases_ru": ["бамбуковый блок"],
+    "aliases_en": ["bamboo block"]
+  },
+  {
+    "id": "minecraft:bamboo_mosaic",
+    "kind": "block",
+    "display_name_ru": "бамбуковая мозаика",
+    "display_name_en": "bamboo mosaic",
+    "aliases_ru": ["бамбуковая мозаика"],
+    "aliases_en": ["bamboo mosaic"]
+  },
+  {
+    "id": "minecraft:barrel",
+    "kind": "block",
+    "display_name_ru": "бочка",
+    "display_name_en": "barrel",
+    "aliases_ru": ["бочка"],
+    "aliases_en": ["barrel"]
+  },
+  {
+    "id": "minecraft:bee_nest",
+    "kind": "block",
+    "display_name_ru": "пчелиное гнездо",
+    "display_name_en": "bee nest",
+    "aliases_ru": ["пчелиное гнездо", "дикий улей"],
+    "aliases_en": ["bee nest"]
+  },
+  {
+    "id": "minecraft:bell",
+    "kind": "block",
+    "display_name_ru": "колокол",
+    "display_name_en": "bell",
+    "aliases_ru": ["колокол"],
+    "aliases_en": ["bell"]
+  },
+  {
+    "id": "minecraft:big_dripleaf",
+    "kind": "block",
+    "display_name_ru": "большая каплелистка",
+    "display_name_en": "big dripleaf",
+    "aliases_ru": ["большая каплелистка", "каплелист"],
+    "aliases_en": ["big dripleaf"]
+  },
+  {
+    "id": "minecraft:blast_furnace",
+    "kind": "block",
+    "display_name_ru": "плавильная печь",
+    "display_name_en": "blast furnace",
+    "aliases_ru": ["плавильная печь", "плавильня"],
+    "aliases_en": ["blast furnace"]
+  },
+  {
+    "id": "minecraft:blaze_powder",
+    "kind": "item",
+    "display_name_ru": "огненный порошок",
+    "display_name_en": "blaze powder",
+    "aliases_ru": ["огненный порошок", "порошок ифрита"],
+    "aliases_en": ["blaze powder"]
+  },
+  {
+    "id": "minecraft:blue_ice",
+    "kind": "block",
+    "display_name_ru": "синий лёд",
+    "display_name_en": "blue ice",
+    "aliases_ru": ["синий лед", "синий лёд"],
+    "aliases_en": ["blue ice"]
+  },
+  {
+    "id": "minecraft:calibrated_sculk_sensor",
+    "kind": "block",
+    "display_name_ru": "калиброванный скалк-сенсор",
+    "display_name_en": "calibrated sculk sensor",
+    "aliases_ru": ["калиброванный скалк-сенсор", "настроенный скалк-датчик"],
+    "aliases_en": ["calibrated sculk sensor"]
+  },
+  {
+    "id": "minecraft:campfire",
+    "kind": "block",
+    "display_name_ru": "костёр",
+    "display_name_en": "campfire",
+    "aliases_ru": ["костер", "костёр"],
+    "aliases_en": ["campfire"]
+  },
+  {
+    "id": "minecraft:cherry_log",
+    "kind": "block",
+    "display_name_ru": "вишнёвое бревно",
+    "display_name_en": "cherry log",
+    "aliases_ru": ["вишневое бревно", "бревно вишни", "вишня"],
+    "aliases_en": ["cherry log"]
+  },
+  {
+    "id": "minecraft:chiseled_bookshelf",
+    "kind": "block",
+    "display_name_ru": "резная книжная полка",
+    "display_name_en": "chiseled bookshelf",
+    "aliases_ru": ["резная книжная полка", "полка для книг"],
+    "aliases_en": ["chiseled bookshelf"]
+  },
+  {
+    "id": "minecraft:copper_ingot",
+    "kind": "item",
+    "display_name_ru": "медный слиток",
+    "display_name_en": "copper ingot",
+    "aliases_ru": ["медный слиток", "медь"],
+    "aliases_en": ["copper ingot"]
+  },
+  {
+    "id": "minecraft:dark_oak_boat",
+    "kind": "item",
+    "display_name_ru": "лодка из тёмного дуба",
+    "display_name_en": "dark oak boat",
+    "aliases_ru": ["лодка из тёмного дуба", "темно-дубовая лодка"],
+    "aliases_en": ["dark oak boat"]
+  },
+  {
+    "id": "minecraft:dark_oak_door",
+    "kind": "block",
+    "display_name_ru": "дверь из тёмного дуба",
+    "display_name_en": "dark oak door",
+    "aliases_ru": ["дверь из тёмного дуба", "темная дверь"],
+    "aliases_en": ["dark oak door"]
+  },
+  {
+    "id": "minecraft:dark_oak_log",
+    "kind": "block",
+    "display_name_ru": "бревно тёмного дуба",
+    "display_name_en": "dark oak log",
+    "aliases_ru": ["бревно тёмного дуба", "тёмный дуб"],
+    "aliases_en": ["dark oak log"]
+  },
+  {
+    "id": "minecraft:dark_oak_planks",
+    "kind": "block",
+    "display_name_ru": "доски из тёмного дуба",
+    "display_name_en": "dark oak planks",
+    "aliases_ru": ["доски из тёмного дуба", "темные доски"],
+    "aliases_en": ["dark oak planks"]
+  },
+  {
+    "id": "minecraft:deepslate",
+    "kind": "block",
+    "display_name_ru": "глубинный сланец",
+    "display_name_en": "deepslate",
+    "aliases_ru": ["глубинный сланец", "дипслейт"],
+    "aliases_en": ["deepslate"]
+  },
+  {
+    "id": "minecraft:deepslate_diamond_ore",
+    "kind": "block",
+    "display_name_ru": "глубинная алмазная руда",
+    "display_name_en": "deepslate diamond ore",
+    "aliases_ru": ["глубинная алмазная руда", "алмазы в сланце"],
+    "aliases_en": ["deepslate diamond ore"]
+  },
+  {
+    "id": "minecraft:deepslate_iron_ore",
+    "kind": "block",
+    "display_name_ru": "глубинная железная руда",
+    "display_name_en": "deepslate iron ore",
+    "aliases_ru": ["глубинная железная руда", "железо в сланце"],
+    "aliases_en": ["deepslate iron ore"]
+  },
+  {
+    "id": "minecraft:diamond",
+    "kind": "item",
+    "display_name_ru": "алмаз",
+    "display_name_en": "diamond",
+    "aliases_ru": ["алмаз", "алмазик"],
+    "aliases_en": ["diamond"]
+  },
+  {
+    "id": "minecraft:diamond_axe",
+    "kind": "item",
+    "display_name_ru": "алмазный топор",
+    "display_name_en": "diamond axe",
+    "aliases_ru": ["алмазный топор", "топор"],
+    "aliases_en": ["diamond axe"]
+  },
+  {
+    "id": "minecraft:diamond_block",
+    "kind": "block",
+    "display_name_ru": "алмазный блок",
+    "display_name_en": "diamond block",
+    "aliases_ru": ["алмазный блок", "блок алмазов"],
+    "aliases_en": ["diamond block"]
+  },
+  {
+    "id": "minecraft:diamond_boots",
+    "kind": "item",
+    "display_name_ru": "алмазные ботинки",
+    "display_name_en": "diamond boots",
+    "aliases_ru": ["алмазные ботинки", "тапки"],
+    "aliases_en": ["diamond boots"]
+  },
+  {
+    "id": "minecraft:diamond_chestplate",
+    "kind": "item",
+    "display_name_ru": "алмазный нагрудник",
+    "display_name_en": "diamond chestplate",
+    "aliases_ru": ["алмазный нагрудник", "нагрудник"],
+    "aliases_en": ["diamond chestplate"]
+  },
+  {
+    "id": "minecraft:diamond_helmet",
+    "kind": "item",
+    "display_name_ru": "алмазный шлем",
+    "display_name_en": "diamond helmet",
+    "aliases_ru": ["алмазный шлем", "шапка"],
+    "aliases_en": ["diamond helmet"]
+  },
+  {
+    "id": "minecraft:diamond_hoe",
+    "kind": "item",
+    "display_name_ru": "алмазная мотыга",
+    "display_name_en": "diamond hoe",
+    "aliases_ru": ["алмазная мотыга", "мотыга"],
+    "aliases_en": ["diamond hoe"]
+  },
+  {
+    "id": "minecraft:diamond_leggings",
+    "kind": "item",
+    "display_name_ru": "алмазные поножи",
+    "display_name_en": "diamond leggings",
+    "aliases_ru": ["алмазные поножи", "штаны"],
+    "aliases_en": ["diamond leggings"]
+  },
+  {
+    "id": "minecraft:diamond_ore",
+    "kind": "block",
+    "display_name_ru": "алмазная руда",
+    "display_name_en": "diamond ore",
+    "aliases_ru": ["алмазная руда"],
+    "aliases_en": ["diamond ore"]
+  },
+  {
+    "id": "minecraft:diamond_pickaxe",
+    "kind": "item",
+    "display_name_ru": "алмазная кирка",
+    "display_name_en": "diamond pickaxe",
+    "aliases_ru": ["алмазная кирка", "кирка"],
+    "aliases_en": ["diamond pickaxe"]
+  },
+  {
+    "id": "minecraft:diamond_shovel",
+    "kind": "item",
+    "display_name_ru": "алмазная лопата",
+    "display_name_en": "diamond shovel",
+    "aliases_ru": ["алмазная лопата", "лопата"],
+    "aliases_en": ["diamond shovel"]
+  },
+  {
+    "id": "minecraft:diamond_sword",
+    "kind": "item",
+    "display_name_ru": "алмазный меч",
+    "display_name_en": "diamond sword",
+    "aliases_ru": ["алмазный меч", "меч"],
+    "aliases_en": ["diamond sword"]
+  },
+  {
+    "id": "minecraft:dirt",
+    "kind": "block",
+    "display_name_ru": "земля",
+    "display_name_en": "dirt",
+    "aliases_ru": ["земля", "грязь"],
+    "aliases_en": ["dirt"]
+  },
+  {
+    "id": "minecraft:dispenser",
+    "kind": "block",
+    "display_name_ru": "раздатчик",
+    "display_name_en": "dispenser",
+    "aliases_ru": ["раздатчик"],
+    "aliases_en": ["dispenser"]
+  },
+  {
+    "id": "minecraft:dragon_egg",
+    "kind": "block",
+    "display_name_ru": "яйцо дракона",
+    "display_name_en": "dragon egg",
+    "aliases_ru": ["яйцо дракона"],
+    "aliases_en": ["dragon egg"]
+  },
+  {
+    "id": "minecraft:dropper",
+    "kind": "block",
+    "display_name_ru": "выбрасыватель",
+    "display_name_en": "dropper",
+    "aliases_ru": ["выбрасыватель"],
+    "aliases_en": ["dropper"]
+  },
+  {
+    "id": "minecraft:elytra",
+    "kind": "item",
+    "display_name_ru": "элитры",
+    "display_name_en": "elytra",
+    "aliases_ru": ["элитры", "крылья"],
+    "aliases_en": ["elytra"]
+  },
+  {
+    "id": "minecraft:emerald",
+    "kind": "item",
+    "display_name_ru": "изумруд",
+    "display_name_en": "emerald",
+    "aliases_ru": ["изумруд"],
+    "aliases_en": ["emerald"]
+  },
+  {
+    "id": "minecraft:enchanted_golden_apple",
+    "kind": "item",
+    "display_name_ru": "зачарованное золотое яблоко",
+    "display_name_en": "enchanted golden apple",
+    "aliases_ru": ["зачарованное золотое яблоко", "нотч яблоко", "зачар яблоко"],
+    "aliases_en": ["enchanted golden apple"]
+  },
+  {
+    "id": "minecraft:enchanting_table",
+    "kind": "block",
+    "display_name_ru": "стол зачаровывания",
+    "display_name_en": "enchanting table",
+    "aliases_ru": ["стол зачаровывания", "стол чар", "чаровальня"],
+    "aliases_en": ["enchanting table"]
+  },
+  {
+    "id": "minecraft:ender_chest",
+    "kind": "block",
+    "display_name_ru": "эндер-сундук",
+    "display_name_en": "ender chest",
+    "aliases_ru": ["эндер-сундук", "сундук края"],
+    "aliases_en": ["ender chest"]
+  },
+  {
+    "id": "minecraft:ender_pearl",
+    "kind": "item",
+    "display_name_ru": "эндер-жемчуг",
+    "display_name_en": "ender pearl",
+    "aliases_ru": ["эндер-жемчуг", "жемчуг края", "перл"],
+    "aliases_en": ["ender pearl"]
+  },
+  {
+    "id": "minecraft:experience_bottle",
+    "kind": "item",
+    "display_name_ru": "пузырёк опыта",
+    "display_name_en": "bottle o' enchanting",
+    "aliases_ru": ["пузырёк опыта", "банка опыта"],
+    "aliases_en": ["bottle o' enchanting"]
+  },
+  {
+    "id": "minecraft:fire_charge",
+    "kind": "item",
+    "display_name_ru": "огненный шар",
+    "display_name_en": "fire charge",
+    "aliases_ru": ["огненный шар", "фаербол"],
+    "aliases_en": ["fire charge"]
+  },
+  {
+    "id": "minecraft:fishing_rod",
+    "kind": "item",
+    "display_name_ru": "удочка",
+    "display_name_en": "fishing rod",
+    "aliases_ru": ["удочка"],
+    "aliases_en": ["fishing rod"]
+  },
+  {
+    "id": "minecraft:flint_and_steel",
+    "kind": "item",
+    "display_name_ru": "огниво",
+    "display_name_en": "flint and steel",
+    "aliases_ru": ["огниво", "зажигалка"],
+    "aliases_en": ["flint and steel"]
+  },
+  {
+    "id": "minecraft:furnace",
+    "kind": "block",
+    "display_name_ru": "печь",
+    "display_name_en": "furnace",
+    "aliases_ru": ["печь", "печка"],
+    "aliases_en": ["furnace"]
+  },
+  {
+    "id": "minecraft:glass",
+    "kind": "block",
+    "display_name_ru": "стекло",
+    "display_name_en": "glass",
+    "aliases_ru": ["стекло"],
+    "aliases_en": ["glass"]
+  },
+  {
+    "id": "minecraft:glowstone",
+    "kind": "block",
+    "display_name_ru": "светокамень",
+    "display_name_en": "glowstone",
+    "aliases_ru": ["светокамень", "г свет"],
+    "aliases_en": ["glowstone"]
+  },
+  {
+    "id": "minecraft:golden_apple",
+    "kind": "item",
+    "display_name_ru": "золотое яблоко",
+    "display_name_en": "golden apple",
+    "aliases_ru": ["золотое яблоко", "гэпл"],
+    "aliases_en": ["golden apple"]
+  },
+  {
+    "id": "minecraft:grass_block",
+    "kind": "block",
+    "display_name_ru": "блок травы",
+    "display_name_en": "grass block",
+    "aliases_ru": ["блок травы", "трава"],
+    "aliases_en": ["grass block"]
+  },
+  {
+    "id": "minecraft:hay_block",
+    "kind": "block",
+    "display_name_ru": "сноп сена",
+    "display_name_en": "hay bale",
+    "aliases_ru": ["сноп сена", "блок сена", "сено"],
+    "aliases_en": ["hay block", "hay bale"]
+  },
+  {
+    "id": "minecraft:heart_of_the_sea",
+    "kind": "item",
+    "display_name_ru": "сердце моря",
+    "display_name_en": "heart of the sea",
+    "aliases_ru": ["сердце моря"],
+    "aliases_en": ["heart of the sea"]
+  },
+  {
+    "id": "minecraft:honey_block",
+    "kind": "block",
+    "display_name_ru": "блок мёда",
+    "display_name_en": "honey block",
+    "aliases_ru": ["блок мёда", "мёд", "мед"],
+    "aliases_en": ["honey block"]
+  },
+  {
+    "id": "minecraft:honey_bottle",
+    "kind": "item",
+    "display_name_ru": "бутылочка мёда",
+    "display_name_en": "honey bottle",
+    "aliases_ru": ["бутылочка мёда", "мед", "мёд"],
+    "aliases_en": ["honey bottle"]
+  },
+  {
+    "id": "minecraft:hopper",
+    "kind": "block",
+    "display_name_ru": "воронка",
+    "display_name_en": "hopper",
+    "aliases_ru": ["воронка", "загрузочная воронка"],
+    "aliases_en": ["hopper"]
+  },
+  {
+    "id": "minecraft:ice",
+    "kind": "block",
+    "display_name_ru": "лёд",
+    "display_name_en": "ice",
+    "aliases_ru": ["лед", "лёд"],
+    "aliases_en": ["ice"]
+  },
+  {
+    "id": "minecraft:ink_sac",
+    "kind": "item",
+    "display_name_ru": "чернильный мешок",
+    "display_name_en": "ink sac",
+    "aliases_ru": ["чернильный мешок", "чернила"],
+    "aliases_en": ["ink sac"]
+  },
+  {
+    "id": "minecraft:iron_axe",
+    "kind": "item",
+    "display_name_ru": "железный топор",
+    "display_name_en": "iron axe",
+    "aliases_ru": ["железный топор", "топор"],
+    "aliases_en": ["iron axe"]
+  },
+  {
+    "id": "minecraft:iron_block",
+    "kind": "block",
+    "display_name_ru": "железный блок",
+    "display_name_en": "iron block",
+    "aliases_ru": ["железный блок", "блок железа"],
+    "aliases_en": ["iron block"]
+  },
+  {
+    "id": "minecraft:iron_boots",
+    "kind": "item",
+    "display_name_ru": "железные ботинки",
+    "display_name_en": "iron boots",
+    "aliases_ru": ["железные ботинки", "сапоги"],
+    "aliases_en": ["iron boots"]
+  },
+  {
+    "id": "minecraft:iron_chestplate",
+    "kind": "item",
+    "display_name_ru": "железный нагрудник",
+    "display_name_en": "iron chestplate",
+    "aliases_ru": ["железный нагрудник", "нагрудник"],
+    "aliases_en": ["iron chestplate"]
+  },
+  {
+    "id": "minecraft:iron_door",
+    "kind": "block",
+    "display_name_ru": "железная дверь",
+    "display_name_en": "iron door",
+    "aliases_ru": ["железная дверь"],
+    "aliases_en": ["iron door"]
+  },
+  {
+    "id": "minecraft:iron_helmet",
+    "kind": "item",
+    "display_name_ru": "железный шлем",
+    "display_name_en": "iron helmet",
+    "aliases_ru": ["железный шлем", "шлем"],
+    "aliases_en": ["iron helmet"]
+  },
+  {
+    "id": "minecraft:iron_hoe",
+    "kind": "item",
+    "display_name_ru": "железная мотыга",
+    "display_name_en": "iron hoe",
+    "aliases_ru": ["железная мотыга", "мотыга"],
+    "aliases_en": ["iron hoe"]
+  },
+  {
+    "id": "minecraft:iron_ingot",
+    "kind": "item",
+    "display_name_ru": "железный слиток",
+    "display_name_en": "iron ingot",
+    "aliases_ru": ["железный слиток", "железо"],
+    "aliases_en": ["iron ingot"]
+  },
+  {
+    "id": "minecraft:iron_pickaxe",
+    "kind": "item",
+    "display_name_ru": "железная кирка",
+    "display_name_en": "iron pickaxe",
+    "aliases_ru": ["железная кирка", "кирка"],
+    "aliases_en": ["iron pickaxe"]
+  },
+  {
+    "id": "minecraft:iron_shovel",
+    "kind": "item",
+    "display_name_ru": "железная лопата",
+    "display_name_en": "iron shovel",
+    "aliases_ru": ["железная лопата", "лопата"],
+    "aliases_en": ["iron shovel"]
+  },
+  {
+    "id": "minecraft:iron_sword",
+    "kind": "item",
+    "display_name_ru": "железный меч",
+    "display_name_en": "iron sword",
+    "aliases_ru": ["железный меч", "меч"],
+    "aliases_en": ["iron sword"]
+  },
+  {
+    "id": "minecraft:iron_trapdoor",
+    "kind": "block",
+    "display_name_ru": "железный люк",
+    "display_name_en": "iron trapdoor",
+    "aliases_ru": ["железный люк", "люк"],
+    "aliases_en": ["iron trapdoor"]
+  },
+  {
+    "id": "minecraft:item_frame",
+    "kind": "item",
+    "display_name_ru": "рамка",
+    "display_name_en": "item frame",
+    "aliases_ru": ["рамка"],
+    "aliases_en": ["item frame"]
+  },
+  {
+    "id": "minecraft:jack_o_lantern",
+    "kind": "block",
+    "display_name_ru": "светильник Джека",
+    "display_name_en": "jack o'lantern",
+    "aliases_ru": ["светильник Джека", "тыквенный фонарь", "светящаяся тыква"],
+    "aliases_en": ["jack o lantern"]
+  },
+  {
+    "id": "minecraft:jukebox",
+    "kind": "block",
+    "display_name_ru": "проигрыватель",
+    "display_name_en": "jukebox",
+    "aliases_ru": ["проигрыватель", "музыкальный блок"],
+    "aliases_en": ["jukebox"]
+  },
+  {
+    "id": "minecraft:jungle_log",
+    "kind": "block",
+    "display_name_ru": "тропическое бревно",
+    "display_name_en": "jungle log",
+    "aliases_ru": ["тропическое бревно", "джунглевое бревно"],
+    "aliases_en": ["jungle log"]
+  },
+  {
+    "id": "minecraft:jungle_planks",
+    "kind": "block",
+    "display_name_ru": "тропические доски",
+    "display_name_en": "jungle planks",
+    "aliases_ru": ["тропические доски", "доски джунглей"],
+    "aliases_en": ["jungle planks"]
+  },
+  {
+    "id": "minecraft:ladder",
+    "kind": "block",
+    "display_name_ru": "лестница",
+    "display_name_en": "ladder",
+    "aliases_ru": ["лестница"],
+    "aliases_en": ["ladder"]
+  },
+  {
+    "id": "minecraft:lantern",
+    "kind": "block",
+    "display_name_ru": "фонарь",
+    "display_name_en": "lantern",
+    "aliases_ru": ["фонарь"],
+    "aliases_en": ["lantern"]
+  },
+  {
+    "id": "minecraft:lapis_lazuli",
+    "kind": "item",
+    "display_name_ru": "лазурит",
+    "display_name_en": "lapis lazuli",
+    "aliases_ru": ["лазурит"],
+    "aliases_en": ["lapis lazuli"]
+  },
+  {
+    "id": "minecraft:lava_bucket",
+    "kind": "item",
+    "display_name_ru": "ведро лавы",
+    "display_name_en": "lava bucket",
+    "aliases_ru": ["ведро лавы", "лава"],
+    "aliases_en": ["lava bucket"]
+  },
+  {
+    "id": "minecraft:lead",
+    "kind": "item",
+    "display_name_ru": "поводок",
+    "display_name_en": "lead",
+    "aliases_ru": ["поводок"],
+    "aliases_en": ["lead"]
+  },
+  {
+    "id": "minecraft:leather",
+    "kind": "item",
+    "display_name_ru": "кожа",
+    "display_name_en": "leather",
+    "aliases_ru": ["кожа"],
+    "aliases_en": ["leather"]
+  },
+  {
+    "id": "minecraft:lectern",
+    "kind": "block",
+    "display_name_ru": "аналой",
+    "display_name_en": "lectern",
+    "aliases_ru": ["аналой", "кафедра", "подставка для книг"],
+    "aliases_en": ["lectern"]
+  },
+  {
+    "id": "minecraft:lever",
+    "kind": "block",
+    "display_name_ru": "рычаг",
+    "display_name_en": "lever",
+    "aliases_ru": ["рычаг"],
+    "aliases_en": ["lever"]
+  },
+  {
+    "id": "minecraft:magma_block",
+    "kind": "block",
+    "display_name_ru": "магма",
+    "display_name_en": "magma block",
+    "aliases_ru": ["магма", "блок магмы"],
+    "aliases_en": ["magma block"]
+  },
+  {
+    "id": "minecraft:melon",
+    "kind": "block",
+    "display_name_ru": "арбуз",
+    "display_name_en": "melon",
+    "aliases_ru": ["арбуз", "блок арбуза"],
+    "aliases_en": ["melon"]
+  },
+  {
+    "id": "minecraft:minecart",
+    "kind": "item",
+    "display_name_ru": "вагонетка",
+    "display_name_en": "minecart",
+    "aliases_ru": ["вагонетка"],
+    "aliases_en": ["minecart"]
+  },
+  {
+    "id": "minecraft:nether_brick",
+    "kind": "item",
+    "display_name_ru": "незеритовый кирпич",
+    "display_name_en": "nether brick",
+    "aliases_ru": ["незеритовый кирпич", "адский кирпич"],
+    "aliases_en": ["nether brick"]
+  },
+  {
+    "id": "minecraft:nether_star",
+    "kind": "item",
+    "display_name_ru": "звезда Незера",
+    "display_name_en": "nether star",
+    "aliases_ru": ["звезда Незера", "звезда ада", "незер звезда"],
+    "aliases_en": ["nether star"]
+  },
+  {
+    "id": "minecraft:netherite_axe",
+    "kind": "item",
+    "display_name_ru": "незеритовый топор",
+    "display_name_en": "netherite axe",
+    "aliases_ru": ["незеритовый топор", "топор"],
+    "aliases_en": ["netherite axe"]
+  },
+  {
+    "id": "minecraft:netherite_block",
+    "kind": "block",
+    "display_name_ru": "незеритовый блок",
+    "display_name_en": "netherite block",
+    "aliases_ru": ["незеритовый блок"],
+    "aliases_en": ["netherite block"]
+  },
+  {
+    "id": "minecraft:netherite_boots",
+    "kind": "item",
+    "display_name_ru": "незеритовые ботинки",
+    "display_name_en": "netherite boots",
+    "aliases_ru": ["незеритовые ботинки", "незеритовые сапоги"],
+    "aliases_en": ["netherite boots"]
+  },
+  {
+    "id": "minecraft:netherite_chestplate",
+    "kind": "item",
+    "display_name_ru": "незеритовый нагрудник",
+    "display_name_en": "netherite chestplate",
+    "aliases_ru": ["незеритовый нагрудник"],
+    "aliases_en": ["netherite chestplate"]
+  },
+  {
+    "id": "minecraft:netherite_helmet",
+    "kind": "item",
+    "display_name_ru": "незеритовый шлем",
+    "display_name_en": "netherite helmet",
+    "aliases_ru": ["незеритовый шлем"],
+    "aliases_en": ["netherite helmet"]
+  },
+  {
+    "id": "minecraft:netherite_ingot",
+    "kind": "item",
+    "display_name_ru": "незеритовый слиток",
+    "display_name_en": "netherite ingot",
+    "aliases_ru": ["незеритовый слиток", "незерит"],
+    "aliases_en": ["netherite ingot"]
+  },
+  {
+    "id": "minecraft:netherite_pickaxe",
+    "kind": "item",
+    "display_name_ru": "незеритовая кирка",
+    "display_name_en": "netherite pickaxe",
+    "aliases_ru": ["незеритовая кирка", "кирка"],
+    "aliases_en": ["netherite pickaxe"]
+  },
+  {
+    "id": "minecraft:netherite_sword",
+    "kind": "item",
+    "display_name_ru": "незеритовый меч",
+    "display_name_en": "netherite sword",
+    "aliases_ru": ["незеритовый меч", "меч"],
+    "aliases_en": ["netherite sword"]
+  },
+  {
+    "id": "minecraft:netherrack",
+    "kind": "block",
+    "display_name_ru": "незерак",
+    "display_name_en": "netherrack",
+    "aliases_ru": ["незерак", "адский камень"],
+    "aliases_en": ["netherrack"]
+  },
+  {
+    "id": "minecraft:note_block",
+    "kind": "block",
+    "display_name_ru": "нотный блок",
+    "display_name_en": "note block",
+    "aliases_ru": ["нотный блок", "музыкальный блок"],
+    "aliases_en": ["note block"]
+  },
+  {
+    "id": "minecraft:oak_log",
+    "kind": "block",
+    "display_name_ru": "дубовое бревно",
+    "display_name_en": "oak log",
+    "aliases_ru": ["дубовое бревно", "дуб"],
+    "aliases_en": ["oak log"]
+  },
+  {
+    "id": "minecraft:oak_planks",
+    "kind": "block",
+    "display_name_ru": "дубовые доски",
+    "display_name_en": "oak planks",
+    "aliases_ru": ["дубовые доски"],
+    "aliases_en": ["oak planks"]
+  },
+  {
+    "id": "minecraft:observer",
+    "kind": "block",
+    "display_name_ru": "наблюдатель",
+    "display_name_en": "observer",
+    "aliases_ru": ["наблюдатель", "обсервер"],
+    "aliases_en": ["observer"]
+  },
+  {
+    "id": "minecraft:obsidian",
+    "kind": "block",
+    "display_name_ru": "обсидиан",
+    "display_name_en": "obsidian",
+    "aliases_ru": ["обсидиан"],
+    "aliases_en": ["obsidian"]
+  },
+  {
+    "id": "minecraft:piston",
+    "kind": "block",
+    "display_name_ru": "поршень",
+    "display_name_en": "piston",
+    "aliases_ru": ["поршень"],
+    "aliases_en": ["piston"]
+  },
+  {
+    "id": "minecraft:podzol",
+    "kind": "block",
+    "display_name_ru": "подзол",
+    "display_name_en": "podzol",
+    "aliases_ru": ["подзол"],
+    "aliases_en": ["podzol"]
+  },
+  {
+    "id": "minecraft:pointed_dripstone",
+    "kind": "block",
+    "display_name_ru": "капельник",
+    "display_name_en": "pointed dripstone",
+    "aliases_ru": ["капельник", "сталактит", "сталагмит"],
+    "aliases_en": ["pointed dripstone"]
+  },
+  {
+    "id": "minecraft:polished_andesite",
+    "kind": "block",
+    "display_name_ru": "полированный андезит",
+    "display_name_en": "polished andesite",
+    "aliases_ru": ["полированный андезит"],
+    "aliases_en": ["polished andesite"]
+  },
+  {
+    "id": "minecraft:polished_blackstone",
+    "kind": "block",
+    "display_name_ru": "полированный чернит",
+    "display_name_en": "polished blackstone",
+    "aliases_ru": ["полированный чернит", "полированный блэкстоун"],
+    "aliases_en": ["polished blackstone"]
+  },
+  {
+    "id": "minecraft:potion",
+    "kind": "item",
+    "display_name_ru": "зелье",
+    "display_name_en": "potion",
+    "aliases_ru": ["зелье"],
+    "aliases_en": ["potion"]
+  },
+  {
+    "id": "minecraft:powder_snow_bucket",
+    "kind": "item",
+    "display_name_ru": "ведро рыхлого снега",
+    "display_name_en": "powder snow bucket",
+    "aliases_ru": ["ведро рыхлого снега"],
+    "aliases_en": ["powder snow bucket"]
+  },
+  {
+    "id": "minecraft:powered_rail",
+    "kind": "block",
+    "display_name_ru": "энергорельсы",
+    "display_name_en": "powered rail",
+    "aliases_ru": ["энергорельсы", "электрические рельсы"],
+    "aliases_en": ["powered rail"]
+  },
+  {
+    "id": "minecraft:prismarine",
+    "kind": "block",
+    "display_name_ru": "призмарин",
+    "display_name_en": "prismarine",
+    "aliases_ru": ["призмарин"],
+    "aliases_en": ["prismarine"]
+  },
+  {
+    "id": "minecraft:pumpkin",
+    "kind": "block",
+    "display_name_ru": "тыква",
+    "display_name_en": "pumpkin",
+    "aliases_ru": ["тыква"],
+    "aliases_en": ["pumpkin"]
+  },
+  {
+    "id": "minecraft:quartz",
+    "kind": "item",
+    "display_name_ru": "кварц",
+    "display_name_en": "nether quartz",
+    "aliases_ru": ["кварц", "адский кварц"],
+    "aliases_en": ["quartz"]
+  },
+  {
+    "id": "minecraft:raw_copper",
+    "kind": "item",
+    "display_name_ru": "необработанная медь",
+    "display_name_en": "raw copper",
+    "aliases_ru": ["необработанная медь", "сырая медь"],
+    "aliases_en": ["raw copper"]
+  },
+  {
+    "id": "minecraft:raw_gold",
+    "kind": "item",
+    "display_name_ru": "необработанное золото",
+    "display_name_en": "raw gold",
+    "aliases_ru": ["необработанное золото", "сырое золото"],
+    "aliases_en": ["raw gold"]
+  },
+  {
+    "id": "minecraft:raw_iron",
+    "kind": "item",
+    "display_name_ru": "необработанное железо",
+    "display_name_en": "raw iron",
+    "aliases_ru": ["необработанное железо", "сырое железо"],
+    "aliases_en": ["raw iron"]
+  },
+  {
+    "id": "minecraft:redstone",
+    "kind": "item",
+    "display_name_ru": "редстоун",
+    "display_name_en": "redstone dust",
+    "aliases_ru": ["редстоун", "красная пыль"],
+    "aliases_en": ["redstone dust"]
+  },
+  {
+    "id": "minecraft:redstone_block",
+    "kind": "block",
+    "display_name_ru": "редстоуновый блок",
+    "display_name_en": "redstone block",
+    "aliases_ru": ["редстоуновый блок", "блок красного камня"],
+    "aliases_en": ["redstone block"]
+  },
+  {
+    "id": "minecraft:redstone_lamp",
+    "kind": "block",
+    "display_name_ru": "редстоуновый фонарь",
+    "display_name_en": "redstone lamp",
+    "aliases_ru": ["редстоуновый фонарь", "лампа"],
+    "aliases_en": ["redstone lamp"]
+  },
+  {
+    "id": "minecraft:redstone_torch",
+    "kind": "block",
+    "display_name_ru": "редстоуновый факел",
+    "display_name_en": "redstone torch",
+    "aliases_ru": ["редстоуновый факел", "красный факел"],
+    "aliases_en": ["redstone torch"]
+  },
+  {
+    "id": "minecraft:repeater",
+    "kind": "block",
+    "display_name_ru": "повторитель",
+    "display_name_en": "redstone repeater",
+    "aliases_ru": ["повторитель", "репитер"],
+    "aliases_en": ["repeater"]
+  },
+  {
+    "id": "minecraft:respawn_anchor",
+    "kind": "block",
+    "display_name_ru": "якорь возрождения",
+    "display_name_en": "respawn anchor",
+    "aliases_ru": ["якорь возрождения", "якорь"],
+    "aliases_en": ["respawn anchor"]
+  },
+  {
+    "id": "minecraft:saddle",
+    "kind": "item",
+    "display_name_ru": "седло",
+    "display_name_en": "saddle",
+    "aliases_ru": ["седло"],
+    "aliases_en": ["saddle"]
+  },
+  {
+    "id": "minecraft:sand",
+    "kind": "block",
+    "display_name_ru": "песок",
+    "display_name_en": "sand",
+    "aliases_ru": ["песок"],
+    "aliases_en": ["sand"]
+  },
+  {
+    "id": "minecraft:scaffolding",
+    "kind": "block",
+    "display_name_ru": "подмостки",
+    "display_name_en": "scaffolding",
+    "aliases_ru": ["подмостки", "леса"],
+    "aliases_en": ["scaffolding"]
+  },
+  {
+    "id": "minecraft:sculk",
+    "kind": "block",
+    "display_name_ru": "скалк",
+    "display_name_en": "sculk",
+    "aliases_ru": ["скалк", "скалк-блок"],
+    "aliases_en": ["sculk"]
+  },
+  {
+    "id": "minecraft:shears",
+    "kind": "item",
+    "display_name_ru": "ножницы",
+    "display_name_en": "shears",
+    "aliases_ru": ["ножницы"],
+    "aliases_en": ["shears"]
+  },
+  {
+    "id": "minecraft:shield",
+    "kind": "item",
+    "display_name_ru": "щит",
+    "display_name_en": "shield",
+    "aliases_ru": ["щит"],
+    "aliases_en": ["shield"]
+  },
+  {
+    "id": "minecraft:shulker_box",
+    "kind": "block",
+    "display_name_ru": "шалкеровый ящик",
+    "display_name_en": "shulker box",
+    "aliases_ru": ["шалкеровый ящик", "шалкер"],
+    "aliases_en": ["shulker box"]
+  },
+  {
+    "id": "minecraft:slime_ball",
+    "kind": "item",
+    "display_name_ru": "сгусток слизи",
+    "display_name_en": "slimeball",
+    "aliases_ru": ["сгусток слизи", "слизь", "слаймбол"],
+    "aliases_en": ["slime ball"]
+  },
+  {
+    "id": "minecraft:smithing_table",
+    "kind": "block",
+    "display_name_ru": "стол кузнеца",
+    "display_name_en": "smithing table",
+    "aliases_ru": ["стол кузнеца", "кузнечный стол"],
+    "aliases_en": ["smithing table"]
+  },
+  {
+    "id": "minecraft:smoker",
+    "kind": "block",
+    "display_name_ru": "коптильня",
+    "display_name_en": "smoker",
+    "aliases_ru": ["коптильня"],
+    "aliases_en": ["smoker"]
+  },
+  {
+    "id": "minecraft:snowball",
+    "kind": "item",
+    "display_name_ru": "снежок",
+    "display_name_en": "snowball",
+    "aliases_ru": ["снежок"],
+    "aliases_en": ["snowball"]
+  },
+  {
+    "id": "minecraft:soul_sand",
+    "kind": "block",
+    "display_name_ru": "песок душ",
+    "display_name_en": "soul sand",
+    "aliases_ru": ["песок душ"],
+    "aliases_en": ["soul sand"]
+  },
+  {
+    "id": "minecraft:spawner",
+    "kind": "block",
+    "display_name_ru": "спаунер",
+    "display_name_en": "spawner",
+    "aliases_ru": ["спаунер", "рассадник"],
+    "aliases_en": ["spawner"]
+  },
+  {
+    "id": "minecraft:spruce_log",
+    "kind": "block",
+    "display_name_ru": "еловое бревно",
+    "display_name_en": "spruce log",
+    "aliases_ru": ["еловое бревно", "ель"],
+    "aliases_en": ["spruce log"]
+  },
+  {
+    "id": "minecraft:stick",
+    "kind": "item",
+    "display_name_ru": "палка",
+    "display_name_en": "stick",
+    "aliases_ru": ["палка"],
+    "aliases_en": ["stick"]
+  },
+  {
+    "id": "minecraft:stone",
+    "kind": "block",
+    "display_name_ru": "камень",
+    "display_name_en": "stone",
+    "aliases_ru": ["камень"],
+    "aliases_en": ["stone"]
+  },
+  {
+    "id": "minecraft:stone_sword",
+    "kind": "item",
+    "display_name_ru": "каменный меч",
+    "display_name_en": "stone sword",
+    "aliases_ru": ["каменный меч"],
+    "aliases_en": ["stone sword"]
+  },
+  {
+    "id": "minecraft:string",
+    "kind": "item",
+    "display_name_ru": "нить",
+    "display_name_en": "string",
+    "aliases_ru": ["нить", "нитка"],
+    "aliases_en": ["string"]
+  },
+  {
+    "id": "minecraft:sugar_cane",
+    "kind": "block",
+    "display_name_ru": "сахарный тростник",
+    "display_name_en": "sugar cane",
+    "aliases_ru": ["сахарный тростник", "тростник"],
+    "aliases_en": ["sugar cane"]
+  },
+  {
+    "id": "minecraft:tnt",
+    "kind": "block",
+    "display_name_ru": "динамит",
+    "display_name_en": "tnt",
+    "aliases_ru": ["динамит", "тнт"],
+    "aliases_en": ["tnt"]
+  },
+  {
+    "id": "minecraft:torch",
+    "kind": "block",
+    "display_name_ru": "факел",
+    "display_name_en": "torch",
+    "aliases_ru": ["факел"],
+    "aliases_en": ["torch"]
+  },
+  {
+    "id": "minecraft:totem_of_undying",
+    "kind": "item",
+    "display_name_ru": "тотем бессмертия",
+    "display_name_en": "totem of undying",
+    "aliases_ru": ["тотем бессмертия", "тотем"],
+    "aliases_en": ["totem of undying"]
+  },
+  {
+    "id": "minecraft:trident",
+    "kind": "item",
+    "display_name_ru": "трезубец",
+    "display_name_en": "trident",
+    "aliases_ru": ["трезубец"],
+    "aliases_en": ["trident"]
+  },
+  {
+    "id": "minecraft:turtle_helmet",
+    "kind": "item",
+    "display_name_ru": "черепаший панцирь",
+    "display_name_en": "turtle shell",
+    "aliases_ru": ["черепаший панцирь", "шлем черепахи"],
+    "aliases_en": ["turtle helmet"]
+  },
+  {
+    "id": "minecraft:water_bucket",
+    "kind": "item",
+    "display_name_ru": "ведро воды",
+    "display_name_en": "water bucket",
+    "aliases_ru": ["ведро воды", "вода"],
+    "aliases_en": ["water bucket"]
+  },
+  {
+    "id": "minecraft:wheat",
+    "kind": "item",
+    "display_name_ru": "пшеница",
+    "display_name_en": "wheat",
+    "aliases_ru": ["пшеница"],
+    "aliases_en": ["wheat"]
+  },
+  {
+    "id": "minecraft:white_wool",
+    "kind": "block",
+    "display_name_ru": "белая шерсть",
+    "display_name_en": "white wool",
+    "aliases_ru": ["белая шерсть", "шерсть"],
+    "aliases_en": ["white wool"]
+  },
+  {
+    "id": "minecraft:wooden_sword",
+    "kind": "item",
+    "display_name_ru": "деревянный меч",
+    "display_name_en": "wooden sword",
+    "aliases_ru": ["деревянный меч"],
+    "aliases_en": ["wooden sword"]
+  },
+  {
+    "id": "minecraft:writable_book",
+    "kind": "item",
+    "display_name_ru": "книга и перо",
+    "display_name_en": "writable book",
+    "aliases_ru": ["книга и перо"],
+    "aliases_en": ["writable book"]
+  }
+]

@@ -7,6 +7,8 @@ from pathlib import Path
 from api import logs, settings
 from api import advice
 from api import analytics
+from api import challenges
+from api import player_state
 from api import wiki
 from api.llm_config_manager import get_llm_config
 
@@ -32,6 +34,8 @@ app.include_router(logs.router)
 app.include_router(settings.router)
 app.include_router(advice.router)
 app.include_router(analytics.router)
+app.include_router(challenges.router)
+app.include_router(player_state.router)
 app.include_router(wiki.router)
 
 # Статические файлы
@@ -57,6 +61,15 @@ async def admin_responses_page():
 @app.get("/admin/analytics")
 async def admin_analytics_page():
     return FileResponse(BASE_DIR / "static" / "analytics.html")
+
+@app.get("/admin/player-state")
+async def admin_player_state_page():
+    return FileResponse(BASE_DIR / "static" / "player_state.html")
+
+
+@app.get("/admin/challenges")
+async def admin_challenges_page():
+    return FileResponse(BASE_DIR / "static" / "challenges.html")
 
 @app.get("/admin/wiki")
 async def admin_wiki_page():

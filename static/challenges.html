@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Assistant - Challenges</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .state-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-top: 20px; }
+        .state-card { background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 20px; }
+        .state-card h3 { margin-top: 0; color: #bb86fc; }
+        .meta { color: #aaa; font-size: 14px; margin-bottom: 15px; }
+        .kv-list { display: grid; gap: 8px; }
+        .kv-item { display: flex; justify-content: space-between; gap: 12px; padding: 8px 10px; background: rgba(255,255,255,0.04); border-radius: 6px; }
+        .empty { color: #888; font-style: italic; }
+        .form-grid { display: grid; gap: 12px; }
+        .form-grid input, .form-grid select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.04); color: #fff; }
+        .action-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+        .action-row button { cursor: pointer; }
+        .status-pill { display: inline-block; padding: 4px 10px; border-radius: 999px; background: rgba(98,0,234,0.25); border: 1px solid rgba(187,134,252,0.35); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav>
+            <a href="/admin">Логи</a>
+            <a href="/admin/responses">Ответы LLM</a>
+            <a href="/admin/wiki">Справочник</a>
+            <a href="/admin/analytics">Аналитика</a>
+            <a href="/admin/player-state">Player State</a>
+            <a href="/admin/challenges" class="active">Challenges</a>
+            <a href="/admin/settings">Настройки</a>
+        </nav>
+
+        <div class="analytics-container">
+            <h2>Challenges Debug</h2>
+            <p>Активный челлендж, прогресс, история и ручной debug-create через API.</p>
+            <div class="filters">
+                <button onclick="loadChallenges()">Обновить</button>
+            </div>
+            <div id="updatedAt" class="meta"></div>
+            <div class="state-grid">
+                <div class="state-card">
+                    <h3>Active challenge</h3>
+                    <div id="activeChallenge"></div>
+                    <div class="action-row">
+                        <button id="claimButton" onclick="claimReward()" disabled>Забрать награду</button>
+                        <button id="cancelButton" onclick="cancelChallenge()" disabled>Отменить</button>
+                    </div>
+                </div>
+                <div class="state-card">
+                    <h3>Manual debug create</h3>
+                    <div class="meta">Для ручного теста указывай канонические `minecraft:id`.</div>
+                    <div class="form-grid">
+                        <input id="title" placeholder="Название челленджа">
+                        <select id="goalType">
+                            <option value="kill">kill</option>
+                            <option value="collect">collect</option>
+                        </select>
+                        <input id="goalTargetId" placeholder="goal target id, например minecraft:zombie">
+                        <input id="goalCount" type="number" min="1" value="1">
+                        <input id="rewardItemId" placeholder="reward item id, например minecraft:iron_ingot">
+                        <input id="rewardCount" type="number" min="1" max="64" value="1">
+                    </div>
+                    <div class="action-row">
+                        <button onclick="createChallenge()">Создать через API</button>
+                    </div>
+                    <div id="createResult" class="meta"></div>
+                </div>
+                <div class="state-card">
+                    <h3>History</h3>
+                    <div id="challengeHistory" class="kv-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/frontend/js/challenges.js"></script>
+</body>
+</html>

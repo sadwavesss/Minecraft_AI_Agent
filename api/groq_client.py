@@ -1,24 +1,124 @@
+import asyncio
+import ast
+import json
+import logging
 import os
 import re
+from concurrent.futures import ThreadPoolExecutor
 from typing import Optional
-import logging
+
+from api.console_utils import make_console_safe
 from groq import Groq
 from openai import OpenAI as OllamaClient
-import asyncio
-from concurrent.futures import ThreadPoolExecutor
+from api.challenges import get_challenge_prompt_context
+from api.player_state import get_player_state_prompt_context
 
 logger = logging.getLogger(__name__)
 
-OLLAMA_BASE_URL = "http://localhost:11434/v1"
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
 
-# Thread pool for blocking LLM API calls
-_executor = ThreadPoolExecutor(max_workers=2)
+# Separate passive RP polling from interactive chat/tool requests so a slow tip
+# request cannot monopolize the workers needed for /api/rp/chat.
+_tip_executor = ThreadPoolExecutor(max_workers=1)
+_interactive_executor = ThreadPoolExecutor(max_workers=2)
 
 
 def _strip_thinking(text: str) -> str:
     """Strip <think>...</think> reasoning blocks from LLM output (Qwen3 etc.)."""
     cleaned = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
     return cleaned.strip()
+
+
+def _clean_model_text(text: str) -> str:
+    """Keep only the final user-visible answer and trim common reasoning artifacts."""
+    cleaned = _strip_thinking(text or "").strip()
+    if not cleaned:
+        return ""
+
+    if cleaned.startswith("```"):
+        cleaned = re.sub(r"^```[a-zA-Z0-9_-]*\s*", "", cleaned)
+        cleaned = re.sub(r"\s*```$", "", cleaned)
+        cleaned = cleaned.strip()
+
+    lowered = cleaned.lower()
+    for marker in ("final answer:", "final:", "answer:", "ответ:", "итог:", "spoken_response:"):
+        idx = lowered.rfind(marker)
+        if idx != -1:
+            cleaned = cleaned[idx + len(marker) :].strip()
+            lowered = cleaned.lower()
+
+    paragraphs = [part.strip() for part in re.split(r"\n{2,}", cleaned) if part.strip()]
+    if len(paragraphs) > 1:
+        first = paragraphs[0].lower()
+        if any(token in first for token in ("let me", "user asked", "пользоват", "нужно", "reasoning", "thinking")):
+            cleaned = paragraphs[-1]
+
+    lines = [line.strip(" -*\t") for line in cleaned.splitlines() if line.strip()]
+    if len(lines) > 1:
+        first = lines[0].lower()
+        if any(token in first for token in ("let me", "user asked", "пользоват", "reasoning", "thinking")):
+            cleaned = lines[-1]
+
+    return cleaned.strip()
+
+
+def _extract_json_object(text: str) -> str:
+    """Extract a JSON object from raw LLM output."""
+    cleaned = _clean_model_text(text)
+    if cleaned.startswith("```json"):
+        cleaned = cleaned[7:]
+    if cleaned.startswith("```"):
+        cleaned = cleaned[3:]
+    if cleaned.endswith("```"):
+        cleaned = cleaned[:-3]
+    cleaned = cleaned.strip()
+
+    start = cleaned.find("{")
+    end = cleaned.rfind("}")
+    if start != -1 and end != -1 and end >= start:
+        cleaned = cleaned[start : end + 1]
+
+    return cleaned.strip()
+
+
+def _loads_jsonish_object(text: str) -> Optional[dict]:
+    """Parse slightly malformed JSON-ish model output into a dict."""
+    candidates = []
+    cleaned = _extract_json_object(text)
+    if cleaned:
+        candidates.append(cleaned)
+        candidates.append(re.sub(r",\s*([}\]])", r"\1", cleaned))
+
+    seen = set()
+    for candidate in candidates:
+        if not candidate or candidate in seen:
+            continue
+        seen.add(candidate)
+        try:
+            parsed = json.loads(candidate)
+            return parsed if isinstance(parsed, dict) else None
+        except json.JSONDecodeError:
+            pass
+
+        pythonish = candidate
+        pythonish = re.sub(r"\btrue\b", "True", pythonish, flags=re.IGNORECASE)
+        pythonish = re.sub(r"\bfalse\b", "False", pythonish, flags=re.IGNORECASE)
+        pythonish = re.sub(r"\bnull\b", "None", pythonish, flags=re.IGNORECASE)
+        try:
+            parsed = ast.literal_eval(pythonish)
+            return parsed if isinstance(parsed, dict) else None
+        except (ValueError, SyntaxError):
+            continue
+
+    return None
+
+
+def _render_prompt_template(template: str, **values: str) -> str:
+    """Replace only known placeholders and leave literal JSON braces untouched."""
+    rendered = template or ""
+    for key, value in values.items():
+        rendered = rendered.replace("{" + key + "}", value if isinstance(value, str) else str(value))
+    return rendered
 
 
 class GroqClient:
@@ -41,8 +141,8 @@ class GroqClient:
         if self.provider == "ollama":
             try:
                 self.client = OllamaClient(base_url=OLLAMA_BASE_URL, api_key="ollama")
-                print(f"[LLM] Using Ollama | model: {self.model} | url: {OLLAMA_BASE_URL}")
-                logger.info(f"Initialized Ollama client with model: {self.model}")
+                print(make_console_safe(f"[LLM] Using Ollama | model: {self.model} | url: {OLLAMA_BASE_URL}"))
+                logger.info(make_console_safe(f"Initialized Ollama client with model: {self.model}"))
             except Exception as e:
                 logger.error(f"Failed to initialize Ollama client: {e}")
                 self.client = None
@@ -50,14 +150,18 @@ class GroqClient:
             if self.api_key:
                 try:
                     self.client = Groq(api_key=self.api_key)
-                    print(f"[LLM] Using Groq | model: {self.model}")
-                    logger.info(f"Initialized Groq client with model: {self.model}")
+                    print(make_console_safe(f"[LLM] Using Groq | model: {self.model}"))
+                    logger.info(make_console_safe(f"Initialized Groq client with model: {self.model}"))
                 except Exception as e:
                     logger.error(f"Failed to initialize Groq client: {e}")
                     self.client = None
             else:
-                print("[LLM] WARNING: GROQ_API_KEY not set — Groq unavailable")
+                print(make_console_safe("[LLM] WARNING: GROQ_API_KEY not set — Groq unavailable"))
                 logger.warning("GROQ_API_KEY not set")
+
+    def get_source_name(self) -> str:
+        """Return a stable source/provider name for logs and API responses."""
+        return "ollama" if self.provider == "ollama" else "groq"
 
     def is_available(self) -> bool:
         """Check if LLM API is configured and ready."""
@@ -95,6 +199,43 @@ class GroqClient:
         
         return params
 
+    def _create_completion(self, api_params: dict):
+        """Create a completion and retry Ollama/Qwen calls that exhaust budget on reasoning."""
+        completion = self.client.chat.completions.create(**api_params)
+
+        if self.provider != "ollama":
+            return completion
+
+        try:
+            choice = completion.choices[0]
+            message = choice.message
+            content = getattr(message, "content", "") or ""
+            reasoning = getattr(message, "reasoning", None)
+            finish_reason = getattr(choice, "finish_reason", None)
+        except (AttributeError, IndexError):
+            return completion
+
+        if content.strip():
+            return completion
+
+        if not reasoning:
+            return completion
+
+        if finish_reason not in {"length", None}:
+            return completion
+
+        retry_max_tokens = max(int(api_params.get("max_tokens", 100)) * 4, 800)
+        if retry_max_tokens <= int(api_params.get("max_tokens", 100)):
+            return completion
+
+        retry_params = dict(api_params)
+        retry_params["max_tokens"] = retry_max_tokens
+        logger.info(
+            "Retrying Ollama completion with higher max_tokens=%s because content was empty and reasoning consumed the budget",
+            retry_max_tokens,
+        )
+        return self.client.chat.completions.create(**retry_params)
+
     def generate_tip(self, recent_logs: list) -> Optional[str]:
         """
         Generate a role-play response based on recent game state logs.
@@ -115,7 +256,7 @@ class GroqClient:
         # Get prompt template from config
         if self.llm_config:
             prompt_template = self.llm_config.get_state_prompt_template()
-            prompt = prompt_template.format(context=context)
+            prompt = _render_prompt_template(prompt_template, context=context)
         else:
             prompt = f"""You are a role-playing Minecraft game companion. Based on the player's recent game state, provide a SHORT (1-2 sentences) humorous or sarcastic response in Russian.
 
@@ -134,14 +275,19 @@ Provide only the role-play response, nothing else."""
             api_params = self._build_api_params()
             api_params["messages"] = [{"role": "user", "content": prompt}]
             
-            message = self.client.chat.completions.create(**api_params)
-            tip = _strip_thinking(message.choices[0].message.content)
+            message = self._create_completion(api_params)
+            tip = _clean_model_text(message.choices[0].message.content)
             return tip if tip else None
         except Exception as e:
-            logger.error(f"Groq API error: {e}")
+            logger.error(f"{self.get_source_name()} tip API error: {e}")
             return None
 
-    def generate_chat_response(self, player_message: str, recent_logs: list) -> Optional[str]:
+    def generate_chat_response(
+        self,
+        player_message: str,
+        recent_logs: list,
+        conversation_history: Optional[list] = None,
+    ) -> Optional[str]:
         """
         Generate a role-play response to player's chat message.
         BLOCKING - should be called from thread pool!
@@ -157,13 +303,24 @@ Provide only the role-play response, nothing else."""
             return None
 
         context = self._format_logs_context(recent_logs)
+        conversation_context = self._format_conversation_history(conversation_history)
 
         # Get prompt template from config
         if self.llm_config:
             prompt_template = self.llm_config.get_chat_prompt_template()
-            prompt = prompt_template.format(player_message=player_message, context=context)
+            prompt = _render_prompt_template(
+                prompt_template,
+                player_message=player_message,
+                context=context,
+                conversation_history=conversation_context,
+            )
         else:
-            prompt = f"""You are a role-playing Minecraft game companion talking to a player. The player just said:
+            prompt = f"""You are a role-playing Minecraft game companion talking to a player.
+
+Recent conversation:
+{conversation_context}
+
+The player just said:
 "{player_message}"
 
 Current game context:
@@ -177,11 +334,245 @@ Respond only with the RP response, nothing else."""
             api_params = self._build_api_params()
             api_params["messages"] = [{"role": "user", "content": prompt}]
             
-            message = self.client.chat.completions.create(**api_params)
-            response = _strip_thinking(message.choices[0].message.content)
+            message = self._create_completion(api_params)
+            response = _clean_model_text(message.choices[0].message.content)
             return response if response else None
         except Exception as e:
-            logger.error(f"Groq chat API error: {e}")
+            logger.error(f"{self.get_source_name()} chat API error: {e}")
+            return None
+
+    def _format_conversation_history(self, conversation_history: Optional[list]) -> str:
+        if not conversation_history:
+            return "Нет недавнего диалога."
+
+        lines = []
+        for entry in conversation_history[-10:]:
+            if not isinstance(entry, dict):
+                continue
+            role = str(entry.get("role") or "").strip().lower()
+            content = str(entry.get("content") or "").strip()
+            if not content:
+                continue
+            if role == "user":
+                label = "Игрок"
+            elif role == "assistant":
+                label = "Ассистент"
+            elif role == "tool":
+                label = "Tool"
+            elif role == "tool_result":
+                label = "Результат tool"
+            else:
+                label = "Контекст"
+            lines.append(f"{label}: {content}")
+
+        return "\n".join(lines) if lines else "Нет недавнего диалога."
+
+    def _format_available_tools(self, tools: Optional[list]) -> str:
+        if not tools:
+            return "Нет доступных tools."
+
+        lines = []
+        for tool in tools:
+            if not isinstance(tool, dict):
+                continue
+            name = str(tool.get("name") or "").strip()
+            description = str(tool.get("description") or "").strip()
+            arguments = tool.get("arguments") or {}
+            if not name:
+                continue
+
+            argument_lines = []
+            if isinstance(arguments, dict):
+                for arg_name, arg_description in arguments.items():
+                    argument_lines.append(f"  - {arg_name}: {arg_description}")
+
+            lines.append(f"- {name}: {description}")
+            lines.extend(argument_lines)
+
+        return "\n".join(lines) if lines else "Нет доступных tools."
+
+    def generate_chat_action(
+        self,
+        player_message: str,
+        recent_logs: list,
+        conversation_history: Optional[list] = None,
+    ) -> Optional[dict]:
+        """
+        Generate a structured response for either normal chat or a validated action request.
+        BLOCKING - should be called from thread pool!
+        """
+        if not self.is_available():
+            return None
+
+        context = self._format_logs_context(recent_logs)
+        conversation_context = self._format_conversation_history(conversation_history)
+
+        prompt_template = self.llm_config.get_action_prompt_template() if self.llm_config else None
+        if prompt_template:
+            prompt = _render_prompt_template(
+                prompt_template,
+                player_message=player_message,
+                context=context,
+                conversation_history=conversation_context,
+            )
+        else:
+            prompt = f"""You process Minecraft player chat and must decide whether the message is a normal role-play chat or a tool invocation.
+
+Recent conversation:
+{conversation_context}
+
+Player message:
+"{player_message}"
+
+Current game context:
+{context}
+
+Return ONLY a valid JSON object with this exact schema:
+{{
+  "mode": "chat" | "action",
+  "spoken_response": "short Russian reply for the player",
+  "tool_name": "give_item" | null,
+  "arguments": {{
+    "item_query": "player wording for the requested item",
+    "count": 1
+  }} | null,
+  "should_execute": true | false,
+  "error": null | "short Russian error"
+}}
+
+Rules:
+- Use mode "action" only when the player is asking to receive an item, even in soft or indirect phrasing.
+- The only supported tool is "give_item".
+- Put the player's item wording into arguments.item_query instead of inventing a command.
+- Use count from 1 to 64.
+- The spoken_response must contain only the final visible reply in Russian, with no reasoning.
+- For normal conversation, use mode "chat", set should_execute to false, and leave tool_name/arguments null.
+- Do not output markdown, explanations, or extra text outside JSON."""
+
+        try:
+            api_params = self._build_api_params()
+            if api_params.get("max_tokens", 100) < 220:
+                api_params["max_tokens"] = 220
+            api_params["temperature"] = 0.0
+            api_params["messages"] = [{"role": "user", "content": prompt}]
+
+            message = self._create_completion(api_params)
+            return _loads_jsonish_object(message.choices[0].message.content)
+        except Exception as e:
+            logger.error(f"{self.get_source_name()} chat action API error: {e}")
+            return None
+
+    def generate_tool_decision(
+        self,
+        player_message: str,
+        recent_logs: list,
+        conversation_history: Optional[list] = None,
+        available_tools: Optional[list] = None,
+    ) -> Optional[dict]:
+        if not self.is_available():
+            return None
+
+        context = self._format_logs_context(recent_logs)
+        conversation_context = self._format_conversation_history(conversation_history)
+        tools_context = self._format_available_tools(available_tools)
+
+        prompt_template = self.llm_config.get_action_prompt_template() if self.llm_config else None
+        if prompt_template:
+            prompt = _render_prompt_template(
+                prompt_template,
+                player_message=player_message,
+                context=context,
+                conversation_history=conversation_context,
+                available_tools=tools_context,
+            )
+        else:
+            prompt = f"""You are an assistant with tools.
+
+Available tools:
+{tools_context}
+
+Recent conversation:
+{conversation_context}
+
+Player message:
+"{player_message}"
+
+Current game context:
+{context}
+
+Return ONLY valid JSON:
+{{
+  "assistant_response": null | "short final Russian reply if no tool is needed",
+  "tool_call": null | {{
+    "name": "one of the available tool names",
+    "arguments": {{
+      "key": "value"
+    }}
+  }}
+}}"""
+
+        try:
+            api_params = self._build_api_params()
+            if api_params.get("max_tokens", 100) < 260:
+                api_params["max_tokens"] = 260
+            api_params["temperature"] = 0.0
+            api_params["messages"] = [{"role": "user", "content": prompt}]
+
+            message = self._create_completion(api_params)
+            return _loads_jsonish_object(message.choices[0].message.content)
+        except Exception as e:
+            logger.error(f"{self.get_source_name()} tool decision API error: {e}")
+            return None
+
+    def generate_tool_followup(
+        self,
+        player_message: str,
+        recent_logs: list,
+        conversation_history: Optional[list] = None,
+        tool_result: Optional[dict] = None,
+    ) -> Optional[str]:
+        if not self.is_available():
+            return None
+
+        context = self._format_logs_context(recent_logs)
+        conversation_context = self._format_conversation_history(conversation_history)
+        tool_result_text = json.dumps(tool_result or {}, ensure_ascii=False, indent=2)
+        prompt_template = self.llm_config.get_tool_result_prompt_template() if self.llm_config else None
+
+        if prompt_template:
+            prompt = _render_prompt_template(
+                prompt_template,
+                player_message=player_message,
+                context=context,
+                conversation_history=conversation_context,
+                tool_result=tool_result_text,
+            )
+        else:
+            prompt = f"""A tool has already been executed.
+
+Recent conversation:
+{conversation_context}
+
+Player message:
+"{player_message}"
+
+Current game context:
+{context}
+
+Tool result:
+{tool_result_text}
+
+Return only the final short Russian reply for the player."""
+
+        try:
+            api_params = self._build_api_params()
+            api_params["messages"] = [{"role": "user", "content": prompt}]
+
+            message = self._create_completion(api_params)
+            response = _clean_model_text(message.choices[0].message.content)
+            return response if response else None
+        except Exception as e:
+            logger.error(f"{self.get_source_name()} tool followup API error: {e}")
             return None
 
     async def generate_tip_async(self, recent_logs: list) -> Optional[str]:
@@ -197,13 +588,18 @@ Respond only with the RP response, nothing else."""
         try:
             # Run blocking call in thread pool
             loop = asyncio.get_event_loop()
-            tip = await loop.run_in_executor(_executor, self.generate_tip, recent_logs)
+            tip = await loop.run_in_executor(_tip_executor, self.generate_tip, recent_logs)
             return tip
         except Exception as e:
             logger.error(f"Async generate_tip error: {e}")
             return None
 
-    async def generate_chat_response_async(self, player_message: str, recent_logs: list) -> Optional[str]:
+    async def generate_chat_response_async(
+        self,
+        player_message: str,
+        recent_logs: list,
+        conversation_history: Optional[list] = None,
+    ) -> Optional[str]:
         """
         Async wrapper for generate_chat_response that doesn't block the event loop.
         
@@ -216,16 +612,94 @@ Respond only with the RP response, nothing else."""
         """
         try:
             loop = asyncio.get_event_loop()
-            response = await loop.run_in_executor(_executor, self.generate_chat_response, player_message, recent_logs)
+            response = await loop.run_in_executor(
+                _interactive_executor,
+                self.generate_chat_response,
+                player_message,
+                recent_logs,
+                conversation_history,
+            )
             return response
         except Exception as e:
             logger.error(f"Async generate_chat_response error: {e}")
             return None
 
+    async def generate_chat_action_async(
+        self,
+        player_message: str,
+        recent_logs: list,
+        conversation_history: Optional[list] = None,
+    ) -> Optional[dict]:
+        """Async wrapper for generate_chat_action."""
+        try:
+            loop = asyncio.get_event_loop()
+            response = await loop.run_in_executor(
+                _interactive_executor,
+                self.generate_chat_action,
+                player_message,
+                recent_logs,
+                conversation_history,
+            )
+            return response
+        except Exception as e:
+            logger.error(f"Async generate_chat_action error: {e}")
+            return None
+
+    async def generate_tool_decision_async(
+        self,
+        player_message: str,
+        recent_logs: list,
+        conversation_history: Optional[list] = None,
+        available_tools: Optional[list] = None,
+    ) -> Optional[dict]:
+        try:
+            loop = asyncio.get_event_loop()
+            response = await loop.run_in_executor(
+                _interactive_executor,
+                self.generate_tool_decision,
+                player_message,
+                recent_logs,
+                conversation_history,
+                available_tools,
+            )
+            return response
+        except Exception as e:
+            logger.error(f"Async generate_tool_decision error: {e}")
+            return None
+
+    async def generate_tool_followup_async(
+        self,
+        player_message: str,
+        recent_logs: list,
+        conversation_history: Optional[list] = None,
+        tool_result: Optional[dict] = None,
+    ) -> Optional[str]:
+        try:
+            loop = asyncio.get_event_loop()
+            response = await loop.run_in_executor(
+                _interactive_executor,
+                self.generate_tool_followup,
+                player_message,
+                recent_logs,
+                conversation_history,
+                tool_result,
+            )
+            return response
+        except Exception as e:
+            logger.error(f"Async generate_tool_followup error: {e}")
+            return None
+
     def _format_logs_context(self, recent_logs: list) -> str:
         """Format recent logs into readable context for the LLM."""
+        player_state_context = get_player_state_prompt_context()
+        challenge_context = get_challenge_prompt_context()
         if not recent_logs:
-            return "No recent events recorded."
+            blocks = ["No recent events recorded."]
+            if player_state_context and player_state_context != "No tracked player state.":
+                blocks.append(f"Player state:\n{player_state_context}")
+            if challenge_context and challenge_context != "No active challenge.":
+                blocks.append(f"Challenge state:\n{challenge_context}")
+            return "\n\n".join(blocks)
 
         lines = []
         for log in recent_logs:
@@ -245,6 +719,16 @@ Respond only with the RP response, nothing else."""
                 lines.append(f"- Health: {player_health}")
             if threats:
                 lines.append(f"- Threats detected: {len(threats)} active")
+
+        if player_state_context and player_state_context != "No tracked player state.":
+            lines.append("")
+            lines.append("Player state:")
+            lines.append(player_state_context)
+
+        if challenge_context and challenge_context != "No active challenge.":
+            lines.append("")
+            lines.append("Challenge state:")
+            lines.append(challenge_context)
 
         return "\n".join(lines) if lines else "No recent events recorded."
 
@@ -289,18 +773,18 @@ Format using markdown for readability."""
 
             api_params["messages"] = [{"role": "user", "content": prompt}]
             
-            message = self.client.chat.completions.create(**api_params)
-            response = _strip_thinking(message.choices[0].message.content)
+            message = self._create_completion(api_params)
+            response = _clean_model_text(message.choices[0].message.content)
             return response if response else None
         except Exception as e:
-            logger.error(f"Groq analytics API error: {e}")
+            logger.error(f"{self.get_source_name()} analytics API error: {e}")
             return None
 
     async def generate_analytics_async(self, session_summary: dict) -> Optional[str]:
         """Async wrapper for generate_analytics."""
         try:
             loop = asyncio.get_event_loop()
-            response = await loop.run_in_executor(_executor, self.generate_analytics, session_summary)
+            response = await loop.run_in_executor(_interactive_executor, self.generate_analytics, session_summary)
             return response
         except Exception as e:
             logger.error(f"Async generate_analytics error: {e}")
@@ -335,30 +819,17 @@ If the item doesn't exist or is uncraftable, set grid all "пусто" and write
             # Disable temp for deterministic recipes
             api_params["temperature"] = 0.0
             
-            message = self.client.chat.completions.create(**api_params)
-            response = _strip_thinking(message.choices[0].message.content)
-            
-            # Clean up potential markdown formatting mistakenly left by LLM
-            import json
-            response = response.strip()
-            if response.startswith("```json"):
-                response = response[7:]
-            if response.startswith("```"):
-                response = response[3:]
-            if response.endswith("```"):
-                response = response[:-3]
-            response = response.strip()
-
-            return json.loads(response)
+            message = self._create_completion(api_params)
+            return _loads_jsonish_object(message.choices[0].message.content)
         except Exception as e:
-            logger.error(f"Groq wiki API error: {e}")
+            logger.error(f"{self.get_source_name()} wiki API error: {e}")
             return None
 
     async def search_crafting_recipe_async(self, query: str) -> Optional[dict]:
         """Async wrapper for search_crafting_recipe."""
         try:
             loop = asyncio.get_event_loop()
-            response = await loop.run_in_executor(_executor, self.search_crafting_recipe, query)
+            response = await loop.run_in_executor(_interactive_executor, self.search_crafting_recipe, query)
             return response
         except Exception as e:
             logger.error(f"Async search_crafting_recipe error: {e}")

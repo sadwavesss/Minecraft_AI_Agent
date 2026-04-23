@@ -1,5 +1,6 @@
 package com.example;
 
+import com.example.assistant.KillLogger;
 import net.fabricmc.api.ModInitializer;
 
 import org.slf4j.Logger;
@@ -20,5 +21,6 @@ public class ExampleMod implements ModInitializer {
 		// Proceed with mild caution.
 
 		LOGGER.info("AI Assistant mod loaded.");
+		KillLogger.init();
 	}
 }
