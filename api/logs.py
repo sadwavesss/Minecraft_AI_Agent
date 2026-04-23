@@ -5,6 +5,8 @@ from fastapi.encoders import jsonable_encoder
 from starlette.websockets import WebSocketDisconnect
 from typing import List
 from models.log_entry import LogEntry
+from api.challenges import refresh_challenge_progress
+from api.player_state import apply_log_to_player_state
 
 router = APIRouter(prefix="/api/logs", tags=["logs"])
 
@@ -43,6 +45,8 @@ async def add_log(entry: LogEntry):
         else:
             entry.message = "(no message)"
     logs_db.append(entry)
+    apply_log_to_player_state(entry)
+    refresh_challenge_progress()
     if len(logs_db) > 10000:  # Ограничение
         logs_db.pop(0)
     return {"status": "added"}

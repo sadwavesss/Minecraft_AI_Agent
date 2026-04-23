@@ -7,14 +7,27 @@ logger = logging.getLogger(__name__)
 
 # Load LLM configuration
 _llm_config_path = Path("llm_config.json")
+_llm_prompts_path = Path("llm_prompts.json")
+
+
+def load_llm_config(config_path: Path | None = None, prompts_path: Path | None = None) -> LLMConfig:
+    """Load model config and prompts from separate files, then merge them."""
+    effective_config_path = config_path or _llm_config_path
+    effective_prompts_path = prompts_path or _llm_prompts_path
+
+    if not effective_config_path.exists():
+        raise FileNotFoundError(f"{effective_config_path} not found")
+    if not effective_prompts_path.exists():
+        raise FileNotFoundError(f"{effective_prompts_path} not found")
+
+    config_data = json.loads(effective_config_path.read_text(encoding="utf-8"))
+    prompts_data = json.loads(effective_prompts_path.read_text(encoding="utf-8"))
+    config_data["prompts"] = prompts_data
+    return LLMConfig(**config_data)
 
 try:
-    if _llm_config_path.exists():
-        config_data = json.loads(_llm_config_path.read_text(encoding="utf-8"))
-        llm_config = LLMConfig(**config_data)
-        logger.info(f"Loaded LLM config with model: {llm_config.model_type}")
-    else:
-        raise FileNotFoundError("llm_config.json not found")
+    llm_config = load_llm_config()
+    logger.info(f"Loaded LLM config with model: {llm_config.model_type}")
 except Exception as e:
     logger.error(f"Failed to load LLM config: {e}")
     raise
@@ -35,7 +48,7 @@ def set_model_type(model_type: str) -> LLMConfig:
     llm_config.model_type = model_type
     
     # Save to file
-    config_data = llm_config.model_dump()
+    config_data = llm_config.model_dump(exclude={"prompts"})
     _llm_config_path.write_text(json.dumps(config_data, ensure_ascii=False, indent=2), encoding="utf-8")
     
     logger.info(f"Changed model to: {model_type}")

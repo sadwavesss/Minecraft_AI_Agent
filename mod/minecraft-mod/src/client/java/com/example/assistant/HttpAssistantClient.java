@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.http.HttpTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Map;
@@ -13,9 +14,11 @@ import java.util.concurrent.CompletableFuture;
 
 public final class HttpAssistantClient {
     private static final Gson GSON = new Gson();
+    private static final long RP_TIMEOUT_LOG_SUPPRESSION_MS = 30000L;
 
     private final HttpClient http;
     private final AssistantConfig cfg;
+    private long lastRpTimeoutLogAtMs;
 
     public HttpAssistantClient(AssistantConfig cfg) {
         this.cfg = cfg;
@@ -109,9 +112,28 @@ public final class HttpAssistantClient {
                     }
                 })
                 .exceptionally(ex -> {
-                    System.out.println("[AI Assistant] GET /api/rp/ exception: " + ex);
+                    if (hasCause(ex, HttpTimeoutException.class)) {
+                        long now = System.currentTimeMillis();
+                        if (now - lastRpTimeoutLogAtMs >= RP_TIMEOUT_LOG_SUPPRESSION_MS) {
+                            lastRpTimeoutLogAtMs = now;
+                            System.out.println("[AI Assistant] GET /api/rp/ timed out; suppressing repeated timeout logs for 30s.");
+                        }
+                    } else {
+                        System.out.println("[AI Assistant] GET /api/rp/ exception: " + ex);
+                    }
                     return null;
                 });
+    }
+
+    private boolean hasCause(Throwable error, Class<? extends Throwable> type) {
+        Throwable current = error;
+        while (current != null) {
+            if (type.isInstance(current)) {
+                return true;
+            }
+            current = current.getCause();
+        }
+        return false;
     }
 
     public CompletableFuture<RPResponse> sendChat(String text) {
@@ -160,6 +182,15 @@ public final class HttpAssistantClient {
         public String response;
         public double confidence;
         public String level;
+        public String mode;
+        public boolean execute;
+        public String command;
+        public String action_type;
+        public String item_id;
+        public int item_count;
+        public String entity_id;
+        public int entity_count;
+        public String error;
     }
 
     public static final class SettingsResponse {

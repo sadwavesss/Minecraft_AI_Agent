@@ -20,6 +20,12 @@
 
 - Python **3.11+**
 
+### Тесты
+
+```powershell
+.\venv\Scripts\python.exe -m unittest discover -s tests -v
+```
+
 ### Для мода
 
 - Java **17**
@@ -72,6 +78,35 @@ python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
 - `http://127.0.0.1:8000/admin`
 - `http://127.0.0.1:8000/admin/settings`
 
+### Способ 3: Через Docker
+
+Собрать образ:
+
+```powershell
+docker build -t minecraft-ai-assistant .
+```
+
+Запустить контейнер:
+
+```powershell
+docker run --rm -p 8000:8000 ^
+  -v "${PWD}\data:/app/data" ^
+  -v "${PWD}\settings.json:/app/settings.json" ^
+  -v "${PWD}\llm_config.json:/app/llm_config.json" ^
+  -v "${PWD}\llm_prompts.json:/app/llm_prompts.json" ^
+  -e GROQ_API_KEY=your_actual_groq_api_key_here ^
+  minecraft-ai-assistant
+```
+
+После запуска сервер будет доступен на `http://127.0.0.1:8000`.
+
+Примечания:
+
+- контейнер собирается только для текущего **FastAPI backend**, а не для Fabric-мода;
+- данные каталогов и `challenge_state.json` сохраняются через `data:/app/data`;
+- логи контейнера смотрятся через `docker logs`;
+- если используется локальный Ollama с хоста, можно передать `-e OLLAMA_BASE_URL=http://host.docker.internal:11434/v1`.
+
 ## Быстрый старт (Minecraft мод)
 
 ### Способ 1: Через BAT файл (Windows, рекомендуется)
@@ -117,6 +152,92 @@ cd mod\minecraft-mod
 
 - `serverUrl` (по умолчанию `http://127.0.0.1:8000`)
 - интервалы (fallback), если сервер недоступен
+
+## Каталог предметов и блоков для `/give`
+
+Система выдачи предметов теперь использует локальный структурированный каталог `data/minecraft_catalog.json`, а не только свободный вывод LLM.
+
+- `api/minecraft_catalog.py` загружает каталог и ищет совпадения по русским и английским названиям, aliases и токенам
+- `api/advice.py` использует этот catalog lookup для deterministic resolution `minecraft:item_id`
+- LLM теперь возвращает controlled tool-like payload (`tool_name`, `arguments`, `spoken_response`, `should_execute`), а не готовую команду
+- backend выполняет только разрешённый `give_item`, сам валидирует `item_query` через каталог и только затем собирает безопасный `/give`
+- благодаря этому обрабатываются и более свободные фразы вроде `мне бы 10 наковален` или `я бы не отказался от пузырька`
+- локальный resolver теперь дополнительно чистит шумные слова из запроса, нормализует разговорные формы и использует fuzzy ranking, поэтому фразы вроде `бутылёк` тоже могут корректно матчиться
+- reasoning/внутренние рассуждения модели в Minecraft chat не выводятся: игрок видит только финальную реплику
+- при неоднозначном запросе вроде `дай доски` сервер просит уточнить предмет вместо случайного выбора
+
+## Каталог существ для `/summon`
+
+Система теперь умеет не только выдавать предметы, но и **призывать базовых существ** через отдельный tool `summon_entity`.
+
+- `data/entity_catalog.json` хранит локальный каталог существ с русскими и английскими alias-ами
+- `api/entity_catalog.py` детерминированно резолвит запрос игрока в `minecraft:entity_id`
+- backend не доверяет модели готовую команду: LLM выбирает только tool и передаёт `entity_query`, а `/summon` собирается уже на сервере
+- первая версия intentionally ограничена **базовыми мобами без NBT и без координат**
+- `summon_entity` теперь умеет призывать **несколько мобов за раз** с безопасным лимитом до **16**, а mod-side выполняет такой summon как пакет отдельных `/summon`
+- также появился tool **`remove_item`**, который детерминированно удаляет предметы из инвентаря через `/clear` и даёт базу под будущие обмены `забрать X -> выдать Y`
+- если запрос явный, backend умеет собрать summon action даже через direct fallback, например для фраз вроде `призови зомби`
+- continuation тоже поддерживается: после успешного призыва фразы вроде `и ещё крипера` могут идти через тот же tool loop
+
+## Оптимизация LLM-вызовов
+
+- routine `GET /api/rp/` больше не должен запускать LLM на каждый poll: для обычного пассивного RP используются cached/rule-based ответы
+- LLM на стороне backend теперь в основном остаётся для player chat, tool invocation и отдельных critical events
+- chat flow сведен к одному structured LLM вызову вместо схемы `action call + отдельный chat fallback`
+
+Это сделано для того, чтобы блоки и предметы выдавались стабильнее, а knowledge layer можно было позже расширить до справочника команд.
+
+## Prompts и chat memory
+
+- prompt templates теперь лежат отдельно в `llm_prompts.json`, а `llm_config.json` хранит только выбор модели, provider и параметры
+- interactive `/api/rp/chat` использует отдельную память диалога на последние **10 сообщений** (`user` / `assistant` / `tool` / `tool_result`), чтобы бот лучше помнил предыдущие реплики и результаты tools
+- structured chat prompt теперь учитывает историю разговора и умеет выбирать между `give_item`, `remove_item`, `summon_entity`, `create_challenge`, `claim_challenge_reward` и обычным chat-ответом
+
+## Player state telemetry: киллы и инвентарь
+
+Поверх обычных логов backend теперь держит отдельный **shared player-state**, который нужен и для debug, и как foundation для будущих челленджей.
+
+- Fabric-мод отправляет новые события:
+  - `mob_kill` — факт убийства моба игроком
+  - `inventory_snapshot` — агрегированное состояние инвентаря
+- kill telemetry теперь идёт через **server-side Fabric event** `ServerLivingEntityEvents.AFTER_DEATH`, поэтому в `mob_kill` попадают именно реальные смерти от игрока, а не любые смерти рядом
+- backend обновляет этот state в `api/player_state.py`, не полагаясь только на сырую историю `logs_db`
+- в state хранятся:
+  - `kill_counts`
+  - `recent_kills`
+  - `inventory.counts`
+  - `hotbar`
+  - `armor`
+  - `offhand`
+- для отладки появилась отдельная страница **`/admin/player-state`**
+- LLM prompt context теперь может видеть compact summary текущих киллов и инвентаря, а не только последние логи
+
+Первая версия inventory telemetry хранит:
+
+- агрегированные counts по предметам;
+- отдельно hotbar;
+- отдельно armor;
+- отдельно offhand.
+
+## Челленджи поверх player-state
+
+Поверх telemetry теперь появился отдельный **challenge-state** в backend:
+
+- хранится один активный челлендж + история завершённых/отменённых;
+- state сохраняется в `data/challenge_state.json`;
+- progress считается детерминированно из `player_state`, а не из LLM:
+  - `kill` → по `kill_counts`
+  - `collect` → по `inventory.counts`
+- создание первой версии идёт **через диалог с ботом** с помощью tool `create_challenge`;
+- получение награды идёт через tool `claim_challenge_reward`, который использует уже существующий `give_item` flow;
+- для debug появилась страница **`/admin/challenges`**.
+
+Первая версия intentionally ограничена:
+
+- только **один активный челлендж** одновременно;
+- только цели `kill entity` и `collect item`;
+- только reward типа `give_item`;
+- награда выдаётся отдельным `claim`, а не автоматически в момент completion.
 
 ## MVP события
 

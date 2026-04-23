@@ -1,0 +1,98 @@
+[
+  {
+    "id": "minecraft:zombie",
+    "kind": "mob",
+    "display_name_ru": "зомби",
+    "display_name_en": "zombie",
+    "aliases_ru": ["зомби", "зомбака", "мертвеца", "мертвец"],
+    "aliases_en": ["zombie", "undead"]
+  },
+  {
+    "id": "minecraft:skeleton",
+    "kind": "mob",
+    "display_name_ru": "скелет",
+    "display_name_en": "skeleton",
+    "aliases_ru": ["скелет", "скелета", "скелетов"],
+    "aliases_en": ["skeleton", "skeletons"]
+  },
+  {
+    "id": "minecraft:creeper",
+    "kind": "mob",
+    "display_name_ru": "крипер",
+    "display_name_en": "creeper",
+    "aliases_ru": ["крипер", "крипера", "криперов"],
+    "aliases_en": ["creeper", "creepers"]
+  },
+  {
+    "id": "minecraft:spider",
+    "kind": "mob",
+    "display_name_ru": "паук",
+    "display_name_en": "spider",
+    "aliases_ru": ["паук", "паука", "пауков"],
+    "aliases_en": ["spider", "spiders"]
+  },
+  {
+    "id": "minecraft:enderman",
+    "kind": "mob",
+    "display_name_ru": "эндермен",
+    "display_name_en": "enderman",
+    "aliases_ru": ["эндермен", "эндермена", "эндермена", "странника края"],
+    "aliases_en": ["enderman", "endermen"]
+  },
+  {
+    "id": "minecraft:slime",
+    "kind": "mob",
+    "display_name_ru": "слизень",
+    "display_name_en": "slime",
+    "aliases_ru": ["слизень", "слизня", "слизней", "слайм"],
+    "aliases_en": ["slime", "slimes"]
+  },
+  {
+    "id": "minecraft:cow",
+    "kind": "mob",
+    "display_name_ru": "корова",
+    "display_name_en": "cow",
+    "aliases_ru": ["корова", "корову", "коровы", "коров"],
+    "aliases_en": ["cow", "cows"]
+  },
+  {
+    "id": "minecraft:pig",
+    "kind": "mob",
+    "display_name_ru": "свинья",
+    "display_name_en": "pig",
+    "aliases_ru": ["свинья", "свинью", "свиньи", "свиней"],
+    "aliases_en": ["pig", "pigs"]
+  },
+  {
+    "id": "minecraft:sheep",
+    "kind": "mob",
+    "display_name_ru": "овца",
+    "display_name_en": "sheep",
+    "aliases_ru": ["овца", "овцу", "овцы", "овец"],
+    "aliases_en": ["sheep"]
+  },
+  {
+    "id": "minecraft:chicken",
+    "kind": "mob",
+    "display_name_ru": "курица",
+    "display_name_en": "chicken",
+    "aliases_ru": ["курица", "курицу", "курицы", "куриц"],
+    "aliases_en": ["chicken", "chickens"]
+  },
+  {
+    "id": "minecraft:wolf",
+    "kind": "mob",
+    "display_name_ru": "волк",
+    "display_name_en": "wolf",
+    "aliases_ru": ["волк", "волка", "волков"],
+    "aliases_en": ["wolf", "wolves"]
+  },
+  {
+    "id": "minecraft:villager",
+    "kind": "mob",
+    "display_name_ru": "житель",
+    "display_name_en": "villager",
+    "aliases_ru": ["житель", "жителя", "жителей", "деревенский житель"],
+    "aliases_en": ["villager", "villagers"]
+  }
+]
