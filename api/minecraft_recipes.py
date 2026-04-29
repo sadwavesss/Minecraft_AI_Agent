@@ -1,274 +1,103 @@
 """
-Minecraft crafting recipes database.
-Contains actual vanilla recipes for common items.
+Minecraft crafting recipes loader.
+Loads recipes from JSON database for proper separation of data and code.
 """
 
-MINECRAFT_RECIPES = {
-    # Деревянные предметы
-    "палка": {
-        "name": "Палка",
-        "description": "Основной материал для инструментов и оружия",
-        "grid": [
-            ["доска", "пусто", "пусто"],
-            ["доска", "пусто", "пусто"],
-            ["пусто", "пусто", "пусто"]
-        ]
-    },
-    "доска": {
-        "name": "Доска",
-        "description": "Распиленное бревно",
-        "grid": [
-            ["бревно", "пусто", "пусто"],
-            ["пусто", "пусто", "пусто"],
-            ["пусто", "пусто", "пусто"]
-        ]
-    },
-    
-    # Инструменты из дерева
-    "деревянная кирка": {
-        "name": "Деревянная кирка",
-        "description": "Начальный инструмент для добычи камня",
-        "grid": [
-            ["доска", "доска", "доска"],
-            ["пусто", "палка", "пусто"],
-            ["пусто", "палка", "пусто"]
-        ]
-    },
-    "деревянный топор": {
-        "name": "Деревянный топор",
-        "description": "Инструмент для быстрой добычи дерева",
-        "grid": [
-            ["доска", "доска", "пусто"],
-            ["доска", "палка", "пусто"],
-            ["пусто", "палка", "пусто"]
-        ]
-    },
-    "деревянная лопата": {
-        "name": "Деревянная лопата",
-        "description": "Инструмент для добычи земли и песка",
-        "grid": [
-            ["доска", "пусто", "пусто"],
-            ["палка", "пусто", "пусто"],
-            ["палка", "пусто", "пусто"]
-        ]
-    },
-    
-    # Инструменты из камня
-    "каменная кирка": {
-        "name": "Каменная кирка",
-        "description": "Инструмент для добычи железной руды",
-        "grid": [
-            ["булыжник", "булыжник", "булыжник"],
-            ["пусто", "палка", "пусто"],
-            ["пусто", "палка", "пусто"]
-        ]
-    },
-    "булыжник": {
-        "name": "Булыжник",
-        "description": "Добывается деревянной киркой",
-        "grid": [
-            ["каменная руда", "пусто", "пусто"],
-            ["пусто", "пусто", "пусто"],
-            ["пусто", "пусто", "пусто"]
-        ]
-    },
-    
-    # Инструменты из железа
-    "железная кирка": {
-        "name": "Железная кирка",
-        "description": "Инструмент для добычи алмазной руды",
-        "grid": [
-            ["железный слиток", "железный слиток", "железный слиток"],
-            ["пусто", "палка", "пусто"],
-            ["пусто", "палка", "пусто"]
-        ]
-    },
-    
-    # Броня и оружие
-    "железный шлем": {
-        "name": "Железный шлем",
-        "description": "Защита головы",
-        "grid": [
-            ["железный слиток", "железный слиток", "железный слиток"],
-            ["железный слиток", "пусто", "железный слиток"],
-            ["пусто", "пусто", "пусто"]
-        ]
-    },
-    "железный нагрудник": {
-        "name": "Железный нагрудник",
-        "description": "Защита туловища",
-        "grid": [
-            ["железный слиток", "пусто", "железный слиток"],
-            ["железный слиток", "железный слиток", "железный слиток"],
-            ["железный слиток", "железный слиток", "железный слиток"]
-        ]
-    },
-    "железные штаны": {
-        "name": "Железные штаны",
-        "description": "Защита ног",
-        "grid": [
-            ["железный слиток", "железный слиток", "железный слиток"],
-            ["железный слиток", "пусто", "железный слиток"],
-            ["железный слиток", "пусто", "железный слиток"]
-        ]
-    },
-    "железные сапоги": {
-        "name": "Железные сапоги",
-        "description": "Защита ног и уменьшение урона от падения",
-        "grid": [
-            ["железный слиток", "пусто", "железный слиток"],
-            ["железный слиток", "пусто", "железный слиток"],
-            ["пусто", "пусто", "пусто"]
-        ]
-    },
-    
-    # Меч
-    "деревянный меч": {
-        "name": "Деревянный меч",
-        "description": "Слабое оружие для боя",
-        "grid": [
-            ["доска", "пусто", "пусто"],
-            ["доска", "пусто", "пусто"],
-            ["палка", "пусто", "пусто"]
-        ]
-    },
-    "железный меч": {
-        "name": "Железный меч",
-        "description": "Эффективное оружие для боя",
-        "grid": [
-            ["железный слиток", "пусто", "пусто"],
-            ["железный слиток", "пусто", "пусто"],
-            ["палка", "пусто", "пусто"]
-        ]
-    },
-    "алмазный меч": {
-        "name": "Алмазный меч",
-        "description": "Мощное оружие на долгое время",
-        "grid": [
-            ["алмаз", "пусто", "пусто"],
-            ["алмаз", "пусто", "пусто"],
-            ["палка", "пусто", "пусто"]
-        ]
-    },
-    
-    # Пищевые предметы
-    "деревянный стол": {
-        "name": "Верстак",
-        "description": "Нужен для крафта большинства предметов",
-        "grid": [
-            ["доска", "доска", "пусто"],
-            ["доска", "доска", "пусто"],
-            ["пусто", "пусто", "пусто"]
-        ]
-    },
-    "печь": {
-        "name": "Печь",
-        "description": "Печь для переплавки руд и приготовления пищи",
-        "grid": [
-            ["булыжник", "булыжник", "булыжник"],
-            ["булыжник", "пусто", "булыжник"],
-            ["булыжник", "булыжник", "булыжник"]
-        ]
-    },
-    "сундук": {
-        "name": "Сундук",
-        "description": "Хранилище для предметов",
-        "grid": [
-            ["доска", "доска", "доска"],
-            ["доска", "пусто", "доска"],
-            ["доска", "доска", "доска"]
-        ]
-    },
-    
-    # Редстоун устройства
-    "липкий поршень": {
-        "name": "Липкий поршень",
-        "description": "Поршень, который притягивает блоки",
-        "grid": [
-            ["слизь", "пусто", "пусто"],
-            ["поршень", "пусто", "пусто"],
-            ["пусто", "пусто", "пусто"]
-        ]
-    },
-    "поршень": {
-        "name": "Поршень",
-        "description": "Толкает блоки при активации редстоуна",
-        "grid": [
-            ["доска", "доска", "доска"],
-            ["булыжник", "железный слиток", "булыжник"],
-            ["булыжник", "редстоун пыль", "булыжник"]
-        ]
-    },
-    
-    # Стекло и светящиеся блоки
-    "стекло": {
-        "name": "Стекло",
-        "description": "Прозрачный блок (в печи из песка)",
-        "grid": [
-            ["песок", "пусто", "пусто"],
-            ["пусто", "пусто", "пусто"],
-            ["пусто", "пусто", "пусто"]
-        ]
-    },
-    "светильник": {
-        "name": "Светильник",
-        "description": "Источник света",
-        "grid": [
-            ["пусто", "факел", "пусто"],
-            ["факел", "уголь", "факел"],
-            ["пусто", "факел", "пусто"]
-        ]
-    },
-    "факел": {
-        "name": "Факел",
-        "description": "Переносный источник света",
-        "grid": [
-            ["уголь", "пусто", "пусто"],
-            ["палка", "пусто", "пусто"],
-            ["пусто", "пусто", "пусто"]
-        ]
-    },
-    
-    # Двери и ворота
-    "деревянная дверь": {
-        "name": "Деревянная дверь",
-        "description": "Дверь для входа",
-        "grid": [
-            ["доска", "доска", "пусто"],
-            ["доска", "доска", "пусто"],
-            ["доска", "доска", "пусто"]
-        ]
-    },
-    "железная дверь": {
-        "name": "Железная дверь",
-        "description": "Защищённая дверь от мобов",
-        "grid": [
-            ["железный слиток", "железный слиток", "пусто"],
-            ["железный слиток", "железный слиток", "пусто"],
-            ["железный слиток", "железный слиток", "пусто"]
-        ]
-    },
-}
+import json
+import os
+from typing import Optional
+import logging
+
+logger = logging.getLogger(__name__)
+
+# Path to recipes database
+RECIPES_DB_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)),
+    "data",
+    "minecraft_crafting_recipes.json"
+)
+
+# Cache for loaded recipes
+_RECIPES_CACHE = None
 
 
-def search_recipe(query: str) -> dict:
+def _load_recipes() -> dict:
+    """Load recipes from JSON file with caching."""
+    global _RECIPES_CACHE
+    
+    if _RECIPES_CACHE is not None:
+        return _RECIPES_CACHE
+    
+    if not os.path.exists(RECIPES_DB_PATH):
+        logger.error(f"Recipes database not found at {RECIPES_DB_PATH}")
+        return {}
+    
+    try:
+        with open(RECIPES_DB_PATH, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            _RECIPES_CACHE = data.get("recipes", {})
+            logger.info(f"Loaded {len(_RECIPES_CACHE)} recipes from database")
+            return _RECIPES_CACHE
+    except Exception as e:
+        logger.error(f"Failed to load recipes database: {e}")
+        return {}
+
+
+def get_all_recipes() -> dict:
+    """Get all available recipes."""
+    return _load_recipes()
+
+
+def search_recipe(query: str) -> Optional[dict]:
     """
     Search for a recipe in the database.
     Returns recipe dict with name, description, and 3x3 grid.
+    
+    Supports:
+    - Exact match: "палка" → finds "палка"
+    - Partial match: "железный" → finds "железный меч", "железный шлем", etc.
+    - Case-insensitive: "ПАЛКА" → finds "палка"
     """
+    recipes = _load_recipes()
+    
+    if not recipes:
+        logger.warning("No recipes loaded from database")
+        return None
+    
     query_lower = query.lower().strip()
     
-    # Поиск в базе
-    for key, recipe in MINECRAFT_RECIPES.items():
-        if key in query_lower or query_lower in key:
+    if not query_lower:
+        return None
+    
+    # Try exact match first
+    for key in recipes.keys():
+        if key.lower() == query_lower:
+            return recipes[key]
+    
+    # Try partial match
+    for key, recipe in recipes.items():
+        if query_lower in key.lower():
             return recipe
     
-    # Если не найдено - вернуть None
+    # Try matching in recipe name (not key)
+    for recipe in recipes.values():
+        name = recipe.get("name", "").lower()
+        if query_lower in name:
+            return recipe
+    
     return None
 
 
 def validate_recipe_grid(grid: list) -> bool:
-    """Validate that recipe grid is proper 3x3 array."""
+    """
+    Validate that recipe grid is proper 3x3 array.
+    
+    Requirements:
+    - Must be a list
+    - Must have exactly 3 rows
+    - Each row must be a list with exactly 3 items
+    - All items must be strings
+    """
     if not isinstance(grid, list) or len(grid) != 3:
         return False
     
@@ -280,3 +109,44 @@ def validate_recipe_grid(grid: list) -> bool:
                 return False
     
     return True
+
+
+def validate_all_recipes() -> dict:
+    """
+    Validate all recipes in the database.
+    
+    Returns:
+        dict with 'valid' (list of valid recipe keys) and 'invalid' (list of problems)
+    """
+    recipes = _load_recipes()
+    result = {
+        "valid": [],
+        "invalid": []
+    }
+    
+    for name, recipe in recipes.items():
+        errors = []
+        
+        # Check structure
+        if not isinstance(recipe, dict):
+            errors.append(f"Not a dict")
+        else:
+            if "name" not in recipe or not isinstance(recipe.get("name"), str):
+                errors.append(f"Missing or invalid 'name'")
+            if "description" not in recipe or not isinstance(recipe.get("description"), str):
+                errors.append(f"Missing or invalid 'description'")
+            if "grid" not in recipe:
+                errors.append(f"Missing 'grid'")
+            elif not validate_recipe_grid(recipe.get("grid")):
+                errors.append(f"Invalid grid format (must be 3x3 strings)")
+        
+        if errors:
+            result["invalid"].append({
+                "name": name,
+                "errors": errors
+            })
+        else:
+            result["valid"].append(name)
+    
+    return result
+
