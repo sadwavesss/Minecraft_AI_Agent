@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft AI Agent - Steam Style</title>
+    <link rel="stylesheet" href="/static/steam.css">
+</head>
+<body>
+    <!-- Header/Navigation -->
+    <header class="steam-header">
+        <div class="header-content">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <rect width="32" height="32" rx="4" fill="#1e90ff"/>
+                    <text x="16" y="22" font-size="20" font-weight="bold" fill="white" text-anchor="middle">⛏</text>
+                </svg>
+                <span>Minecraft AI</span>
+            </div>
+            <nav class="main-nav">
+                <a href="#" class="nav-item active" data-page="home">Home</a>
+                <a href="#" class="nav-item" data-page="library">Crafting Library</a>
+                <a href="#" class="nav-item" data-page="wiki">Wiki</a>
+                <a href="#" class="nav-item" data-page="stats">Statistics</a>
+            </nav>
+            <div class="user-menu">
+                <span class="user-name">Player</span>
+                <img class="user-avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%231e90ff' width='100' height='100'/%3E%3Ccircle cx='50' cy='35' r='20' fill='%23fff'/%3E%3Cpath d='M30 70 Q30 55 50 55 Q70 55 70 70' fill='%23fff'/%3E%3C/svg%3E" alt="Avatar">
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside class="steam-sidebar">
+        <div class="sidebar-section">
+            <h3>Quick Access</h3>
+            <a href="#" class="sidebar-link" data-page="home">
+                <i class="icon">🏠</i>
+                <span>Home</span>
+            </a>
+            <a href="#" class="sidebar-link" data-page="library">
+                <i class="icon">📚</i>
+                <span>Crafting Library</span>
+                <span class="badge">115+</span>
+            </a>
+            <a href="#" class="sidebar-link" data-page="favorites">
+                <i class="icon">⭐</i>
+                <span>Favorites</span>
+                <span class="badge">12</span>
+            </a>
+        </div>
+        
+        <div class="sidebar-section">
+            <h3>Categories</h3>
+            <a href="#" class="sidebar-link category-link" data-category="tools">
+                <i class="icon">🔨</i>
+                <span>Tools</span>
+            </a>
+            <a href="#" class="sidebar-link category-link" data-category="weapons">
+                <i class="icon">⚔️</i>
+                <span>Weapons</span>
+            </a>
+            <a href="#" class="sidebar-link category-link" data-category="armor">
+                <i class="icon">🛡️</i>
+                <span>Armor</span>
+            </a>
+            <a href="#" class="sidebar-link category-link" data-category="blocks">
+                <i class="icon">🧱</i>
+                <span>Blocks</span>
+            </a>
+            <a href="#" class="sidebar-link category-link" data-category="decoration">
+                <i class="icon">🎨</i>
+                <span>Decoration</span>
+            </a>
+        </div>
+
+        <div class="sidebar-section">
+            <h3>Settings</h3>
+            <a href="#" class="sidebar-link" data-page="settings">
+                <i class="icon">⚙️</i>
+                <span>Settings</span>
+            </a>
+            <a href="#" class="sidebar-link" data-page="about">
+                <i class="icon">ℹ️</i>
+                <span>About</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="steam-main">
+        <!-- Home Page -->
+        <section id="home-page" class="page-content active">
+            <div class="hero-banner">
+                <div class="banner-content">
+                    <h1>Welcome to Minecraft Crafting Hub</h1>
+                    <p>Master all crafting recipes with AI-powered assistance</p>
+                    <button class="btn btn-primary btn-lg" onclick="switchPage('library')">Explore Recipes</button>
+                </div>
+            </div>
+
+            <div class="featured-section">
+                <h2>Featured</h2>
+                <div class="featured-grid">
+                    <div class="featured-card">
+                        <div class="card-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            ⛏️
+                        </div>
+                        <h3>Complete Toolset</h3>
+                        <p>Learn crafting recipes for all tools from wood to diamond</p>
+                        <span class="tag">15+ recipes</span>
+                    </div>
+                    <div class="featured-card">
+                        <div class="card-image" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                            ⚔️
+                        </div>
+                        <h3>Combat Arsenal</h3>
+                        <p>Discover weapon and armor combinations</p>
+                        <span class="tag">12+ recipes</span>
+                    </div>
+                    <div class="featured-card">
+                        <div class="card-image" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                            🧱
+                        </div>
+                        <h3>Building Blocks</h3>
+                        <p>Essential blocks for construction and decoration</p>
+                        <span class="tag">25+ recipes</span>
+                    </div>
+                    <div class="featured-card">
+                        <div class="card-image" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                            🔧
+                        </div>
+                        <h3>Redstone Mechanisms</h3>
+                        <p>Advanced contraptions and automation devices</p>
+                        <span class="tag">8+ recipes</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-section">
+                <h2>Quick Stats</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">115+</div>
+                        <div class="stat-label">Total Recipes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">12</div>
+                        <div class="stat-label">Favorited</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">87%</div>
+                        <div class="stat-label">Completion</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">5</div>
+                        <div class="stat-label">Categories</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Library Page -->
+        <section id="library-page" class="page-content">
+            <div class="page-header">
+                <h2>Crafting Library</h2>
+                <div class="search-bar">
+                    <input type="text" id="search-input" placeholder="Search recipes..." class="search-input">
+                    <div class="search-controls">
+                        <select id="sort-select" class="sort-select">
+                            <option value="name">Sort by Name</option>
+                            <option value="recent">Sort by Recent</option>
+                            <option value="popular">Sort by Popular</option>
+                        </select>
+                        <label class="view-toggle">
+                            <input type="checkbox" id="view-toggle">
+                            <span>List View</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="filters-bar">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="tools">Tools</button>
+                <button class="filter-btn" data-filter="weapons">Weapons</button>
+                <button class="filter-btn" data-filter="armor">Armor</button>
+                <button class="filter-btn" data-filter="blocks">Blocks</button>
+                <button class="filter-btn" data-filter="favorites">⭐ Favorites</button>
+            </div>
+
+            <div id="recipes-grid" class="recipes-grid">
+                <!-- Recipes loaded dynamically -->
+            </div>
+        </section>
+
+        <!-- Wiki Page -->
+        <section id="wiki-page" class="page-content">
+            <div class="page-header">
+                <h2>Minecraft Crafting Wiki</h2>
+            </div>
+            <div class="wiki-content">
+                <div class="wiki-search">
+                    <input type="text" id="wiki-search" placeholder="Search wiki..." class="search-input">
+                </div>
+                <div id="wiki-results" class="wiki-results">
+                    <!-- Wiki content loaded dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Page -->
+        <section id="stats-page" class="page-content">
+            <div class="page-header">
+                <h2>Statistics</h2>
+            </div>
+            <div class="stats-full-grid">
+                <div class="stat-panel">
+                    <h3>Recipe Completion</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 87%"></div>
+                    </div>
+                    <p class="stat-text">87% (100 of 115 recipes mastered)</p>
+                </div>
+                <div class="stat-panel">
+                    <h3>Most Used Category</h3>
+                    <p class="stat-text large">🔨 Tools</p>
+                    <p class="stat-subtext">45 crafts in last 30 days</p>
+                </div>
+                <div class="stat-panel">
+                    <h3>Recent Activity</h3>
+                    <p class="stat-text">Last crafted: Iron Pickaxe</p>
+                    <p class="stat-subtext">2 hours ago</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Settings Page -->
+        <section id="settings-page" class="page-content">
+            <div class="page-header">
+                <h2>Settings</h2>
+            </div>
+            <div class="settings-panel">
+                <div class="setting-group">
+                    <h3>Display</h3>
+                    <label class="setting-item">
+                        <span>Dark Mode</span>
+                        <input type="checkbox" checked>
+                    </label>
+                    <label class="setting-item">
+                        <span>Show Descriptions</span>
+                        <input type="checkbox" checked>
+                    </label>
+                </div>
+
+                <div class="setting-group">
+                    <h3>Notifications</h3>
+                    <label class="setting-item">
+                        <span>New Recipes</span>
+                        <input type="checkbox" checked>
+                    </label>
+                    <label class="setting-item">
+                        <span>Tips & Guides</span>
+                        <input type="checkbox">
+                    </label>
+                </div>
+
+                <div class="setting-group">
+                    <h3>Data</h3>
+                    <button class="btn btn-secondary">Export Library</button>
+                    <button class="btn btn-secondary">Reset Progress</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Favorites Page -->
+        <section id="favorites-page" class="page-content">
+            <div class="page-header">
+                <h2>Favorite Recipes</h2>
+            </div>
+            <div id="favorites-grid" class="recipes-grid">
+                <!-- Favorites loaded dynamically -->
+            </div>
+        </section>
+
+        <!-- About Page -->
+        <section id="about-page" class="page-content">
+            <div class="about-content">
+                <h2>About Minecraft AI Agent</h2>
+                <p>A comprehensive crafting guide and AI-powered assistant for Minecraft players.</p>
+                <p><strong>Version:</strong> 1.0.0</p>
+                <p><strong>Database:</strong> 115+ recipes covering all major crafting categories</p>
+                <h3>Features</h3>
+                <ul>
+                    <li>Complete recipe database with 3x3 crafting grids</li>
+                    <li>AI-powered recipe search and suggestions</li>
+                    <li>Favorite recipes for quick access</li>
+                    <li>Category-based organization</li>
+                    <li>Detailed descriptions and tips</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <!-- Recipe Modal -->
+    <div id="recipe-modal" class="modal">
+        <div class="modal-content recipe-modal">
+            <button class="modal-close" onclick="closeRecipeModal()">&times;</button>
+            <div class="modal-recipe-content">
+                <div class="recipe-grid-display">
+                    <h2 id="modal-recipe-name"></h2>
+                    <div id="modal-recipe-grid" class="recipe-grid"></div>
+                </div>
+                <div class="recipe-info">
+                    <p id="modal-recipe-description"></p>
+                    <button class="btn btn-primary" id="favorite-btn" onclick="toggleFavorite()">⭐ Add to Favorites</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/steam.js"></script>
+</body>
+</html>
