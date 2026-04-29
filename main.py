@@ -75,8 +75,12 @@ async def admin_challenges_page():
 async def admin_wiki_page():
     return FileResponse(BASE_DIR / "static" / "wiki.html")
 
+@app.get("/dashboard")
+async def dashboard_page():
+    return FileResponse(BASE_DIR / "static" / "dashboard.html")
+
 @app.get("/steam")
-async def steam_frontend():
+async def steam_crafting():
     return FileResponse(BASE_DIR / "static" / "steam.html")
 
 @app.get("/api/recipes")
@@ -88,4 +92,4 @@ async def get_recipes():
 
 @app.get("/")
 async def root():
-    return FileResponse(BASE_DIR / "static" / "steam.html")
+    return FileResponse(BASE_DIR / "static" / "dashboard.html")
