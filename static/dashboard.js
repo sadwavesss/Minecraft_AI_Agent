@@ -94,7 +94,7 @@ async function loadPlayerState() {
         const response = await fetch('/api/player-state/');
         const state = await response.json();
         
-        const kills = Object.values(state.kill_counts || {}).reduce((a, b) => a + b, 0);
+        const kills = state.kill_total || Object.values(state.kill_counts || {}).reduce((a, b) => a + b, 0);
         document.getElementById('total-kills').textContent = kills;
         document.getElementById('dashboard-kills').textContent = kills;
         
@@ -214,18 +214,21 @@ async function loadChallenges() {
 async function loadInventory() {
     try {
         const response = await fetch('/api/player-state/inventory');
-        const inventory = await response.json();
+        const payload = await response.json();
+        const inventory = payload.inventory || {};
         
         // Main inventory
         const invGrid = document.getElementById('inventory-items');
-        const items = inventory.counts || {};
-        if (Object.keys(items).length > 0) {
-            invGrid.innerHTML = Object.entries(items).map(([item, count]) => `
+        const countEntries = inventory.count_entries || Object.entries(inventory.counts || {}).map(([id, count]) => ({ id, display_name: id, count }));
+        if (countEntries.length > 0) {
+            invGrid.innerHTML = countEntries.map((entry) => `
                 <div class="inventory-slot">
-                    <div class="inventory-slot-item">${item}</div>
-                    <div class="inventory-slot-count">×${count}</div>
+                    <div class="inventory-slot-item">${entry.display_name || entry.id}</div>
+                    <div class="inventory-slot-count">×${entry.count}</div>
                 </div>
             `).join('');
+        } else {
+            invGrid.innerHTML = '<p class="empty-state">No items</p>';
         }
         
         // Armor
@@ -234,9 +237,11 @@ async function loadInventory() {
         if (armor.length > 0) {
             armorGrid.innerHTML = armor.map(item => `
                 <div class="inventory-slot">
-                    <div class="inventory-slot-item">${item}</div>
+                    <div class="inventory-slot-item">${item.display_name || item.item_id || 'Unknown item'}</div>
                 </div>
             `).join('');
+        } else {
+            armorGrid.innerHTML = '<p class="empty-state">No armor equipped</p>';
         }
         
         // Hotbar
@@ -245,9 +250,11 @@ async function loadInventory() {
         if (hotbar.length > 0) {
             hotbarGrid.innerHTML = hotbar.map(item => `
                 <div class="inventory-slot">
-                    <div class="inventory-slot-item">${item}</div>
+                    <div class="inventory-slot-item">${item.display_name || item.item_id || 'Unknown item'}</div>
                 </div>
             `).join('');
+        } else {
+            hotbarGrid.innerHTML = '<p class="empty-state">Empty hotbar</p>';
         }
         
         // Offhand
@@ -256,9 +263,11 @@ async function loadInventory() {
         if (offhand.length > 0) {
             offhandGrid.innerHTML = offhand.map(item => `
                 <div class="inventory-slot">
-                    <div class="inventory-slot-item">${item}</div>
+                    <div class="inventory-slot-item">${item.display_name || item.item_id || 'Unknown item'}</div>
                 </div>
             `).join('');
+        } else {
+            offhandGrid.innerHTML = '<p class="empty-state">Empty offhand</p>';
         }
     } catch (error) {
         console.error('Error loading inventory:', error);
@@ -370,7 +379,7 @@ async function sendChatToAI(message) {
         const response = await fetch('/api/rp/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message })
+            body: JSON.stringify({ text: message })
         });
         
         const data = await response.json();

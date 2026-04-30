@@ -1,151 +1,122 @@
-"""
-Tests for Minecraft crafting recipes functionality.
-"""
+import unittest
 
-import pytest
-from api.minecraft_recipes import search_recipe, validate_recipe_grid, MINECRAFT_RECIPES
+from api.minecraft_recipes import get_all_recipes, search_recipe, validate_recipe_grid
 
 
-class TestCraftingRecipeDatabase:
-    """Test the crafting recipe database."""
-    
+class CraftingRecipeDatabaseTests(unittest.TestCase):
     def test_database_exists(self):
-        """Test that recipe database is not empty."""
-        assert len(MINECRAFT_RECIPES) > 0, "Recipe database should not be empty"
-    
+        self.assertGreater(len(get_all_recipes()), 0, "Recipe database should not be empty")
+
     def test_recipe_structure(self):
-        """Test that all recipes have correct structure."""
-        for name, recipe in MINECRAFT_RECIPES.items():
-            assert isinstance(recipe, dict), f"Recipe {name} should be a dict"
-            assert "name" in recipe, f"Recipe {name} missing 'name' field"
-            assert "description" in recipe, f"Recipe {name} missing 'description' field"
-            assert "grid" in recipe, f"Recipe {name} missing 'grid' field"
-            assert isinstance(recipe["name"], str), f"Recipe {name} name should be string"
-            assert isinstance(recipe["description"], str), f"Recipe {name} description should be string"
-    
+        for name, recipe in get_all_recipes().items():
+            self.assertIsInstance(recipe, dict, f"Recipe {name} should be a dict")
+            self.assertIn("name", recipe, f"Recipe {name} missing 'name' field")
+            self.assertIn("description", recipe, f"Recipe {name} missing 'description' field")
+            self.assertIn("grid", recipe, f"Recipe {name} missing 'grid' field")
+            self.assertIsInstance(recipe["name"], str, f"Recipe {name} name should be string")
+            self.assertIsInstance(recipe["description"], str, f"Recipe {name} description should be string")
+
     def test_grid_validation(self):
-        """Test that all recipe grids are valid 3x3 arrays."""
-        for name, recipe in MINECRAFT_RECIPES.items():
+        for name, recipe in get_all_recipes().items():
             grid = recipe.get("grid", [])
-            assert validate_recipe_grid(grid), f"Recipe {name} has invalid grid"
+            self.assertTrue(validate_recipe_grid(grid), f"Recipe {name} has invalid grid")
 
 
-class TestSearchRecipe:
-    """Test recipe search functionality."""
-    
+class SearchRecipeTests(unittest.TestCase):
     def test_search_exact_match(self):
-        """Test searching for exact recipe names."""
         recipe = search_recipe("палка")
-        assert recipe is not None, "Should find recipe for 'палка'"
-        assert recipe["name"] == "Палка"
-    
+        self.assertIsNotNone(recipe, "Should find recipe for 'палка'")
+        self.assertEqual(recipe["name"], "Палка")
+
     def test_search_case_insensitive(self):
-        """Test that search is case-insensitive."""
         recipe1 = search_recipe("палка")
         recipe2 = search_recipe("ПАЛКА")
         recipe3 = search_recipe("ПаЛкА")
-        assert recipe1 is not None
-        assert recipe2 is not None
-        assert recipe3 is not None
-    
+        self.assertIsNotNone(recipe1)
+        self.assertIsNotNone(recipe2)
+        self.assertIsNotNone(recipe3)
+
     def test_search_partial_match(self):
-        """Test that search works with partial names."""
         recipe = search_recipe("деревянный меч")
-        assert recipe is not None, "Should find recipe containing 'деревянный'"
-    
+        self.assertIsNotNone(recipe, "Should find recipe containing 'деревянный'")
+
     def test_search_nonexistent(self):
-        """Test searching for non-existent recipe."""
         recipe = search_recipe("волшебная палочка")
-        assert recipe is None, "Should return None for non-existent recipe"
-    
+        self.assertIsNone(recipe, "Should return None for non-existent recipe")
+
     def test_search_empty(self):
-        """Test searching with empty string."""
         recipe = search_recipe("")
-        assert recipe is None, "Should return None for empty search"
-    
+        self.assertIsNone(recipe, "Should return None for empty search")
+
     def test_grid_in_result(self):
-        """Test that returned recipe has valid grid."""
         recipe = search_recipe("печь")
-        assert recipe is not None
-        assert validate_recipe_grid(recipe.get("grid", [])), "Grid should be valid"
+        self.assertIsNotNone(recipe)
+        self.assertTrue(validate_recipe_grid(recipe.get("grid", [])), "Grid should be valid")
 
 
-class TestGridValidation:
-    """Test grid validation function."""
-    
+class GridValidationTests(unittest.TestCase):
     def test_valid_grid(self):
-        """Test validation of correct 3x3 grid."""
         grid = [
             ["доска", "доска", "доска"],
             ["доска", "пусто", "доска"],
             ["доска", "доска", "доска"]
         ]
-        assert validate_recipe_grid(grid) is True
-    
+        self.assertTrue(validate_recipe_grid(grid))
+
     def test_invalid_not_3x3(self):
-        """Test that non-3x3 grids are rejected."""
-        # 2x3 grid
         grid = [
             ["доска", "доска", "доска"],
             ["доска", "доска", "доска"]
         ]
-        assert validate_recipe_grid(grid) is False
-        
-        # 3x2 grid
+        self.assertFalse(validate_recipe_grid(grid))
+
         grid = [
             ["доска", "доска"],
             ["доска", "доска"],
             ["доска", "доска"]
         ]
-        assert validate_recipe_grid(grid) is False
-    
+        self.assertFalse(validate_recipe_grid(grid))
+
     def test_invalid_not_list(self):
-        """Test that non-list is rejected."""
-        assert validate_recipe_grid("not a grid") is False
-        assert validate_recipe_grid(None) is False
-        assert validate_recipe_grid({}) is False
-    
+        self.assertFalse(validate_recipe_grid("not a grid"))
+        self.assertFalse(validate_recipe_grid(None))
+        self.assertFalse(validate_recipe_grid({}))
+
     def test_invalid_non_string_items(self):
-        """Test that grids with non-string items are rejected."""
         grid = [
             [1, 2, 3],
             [4, 5, 6],
             [7, 8, 9]
         ]
-        assert validate_recipe_grid(grid) is False
-        
+        self.assertFalse(validate_recipe_grid(grid))
+
         grid = [
             ["доска", "доска", None],
             ["доска", "пусто", "доска"],
             ["доска", "доска", "доска"]
         ]
-        assert validate_recipe_grid(grid) is False
+        self.assertFalse(validate_recipe_grid(grid))
 
 
-class TestCommonRecipes:
-    """Test that common recipes are available."""
-    
+class CommonRecipesTests(unittest.TestCase):
     def test_basic_tools(self):
-        """Test that basic tools are in database."""
         tools = ["палка", "деревянная кирка", "деревянный топор"]
         for tool in tools:
             recipe = search_recipe(tool)
-            assert recipe is not None, f"Recipe for {tool} should exist"
-    
+            self.assertIsNotNone(recipe, f"Recipe for {tool} should exist")
+
     def test_armor(self):
-        """Test that armor recipes are available."""
         armor = ["железный шлем", "железный нагрудник", "железные штаны", "железные сапоги"]
         for item in armor:
             recipe = search_recipe(item)
-            assert recipe is not None, f"Recipe for {item} should exist"
-    
+            self.assertIsNotNone(recipe, f"Recipe for {item} should exist")
+
     def test_weapons(self):
-        """Test that weapon recipes are available."""
         weapons = ["деревянный меч", "железный меч", "алмазный меч"]
         for weapon in weapons:
             recipe = search_recipe(weapon)
-            assert recipe is not None, f"Recipe for {weapon} should exist"
+            self.assertIsNotNone(recipe, f"Recipe for {weapon} should exist")
 
 
 if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    unittest.main()

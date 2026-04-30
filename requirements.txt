@@ -21,3 +21,4 @@ pydantic-settings
 chromadb
 pynput
 sentence-transformers
+selenium>=4.31.0
