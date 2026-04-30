@@ -4,7 +4,7 @@ import threading
 from queue import Queue
 
 from backend.core.config import settings
-
+from backend.core.presets import VOICES
 
 class TTSManager:
     """
@@ -20,9 +20,20 @@ class TTSManager:
         self.model_id = model_id or settings.tts_model_id
         self.model = None
         self.speed = settings.tts_speed
+        self.volume = 1.0
 
         self._text_queue: Queue[str] = Queue()
         threading.Thread(target=self._worker, daemon=True).start()
+
+    def set_speaker(self, speaker_name: str) -> None:
+        """Динамически меняет голос синтезатора."""
+        if speaker_name in VOICES:
+            self.speaker = speaker_name
+            print(f"[INFO] Голос TTS изменен на: {self.speaker}")
+
+    def set_volume(self, volume: float) -> None:
+        """Устанавливает уровень громкости (0.0 - 1.0)."""
+        self.volume = max(0.0, min(1.0, volume))
 
     def _init_model(self) -> None:
         if self.model is None:

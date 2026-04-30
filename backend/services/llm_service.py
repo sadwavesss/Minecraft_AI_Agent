@@ -1,21 +1,21 @@
 from backend.core.config import settings
+from backend.core.presets import PERSONAS
 
-# Системная инструкция для игрового ассистента
-_SYSTEM_INSTRUCTION = (
-    "Ты — мой ИИ-друг и помощник в играх. "
-    "Ты анализируешь игровой экран, даешь советы, предлагаешь тактики, "
-    "комментируешь происходящее, подбадриваешь и развлекаешь. "
-    "Обращай внимание только на игру и ее составляющие. "
-    "Отвечай не более 1000 символов, но по возможности как можно короче, как живой человек, без формальностей. "
-    "Можешь использовать сленг и ненормативную лексику, если это уместно. "
-    "Иностранные игровые термины пиши по-русски. Пример: Dota → Дота."
-    "Не повторяйся без просьбы"
+BASE_SYSTEM_PROMPT = (
+    "Ты — ИИ-помощник в видеоиграх. Твоя задача — анализировать игровой экран, "
+    "комментировать происходящее и отвечать на вопросы игрока.\n"
+    "ОБЯЗАТЕЛЬНЫЕ ПРАВИЛА:\n"
+    "1. Обращай внимание только на саму игру и ее элементы.\n"
+    "2. Твои ответы должны быть короткими (не более 300 символов).\n"
+    "3. Иностранные игровые термины пиши по-русски (например: Dota → Дота).\n"
+    "4. Не повторяйся, если тебя об этом не попросили прямо.\n\n"
+    "5. Цифры тоже пиши буквами.\n"
+    "ТВОЙ ХАРАКТЕР И СТИЛЬ ОБЩЕНИЯ:\n"
 )
 
-
-def ask_gemini(question: str, image_bytes: bytes = None, history: list = None) -> str:
+def ask_gemini(question: str, image_bytes: bytes = None, history: list = None, system_prompt: str = None) -> str:
     """
-    Отправляет мультимодальный запрос в Gemini с учетом истории диалога.
+    Отправляет мультимодальный запрос в Gemini с учетом истории диалога и заданного промпта.
     """
     try:
         import google.genai as genai
@@ -28,11 +28,15 @@ def ask_gemini(question: str, image_bytes: bytes = None, history: list = None) -
 
     client = genai.Client(api_key=settings.gemini_api_key)
     
+    # Определяем активный характер и комбинируем с базовым правилом
+    persona_prompt = system_prompt if system_prompt else PERSONAS.get("friendly", "")
+    full_system_prompt = BASE_SYSTEM_PROMPT + persona_prompt
+    
     # Формируем структуру сообщений
     contents = []
     
     # 1. Добавляем системную инструкцию
-    contents.append(types.Content(role="user", parts=[types.Part.from_text(text=f"System Instruction: {_SYSTEM_INSTRUCTION}")]))
+    contents.append(types.Content(role="user", parts=[types.Part.from_text(text=f"System Instruction: {full_system_prompt}")]))
     contents.append(types.Content(role="model", parts=[types.Part.from_text(text="Понял! Я твой игровой ассистент. Жду команд.")]))
 
     # 2. Добавляем историю диалога (если есть)

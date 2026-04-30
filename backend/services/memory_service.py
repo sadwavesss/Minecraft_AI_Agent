@@ -89,8 +89,8 @@ class MemoryService:
         """Полностью очищает историю диалога."""
         try:
             self.client.delete_collection("dialogue_history")
-        except:
-            pass
+        except Exception as e:
+            print(f"[ERROR] Не удалось удалить коллекцию ChromaDB: {e}")
         
         # Пересоздаём коллекцию с функцией эмбеддингов
         embedding_fn = embedding_functions.SentenceTransformerEmbeddingFunction(

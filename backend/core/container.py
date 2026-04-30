@@ -7,7 +7,6 @@ from backend.core.voice import VoiceListener
 from backend.services.memory_service import MemoryService
 from backend.services.pipeline import RequestPipeline
 
-
 class ApplicationContainer:
     """
     Центральный IoC-контейнер приложения.
@@ -22,6 +21,11 @@ class ApplicationContainer:
         self.current_overlay_status: str = "IDLE"
         self.is_active = False
         self.overlay_visible = True
+        self.settings_persona: str = "friendly"
+        self.settings_voice: str = "baya"
+        self.settings_show_subtitles: bool = True
+        self.settings_volume: float = 1.0
+        self.settings_show_visualizer: bool = True
         self._main_loop: Optional[asyncio.AbstractEventLoop] = None
 
         self.pipeline = RequestPipeline(

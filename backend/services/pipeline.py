@@ -12,9 +12,6 @@ from backend.services.memory_service import MemoryService
 class UserRequest:
     text: str
     image_bytes: Optional[bytes] = None
-    # field(default_factory=...) — правильный способ задать изменяемый default.
-    # time.time() как default напрямую вычислялся ОДИН РАЗ при объявлении класса,
-    # и все объекты получали одинаковый timestamp.
     timestamp: float = field(default_factory=time.time)
 
 
@@ -58,10 +55,18 @@ class RequestPipeline:
                 # 1. Получаем последние сообщения из памяти для контекста (Dialogue Flow)
                 history = self.memory_service.get_recent_history(limit=5)
 
+                # Получаем текущие настройки из контейнера
+                from backend.core.container import container
+                from backend.core.presets import PERSONAS
+                from backend.services.tts_service import tts_manager
+                
+                sys_prompt = PERSONAS.get(container.settings_persona, PERSONAS["friendly"])
+                tts_manager.set_speaker(container.settings_voice)
+                tts_manager.set_volume(container.settings_volume)
+
                 # 2. Запрос к Gemini (sync → async через executor)
-                # Теперь передаем текст, картинку и историю как отдельные параметры
                 answer = await loop.run_in_executor(
-                    None, ask_gemini, request.text, request.image_bytes, history
+                    None, ask_gemini, request.text, request.image_bytes, history, sys_prompt
                 )
 
                 if answer:
