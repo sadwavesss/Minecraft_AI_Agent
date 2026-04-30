@@ -1,8 +1,9 @@
-async def placeholder(): pass
-
- wait this is JS, replacing
 document.addEventListener("DOMContentLoaded", () => {
     // init
+    const btn = document.getElementById('generateBtn');
+    if(btn) {
+        btn.addEventListener('click', generateAnalytics);
+    }
 });
 
 async function generateAnalytics() {

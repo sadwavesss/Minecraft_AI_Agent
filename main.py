@@ -75,6 +75,21 @@ async def admin_challenges_page():
 async def admin_wiki_page():
     return FileResponse(BASE_DIR / "static" / "wiki.html")
 
+@app.get("/dashboard")
+async def dashboard_page():
+    return FileResponse(BASE_DIR / "static" / "dashboard.html")
+
+@app.get("/steam")
+async def steam_crafting():
+    return FileResponse(BASE_DIR / "static" / "steam.html")
+
+@app.get("/api/recipes")
+async def get_recipes():
+    """Get all crafting recipes from JSON database"""
+    from api.minecraft_recipes import get_all_recipes
+    recipes = get_all_recipes()
+    return {"recipes": recipes}
+
 @app.get("/")
 async def root():
-    return {"message": "Admin panel at /admin"}
+    return FileResponse(BASE_DIR / "static" / "dashboard.html")

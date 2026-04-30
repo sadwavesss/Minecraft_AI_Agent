@@ -798,29 +798,51 @@ Format using markdown for readability."""
         if not self.is_available():
             return None
 
-        prompt = f"""You are a perfect Minecraft Wiki. The user is asking to craft: "{query}".
-Respond ONLY with a valid JSON object representing the 3x3 crafting grid. Do NOT wrap it in markdown blockquotes like ```json.
-Format:
+        prompt = f"""You are a Minecraft 1.20+ crafting expert. The user wants to craft: "{query}".
+
+IMPORTANT RULES:
+1. Respond ONLY with valid JSON, NO markdown wrapping (no ```json```).
+2. The grid MUST be exactly 3x3 (9 cells total).
+3. Use exact ingredient names in Russian (e.g., "доска", "палка", "железный слиток").
+4. Empty cells MUST be exactly "пусто".
+5. Each ingredient name should be SHORT and accurate.
+
+If the item cannot be crafted in vanilla survival (Bedrock, Eggs, etc.), set grid all "пусто" and write "Невозможно скрафтить в выживании" in description.
+
+Return JSON in this format ONLY:
 {{
   "name": "Название предмета на русском",
-  "description": "Коротко как применяется",
+  "description": "Короткое описание и применение (одна строка)",
   "grid": [
-    ["пусто", "пусто", "пусто"],
-    ["пусто", "пусто", "пусто"],
+    ["ингредиент", "ингредиент", "пусто"],
+    ["ингредиент", "пусто", "пусто"],
     ["пусто", "пусто", "пусто"]
   ]
-}}
-Empty slots MUST be exactly the string "пусто". Fill the 3x3 array strictly.
-If the item doesn't exist or is uncraftable, set grid all "пусто" and write "Невозможно скрафтить" in description."""
+}}"""
 
         try:
             api_params = self._build_api_params()
             api_params["messages"] = [{"role": "user", "content": prompt}]
             # Disable temp for deterministic recipes
             api_params["temperature"] = 0.0
+            # Increase max_tokens for detailed recipes
+            api_params["max_tokens"] = 300
             
             message = self._create_completion(api_params)
-            return _loads_jsonish_object(message.choices[0].message.content)
+            result = _loads_jsonish_object(message.choices[0].message.content)
+            
+            # Validate result
+            if result and isinstance(result, dict):
+                # Ensure grid is properly formatted
+                if "grid" in result and isinstance(result["grid"], list) and len(result["grid"]) == 3:
+                    # Validate each row has 3 items
+                    for row in result["grid"]:
+                        if not isinstance(row, list) or len(row) != 3:
+                            logger.warning(f"Invalid grid format for recipe: {query}")
+                            return None
+                    return result
+            
+            return None
         except Exception as e:
             logger.error(f"{self.get_source_name()} wiki API error: {e}")
             return None

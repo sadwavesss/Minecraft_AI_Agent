@@ -14,6 +14,6 @@ echo Logs: %LOGFILE%
 echo.
 
 echo [%date% %time%] ========== Server starting ========== >> "%LOGFILE%"
-powershell -Command "python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000 2>&1 | Tee-Object -Append -FilePath '%LOGFILE%'"
+python -m uvicorn main:app --host 127.0.0.1 --port 8000
 
 pause
