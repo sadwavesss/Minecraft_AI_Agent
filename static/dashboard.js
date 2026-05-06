@@ -291,7 +291,49 @@ function displayRecipes(recipesToShow) {
             <div class="recipe-name">${recipe.name}</div>
             <div class="recipe-description">${recipe.description || ''}</div>
         `;
+        // Add click handler to show recipe details
+        card.addEventListener('click', () => showRecipeDetails(id, recipe));
         grid.appendChild(card);
+    });
+}
+
+function showRecipeDetails(id, recipe) {
+    const modal = document.createElement('div');
+    modal.id = 'recipe-detail-modal';
+    modal.className = 'modal active';
+    
+    const grid = recipe.grid || [];
+    let gridHtml = '<div class="recipe-grid-detail">';
+    if (Array.isArray(grid) && grid.length === 3) {
+        grid.forEach(row => {
+            gridHtml += '<div class="recipe-row">';
+            row.forEach(item => {
+                const itemEmoji = getItemEmoji(item);
+                gridHtml += `<div class="recipe-cell">${itemEmoji}<span>${item === 'пусто' ? '' : item}</span></div>`;
+            });
+            gridHtml += '</div>';
+        });
+    }
+    gridHtml += '</div>';
+    
+    modal.innerHTML = `
+        <div class="modal-content recipe-modal">
+            <button class="modal-close" onclick="this.parentElement.parentElement.remove()">&times;</button>
+            <h2>${recipe.name}</h2>
+            <p class="recipe-description">${recipe.description || 'No description'}</p>
+            <div class="recipe-section">
+                <h3>Crafting Grid</h3>
+                ${gridHtml}
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">Close</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
     });
 }
 
@@ -303,6 +345,28 @@ function getRecipeEmoji(key) {
     if (key.includes('блок') || key.includes('камень')) return '🧱';
     if (key.includes('печь')) return '🔥';
     return '🔨';
+}
+
+function getItemEmoji(item) {
+    const emojis = {
+        'доска': '🪵',
+        'палка': '🌳',
+        'камень': '🪨',
+        'булыжник': '⛰️',
+        'кирпич': '🧱',
+        'железный_слиток': '⚙️',
+        'золотой_слиток': '⭐',
+        'алмаз': '💎',
+        'стекло': '🪟',
+        'песочник': '🏜️',
+        'кожа': '🐮',
+        'железная_броня': '🛡️',
+        'алмазная_броня': '💎',
+        'факел': '🔦',
+        'книга': '📖',
+        'пусто': '⬜'
+    };
+    return emojis[item] || '❓';
 }
 
 // Load Recipes (for search)
@@ -395,18 +459,31 @@ async function generateAnalysis() {
         
         const contentEl = document.getElementById('analytics-content');
         if (data.status === 'success') {
+            const markdownHtml = markdownToHtml(data.analysis_markdown);
             contentEl.innerHTML = `
-                <div class="analysis-section">
+                <div class="analysis-section markdown-content">
                     <h3>Session Analysis</h3>
-                    <div class="analysis-text">${data.analysis_markdown}</div>
+                    ${markdownHtml}
                 </div>
                 <div class="analysis-section">
                     <h3>Statistics</h3>
-                    <div class="analysis-text">
-                        <p>Total Logs: ${data.stats.total_logs}</p>
-                        <p>Deaths: ${data.stats.deaths}</p>
-                        <p>Low Health Warnings: ${data.stats.low_health_warnings}</p>
-                        <p>Hostile Encounters: ${data.stats.hostile_encounters}</p>
+                    <div class="stats-table">
+                        <div class="stat-row">
+                            <span class="stat-name">📊 Total Logs:</span>
+                            <span class="stat-val">${data.stats.total_logs}</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-name">☠️ Deaths:</span>
+                            <span class="stat-val">${data.stats.deaths}</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-name">❤️ Health Warnings:</span>
+                            <span class="stat-val">${data.stats.low_health_warnings}</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-name">⚔️ Hostile Encounters:</span>
+                            <span class="stat-val">${data.stats.hostile_encounters}</span>
+                        </div>
                     </div>
                 </div>
             `;
@@ -417,6 +494,53 @@ async function generateAnalysis() {
         console.error('Error generating analysis:', error);
         document.getElementById('analytics-content').innerHTML = '<p class="error">Failed to generate analysis</p>';
     }
+}
+
+// Markdown to HTML converter
+function markdownToHtml(markdown) {
+    let html = markdown;
+    
+    // Headers
+    html = html.replace(/^### (.*?)$/gm, '<h3>$1</h3>');
+    html = html.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
+    html = html.replace(/^# (.*?)$/gm, '<h1>$1</h1>');
+    
+    // Bold
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
+    
+    // Italic
+    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    html = html.replace(/_(.*?)_/g, '<em>$1</em>');
+    
+    // Code inline
+    html = html.replace(/`(.*?)`/g, '<code>$1</code>');
+    
+    // Lists
+    html = html.replace(/^\- (.*?)$/gm, '<li>$1</li>');
+    html = html.replace(/^\* (.*?)$/gm, '<li>$1</li>');
+    html = html.replace(/^(\d+)\. (.*?)$/gm, '<li>$2</li>');
+    html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+    html = html.replace(/<\/li>\n<ul>/g, '</li>');
+    html = html.replace(/<\/ul>\n<li>/g, '<li>');
+    
+    // Blockquotes
+    html = html.replace(/^\> (.*?)$/gm, '<blockquote>$1</blockquote>');
+    
+    // Line breaks
+    html = html.replace(/\n\n/g, '</p><p>');
+    html = '<p>' + html + '</p>';
+    
+    // Clean up extra tags
+    html = html.replace(/<p><\/p>/g, '');
+    html = html.replace(/<p><h/g, '<h');
+    html = html.replace(/<\/h\d><\/p>/g, '</h>');
+    html = html.replace(/<p><ul>/g, '<ul>');
+    html = html.replace(/<\/ul><\/p>/g, '</ul>');
+    html = html.replace(/<p><blockquote>/g, '<blockquote>');
+    html = html.replace(/<\/blockquote><\/p>/g, '</blockquote>');
+    
+    return html;
 }
 
 // Challenge Management

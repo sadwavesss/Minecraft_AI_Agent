@@ -215,316 +215,38 @@ python main.py
 Dashboard:  http://localhost:8000/
 Crafting:   http://localhost:8000/steam
 ```
-## 📁 Структура проекта
 
-```
-Minecraft_AI_Agent/
-│
-├── README.md                    # Этот файл (обзор всего проекта)
-├── main.py                      # FastAPI приложение
-│
-├── api/                         # Backend API модули
-│   ├── logs.py                  # Логирование и WebSocket
-│   ├── player_state.py          # Состояние игрока
-│   ├── challenges.py            # Система челленджей
-│   ├── wiki.py                  # Поиск рецептов
-│   ├── analytics.py             # Анализ сессии
-│   ├── groq_client.py           # LLM интеграция
-│   └── advice.py                # AI советы
-│
-├── frontend/                    # Frontend документация
-│   ├── README.md                # Описание фронтенда
-│   ├── DASHBOARD.md             # Документация дашборда
-│   ├── STEAM_FRONTEND.md        # Документация крафтов
-│   └── js/                      # JavaScript модули
-│       ├── analytics.js
-│       └── wiki.js
-│
-├── static/                      # Статические файлы (HTML, CSS, JS)
-│   ├── dashboard.html           # Главный дашборд
-│   ├── dashboard.css            # Основные стили
-│   ├── dashboard.js             # Основная логика
-│   ├── steam.html               # Браузер рецептов
-│   ├── steam.css                # Стили крафтов
-│   ├── steam.js                 # Логика крафтов
-│   └── ...другие страницы
-│
-├── data/                        # База данных
-│   ├── README.md                # Описание БД
-│   ├── minecraft_crafting_recipes.json   # 115+ рецептов
-│   ├── minecraft_items.json     # Информация о предметах
-│   ├── challenge_state.json     # Состояние челленджей
-│   └── logs.json                # История событий
-│
-├── mod/                         # Minecraft Fabric мод
-│   ├── src/
-│   ├── gradle.properties
-│   └── build.gradle
-│
-├── llm_config.json              # Конфиг Groq API
-├── settings.json                # Настройки приложения
-├── requirements.txt             # Python зависимости
-│
-└── ...другие файлы
+2) Поставить зависимости:
+
+```powershell
+pip install -r requirements.txt
 ```
 
-## 🔌 API Документация
+3) **Настроить Groq API (опционально)**
 
-### WebSocket - Real-time логи
+Для использования AI-powered советов:
 
-**Endpoint**: `ws://localhost:8000/api/logs/ws`
+a) Получить API ключ от [Groq Console](https://console.groq.com/keys)
+b) Создать файл `.env` в корне проекта:
 
-**Получение:**
-```javascript
-const ws = new WebSocket('ws://localhost:8000/api/logs/ws');
-ws.onmessage = (event) => {
-    const log = JSON.parse(event.data);
-    console.log(log);
-};
+```env
+GROQ_API_KEY=your_actual_groq_api_key_here
 ```
 
-### GET /api/player-state/
+Если .env не создан или `GROQ_API_KEY` не установлен, система будет использовать правила-based советы (fallback).
 
-**Response:**
-```json
-{
-  "kills": 42,
-  "deaths": 5,
-  "health": 20
-}
+4) Запустить сервер:
+
+```powershell
+python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-### GET /api/recipes
+5) Открыть админку:
 
-**Response:**
-```json
-{
-  "recipes": {
-    "деревянная_кирка": {
-      "name": "Деревянная кирка",
-      "category": "tools"
-    }
-  }
-}
-```
+- `http://127.0.0.1:8000/admin`
+- `http://127.0.0.1:8000/admin/settings`
 
-### POST /api/challenges/
-
-**Body:**
-```json
-{
-  "title": "Охотник",
-  "goal_type": "kill",
-  "target": "zombie",
-  "count": 10
-}
-```
-
-### POST /api/rp/chat
-
-**Body:**
-```json
-{
-  "message": "дай мне алмаз"
-}
-```
-
-### GET /api/analytics/session_summary
-
-**Response:**
-```json
-{
-  "status": "success",
-  "analysis_markdown": "# Анализ\n\n...",
-  "stats": {
-    "total_logs": 127,
-    "deaths": 3
-  }
-}
-```
-
-## 🛠️ Технологический стек
-
-### Backend
-- Python 3.11+
-- FastAPI + Uvicorn
-- Pydantic
-- Groq API
-- WebSockets
-
-### Frontend
-- HTML5, CSS3
-- JavaScript ES6+ (No Frameworks!)
-- WebSocket API
-- Marked.js (Markdown)
-
-### Database
-- JSON (Localstorage для кеша)
-
-## 📖 Использование
-
-### 1. Мониторинг игры
-
-```javascript
-fetch('/api/logs/').then(r => r.json()).then(console.log)
-fetch('/api/player-state/').then(r => r.json()).then(console.log)
-```
-
-### 2. Создание челленджа
-
-1. Откройте http://localhost:8000/
-2. Перейдите в "Challenges"
-3. Нажмите "+ New Challenge"
-4. Заполните форму и сохраните
-
-### 3. Просмотр рецептов
-
-1. Откройте http://localhost:8000/steam
-2. Используйте поиск или категории
-3. Кликните для просмотра сетки 3x3
-
-### 4. Анализ сессии
-
-1. Откройте Analytics
-2. Нажмите "Сгенерировать отчет"
-3. Получите красиво оформленный отчет
-
-### 5. Chat с AI
-
-1. Откройте Chat AI
-2. Введите команду: "give me [item]"
-3. Получите ответ от AI
-
-## ⚙️ Конфигурация
-
-### llm_config.json
-
-```json
-{
-  "model_type": "groq",
-  "api_key": "gsk_YOUR_KEY_HERE",
-  "model": "mixtral-8x7b-32768"
-}
-```
-
-### settings.json
-
-```json
-{
-  "log_retention_days": 30,
-  "max_logs": 1000
-}
-```
-
-## 🐛 Troubleshooting
-
-### Сервер не запускается
-
-```bash
-netstat -ano | findstr :8000
-pip install -r requirements.txt --force-reinstall
-```
-
-### Dashboard не загружается
-
-1. Проверьте http://localhost:8000
-2. Откройте DevTools (F12)
-3. Посмотрите консоль на ошибки
-4. Очистите кэш браузера
-
-### WebSocket не подключается
-
-1. Убедитесь сервер запущен
-2. Проверьте firewall
-3. Проверьте консоль браузера
-
-### Рецепты не загружаются
-
-1. Проверьте `/api/recipes` endpoint
-2. Проверьте JSON синтаксис
-3. Очистите localStorage
-
-### AI не отвечает
-
-1. Проверьте Groq API key
-2. Проверьте интернет
-3. Посмотрите логи сервера
-
-## 📚 Дополнительная документация
-
-- **[frontend/README.md](frontend/README.md)** - Описание фронтенда
-- **[frontend/DASHBOARD.md](frontend/DASHBOARD.md)** - Документация дашборда
-- **[frontend/STEAM_FRONTEND.md](frontend/STEAM_FRONTEND.md)** - Документация крафтов
-- **[data/README.md](data/README.md)** - Описание базы данных
-- **[МОЙ_ВКЛАД.md](МОЙ_ВКЛАД.md)** - Подробное описание личного вклада в проект
-
-## 🎯 Ключевые особенности
-
-✅ Real-time мониторинг с WebSocket  
-✅ AI-powered анализ через Groq LLM  
-✅ 115+ рецептов Minecraft  
-✅ Челлендж система  
-✅ Responsive дизайн  
-✅ Steam-стиль интерфейс  
-✅ Асинхронный backend  
-✅ Vanilla JavaScript (без фреймворков)  
-✅ JSON база данных  
-✅ Легко расширяется  
-
-## 📊 Статистика
-
-- Python модулей: 8+
-- HTML страниц: 9
-- CSS: 1500+ строк
-- JavaScript: 3000+ строк
-- API endpoints: 20+
-- Рецептов: 115+
-- Всего кода: 5000+
-
-## 🤝 Расширение проекта
-
-### Добавить новую страницу
-
-1. Создайте `static/newpage.html`
-2. Добавьте маршрут в `main.py`
-3. Добавьте в навигацию
-
-### Добавить новый API endpoint
-
-1. Создайте модуль в `api/newmodule.py`
-2. Зарегистрируйте router в `main.py`
-3. Используйте в фронтенде
-
-### Добавить рецепт
-
-1. Отредактируйте `data/minecraft_crafting_recipes.json`
-2. Добавьте объект рецепта
-3. Перезагрузите сервер
-
-## 📝 Требования
-
-```
-Python 3.11+
-FastAPI
-Uvicorn
-Pydantic
-Groq API
-WebSockets
-```
-
-## 📄 Лицензия
-
-All code provided as-is for Minecraft AI Agent project.
-
-## 🏆 Статус
-
-**Version**: 1.0.0  
-**Status**: ✅ Production Ready  
-**Последнее обновление**: 2026-05-06  
-
----
-
-**Made with ❤️ for Minecraft AI enthusiasts**
+### Способ 3: Через Docker
 
 Собрать образ:
 
