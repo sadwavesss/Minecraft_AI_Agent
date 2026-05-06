@@ -151,6 +151,14 @@ class OverlayWindow(QtWidgets.QWidget):
         
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TransparentForMouseEvents, not interactive)
         
+        flags = self.windowFlags()
+        if interactive:
+            flags &= ~QtCore.Qt.WindowType.WindowTransparentForInput
+        else:
+            flags |= QtCore.Qt.WindowType.WindowTransparentForInput
+        self.setWindowFlags(flags)
+        self.showFullScreen()
+        
         self._subtitles_hud.toggle_interactive(interactive)
         self._visualizer_hud.toggle_interactive(interactive)
         
