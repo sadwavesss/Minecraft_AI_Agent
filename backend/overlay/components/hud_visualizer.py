@@ -35,6 +35,7 @@ class VisualizerHUD(DraggableGlassWidget):
 
     def toggle_interactive(self, interactive: bool):
         self.is_interactive = interactive
+        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TransparentForMouseEvents, not interactive)
         if interactive:
             self.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.OpenHandCursor))
             self.check_visualizer.show()
