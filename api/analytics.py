@@ -1,5 +1,7 @@
 from fastapi import APIRouter
 from typing import Dict, Any
+from api.catalog_labels import replace_resource_ids_with_labels
+from api.markdown import render_markdown_to_html
 from api.logs import logs_db
 from api.advice import groq_client
 
@@ -21,9 +23,9 @@ async def get_session_summary() -> Dict[str, Any]:
     timeline = []
     for log in logs_db:
         if log.event_type in ["death", "startup", "shutdown"]:
-            timeline.append(f"[{log.event_type.upper()}] - {getattr(log, 'message', 'Occurred')}")
+            timeline.append(f"[{log.event_type.upper()}] - {replace_resource_ids_with_labels(getattr(log, 'message', 'Событие'))}")
         elif log.event_type == "low_health" and (getattr(log, "player_health", 20) or 20) <= 6:
-            timeline.append("[CRITICAL HEALTH] - Health dropped <= 6")
+            timeline.append("[КРИТИЧЕСКОЕ ЗДОРОВЬЕ] - Здоровье упало до 6 или ниже")
             
     # Limit timeline to last 30 significant events to avoid context overflow
     if len(timeline) > 30:
@@ -43,6 +45,12 @@ async def get_session_summary() -> Dict[str, Any]:
     if groq_client.is_available():
         analysis = await groq_client.generate_analytics_async(session_summary)
         if analysis:
-            return {"status": "success", "analysis_markdown": analysis, "stats": session_summary}
+            analysis_markdown = replace_resource_ids_with_labels(analysis)
+            return {
+                "status": "success",
+                "analysis_markdown": analysis_markdown,
+                "analysis_html": render_markdown_to_html(analysis_markdown),
+                "stats": session_summary,
+            }
             
     return {"status": "error", "message": "Не удалось сгенерировать аналитику. Проверьте ключ Groq API или сыграйте дольше."}

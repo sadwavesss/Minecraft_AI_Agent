@@ -3,7 +3,7 @@
 <head>
     <title>AI Assistant - Аналитика</title>
     <link rel="stylesheet" href="/static/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="/frontend/js/markdown.js"></script>
     <style>
         .analytics-content { margin-top: 20px; }
         .loading { display: none; color: #888; font-style: italic; }
@@ -16,6 +16,11 @@
         .generate-btn:disabled { background: #333; cursor: not-allowed; }
         .markdown-body { padding: 20px; background: rgba(0,0,0,0.3); border-radius: 8px; line-height: 1.6; }
         .markdown-body h1, .markdown-body h2, .markdown-body h3 { color: #bb86fc; }
+        .markdown-body p, .markdown-body ul, .markdown-body ol, .markdown-body blockquote, .markdown-body pre { margin: 0 0 12px; }
+        .markdown-body ul, .markdown-body ol { padding-left: 24px; }
+        .markdown-body code { padding: 2px 6px; border-radius: 6px; background: rgba(255,255,255,0.08); }
+        .markdown-body pre { padding: 14px; border-radius: 10px; background: rgba(0,0,0,0.35); overflow-x: auto; }
+        .markdown-body pre code { padding: 0; background: transparent; }
     </style>
 </head>
 <body>
@@ -25,8 +30,8 @@
             <a href="/admin/responses">Ответы LLM</a>
             <a href="/admin/analytics" class="active">Аналитика</a>
             <a href="/admin/wiki">Справочник</a>
-            <a href="/admin/player-state">Player State</a>
-            <a href="/admin/challenges">Challenges</a>
+            <a href="/admin/player-state">Состояние игрока</a>
+            <a href="/admin/challenges">Челленджи</a>
             <a href="/admin/settings">Настройки</a>
         </nav>
         
@@ -34,7 +39,7 @@
             <h2>Аналитика сессии</h2>
             <p>Генерация тактического обзора на основе текущих логов сервера (с момента запуска).</p>
             
-            <button id="generateBtn" class="generate-btn" onclick="generateAnalytics()">Сгенерировать отчет (Может занять 5-15 сек)</button>
+            <button id="generateBtn" class="generate-btn" onclick="generateAnalytics()">Сгенерировать отчёт (может занять 5–15 сек)</button>
             <div id="loading" class="loading">Запрашиваем данные у Groq LLM...</div>
             
             <div id="results" class="analytics-content" style="display: none;">

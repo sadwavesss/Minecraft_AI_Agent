@@ -38,7 +38,10 @@ async function generateAnalytics() {
                 </div>
             `;
 
-            mdResult.innerHTML = marked.parse(data.analysis_markdown);
+            mdResult.innerHTML = data.analysis_html
+                || (typeof renderMarkdown === 'function'
+                    ? renderMarkdown(data.analysis_markdown || '')
+                    : data.analysis_markdown);
             results.style.display = 'block';
         } else {
             alert('Ошибка: ' + data.message);

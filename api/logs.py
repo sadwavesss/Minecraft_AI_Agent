@@ -4,6 +4,7 @@ from fastapi import APIRouter, WebSocket
 from fastapi.encoders import jsonable_encoder
 from starlette.websockets import WebSocketDisconnect
 from typing import List
+from api.catalog_labels import replace_resource_ids_with_labels
 from models.log_entry import LogEntry
 from api.challenges import refresh_challenge_progress
 from api.player_state import apply_log_to_player_state
@@ -44,6 +45,7 @@ async def add_log(entry: LogEntry):
                 entry.message = entry.event_type
         else:
             entry.message = "(no message)"
+    entry.message = replace_resource_ids_with_labels(entry.message)
     logs_db.append(entry)
     apply_log_to_player_state(entry)
     refresh_challenge_progress()

@@ -49,13 +49,16 @@ class ChallengeTests(unittest.TestCase):
         )
         challenges.refresh_challenge_progress()
 
-        active = challenges.get_active_challenge()
-        self.assertIsNotNone(active)
-        self.assertEqual(active["progress_count"], 1)
-        self.assertEqual(active["status"], "completed")
-        self.assertEqual(active["goal_target_name"], "зомби")
+        self.assertIsNone(challenges.get_active_challenge())
+        state = challenges.get_challenge_state()
+        history = state["history"]
+        self.assertEqual(len(history), 1)
+        self.assertEqual(history[0]["progress_count"], 1)
+        self.assertEqual(history[0]["status"], "rewarded")
+        self.assertEqual(history[0]["goal_target_name"], "зомби")
+        self.assertEqual(len(state["pending_rewards"]), 1)
 
-    def test_claim_completed_collect_challenge_uses_give_command_and_clears_active(self):
+    def test_completed_collect_challenge_queues_reward_action_and_clears_active(self):
         result = execute_tool_call(
             "create_challenge",
             {
@@ -82,19 +85,49 @@ class ChallengeTests(unittest.TestCase):
         )
         challenges.refresh_challenge_progress()
 
-        claim_result = execute_tool_call("claim_challenge_reward", {})
-        self.assertTrue(claim_result["ok"])
-        self.assertTrue(claim_result["execute"])
-        self.assertEqual(claim_result["action_type"], "give")
-        self.assertEqual(claim_result["item_id"], "minecraft:iron_ingot")
-        self.assertEqual(claim_result["item_count"], 4)
-        self.assertEqual(claim_result["command"], "/give @s minecraft:iron_ingot 4")
         self.assertIsNone(challenges.get_active_challenge())
 
         history = challenges.get_challenge_state()["history"]
         self.assertEqual(len(history), 1)
-        self.assertEqual(history[0]["status"], "claimed")
+        self.assertEqual(history[0]["status"], "rewarded")
         self.assertEqual(history[0]["reward_item_name"], "железный слиток")
+        self.assertEqual(history[0]["reward_status"], "issued")
+
+        pending_reward = challenges.consume_pending_reward_action()
+        self.assertIsNotNone(pending_reward)
+        self.assertTrue(pending_reward["execute"])
+        self.assertEqual(pending_reward["action_type"], "give")
+        self.assertEqual(pending_reward["item_id"], "minecraft:iron_ingot")
+        self.assertEqual(pending_reward["item_count"], 4)
+        self.assertEqual(pending_reward["command"], "/give @s minecraft:iron_ingot 4")
+
+    def test_claim_completed_challenge_returns_already_issued_for_rewarded_history(self):
+        result = execute_tool_call(
+            "create_challenge",
+            {
+                "goal_type": "kill",
+                "target_query": "зомби",
+                "goal_count": 1,
+                "reward_item_query": "уголь",
+                "reward_count": 2,
+            },
+        )
+        self.assertTrue(result["ok"])
+        challenge_id = result["challenge"]["id"]
+
+        apply_log_to_player_state(
+            LogEntry(
+                level="INFO",
+                event_type="mob_kill",
+                event_data={"entity_id": "minecraft:zombie", "entity_name": "Zombie", "count_delta": 1},
+            )
+        )
+        challenges.refresh_challenge_progress()
+
+        claim_result = execute_tool_call("claim_challenge_reward", {"challenge_id": challenge_id})
+        self.assertTrue(claim_result["ok"])
+        self.assertFalse(claim_result["execute"])
+        self.assertIn("автоматически", claim_result["summary"])
 
     def test_create_challenge_rejects_second_active_challenge(self):
         first = execute_tool_call(
@@ -121,3 +154,20 @@ class ChallengeTests(unittest.TestCase):
         )
         self.assertFalse(second["ok"])
         self.assertIn("активный челлендж", second["error"].lower())
+
+    def test_create_challenge_description_uses_localized_names(self):
+        result = execute_tool_call(
+            "create_challenge",
+            {
+                "goal_type": "kill",
+                "target_query": "зомби",
+                "goal_count": 2,
+                "reward_item_query": "железо",
+                "reward_count": 3,
+            },
+        )
+        self.assertTrue(result["ok"])
+        challenge = result["challenge"]
+        self.assertIn("зомби", challenge["description"].lower())
+        self.assertIn("железный слиток", challenge["description"].lower())
+        self.assertNotIn("minecraft:", challenge["description"])

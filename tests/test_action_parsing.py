@@ -122,6 +122,28 @@ class ActionParsingTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(result.execute)
         self.assertIn("не могу выполнить выдачу", result.error.lower())
 
+    async def test_get_compact_status_returns_active_challenge_snapshot(self):
+        execute_tool_call(
+            "create_challenge",
+            {
+                "goal_type": "kill",
+                "target_query": "зомби",
+                "goal_count": 1,
+                "reward_item_query": "уголь",
+                "reward_count": 2,
+            },
+        )
+        advice._last_rp_response = {"response": "Держись ближе к укрытию.", "level": "WARNING"}
+
+        payload = await advice.get_compact_status()
+
+        self.assertEqual(payload["advice"], "Держись ближе к укрытию.")
+        self.assertEqual(payload["advice_level"], "WARNING")
+        self.assertIsNotNone(payload["challenge"])
+        self.assertEqual(payload["challenge"]["title"], "Охота")
+        self.assertEqual(payload["challenge"]["progress"], "0/1")
+        self.assertEqual(payload["challenge"]["reward"], "уголь")
+
     async def test_player_chat_message_handles_summon_request_without_llm(self):
         with patch.object(advice.groq_client, "is_available", return_value=False):
             result = await advice.player_chat_message(ChatMessage(text="призови зомби"))
@@ -208,6 +230,45 @@ class ActionParsingTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.entity_id, "minecraft:skeleton")
         self.assertEqual(result.command, "/summon minecraft:skeleton ~ ~ ~")
 
+    async def test_get_rp_response_returns_pending_challenge_reward_action(self):
+        execute_tool_call(
+            "create_challenge",
+            {
+                "goal_type": "kill",
+                "target_query": "зомби",
+                "goal_count": 1,
+                "reward_item_query": "уголь",
+                "reward_count": 2,
+            },
+        )
+        from api.player_state import apply_log_to_player_state
+        from models.log_entry import LogEntry
+
+        apply_log_to_player_state(
+            LogEntry(
+                level="INFO",
+                event_type="mob_kill",
+                event_data={"entity_id": "minecraft:zombie", "entity_name": "Zombie", "count_delta": 1},
+            )
+        )
+        advice.refresh_challenge_progress()
+
+        result = await advice.get_rp_response()
+
+        self.assertEqual(result.mode, "action")
+        self.assertTrue(result.execute)
+        self.assertEqual(result.action_type, "give")
+        self.assertEqual(result.item_id, "minecraft:coal")
+        self.assertEqual(result.item_count, 2)
+
+    async def test_player_chat_message_explains_that_challenge_rewards_are_automatic(self):
+        with patch.object(advice.groq_client, "is_available", return_value=False):
+            result = await advice.player_chat_message(ChatMessage(text="забрать награду за челлендж"))
+
+        self.assertEqual(result.mode, "chat")
+        self.assertFalse(result.execute)
+        self.assertIn("автоматически", result.response.lower())
+
     async def test_player_chat_message_returns_refusal_without_execution(self):
         decision = {
             "assistant_response": "Нет уж, сегодня без подарков.",
@@ -274,6 +335,7 @@ class ActionParsingTests(unittest.IsolatedAsyncioTestCase):
             result = await advice.get_rp_response()
 
         self.assertEqual(result.source, "fallback")
+        self.assertEqual(result.response, "")
         self.assertEqual(tip_mock.await_count, 0)
 
     async def test_get_rp_response_falls_back_when_llm_tip_times_out_without_cache(self):
@@ -299,7 +361,7 @@ class ActionParsingTests(unittest.IsolatedAsyncioTestCase):
             result = await advice.get_rp_response()
 
         self.assertEqual(result.source, "fallback")
-        self.assertIn("здоровье", result.response.lower())
+        self.assertEqual(result.response, "")
 
     async def test_player_chat_message_uses_single_structured_llm_call(self):
         payload = {"assistant_response": "Привет, друже.", "tool_call": None}
@@ -421,7 +483,7 @@ class ActionParsingTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(tools[1]["name"], "remove_item")
         self.assertEqual(tools[2]["name"], "summon_entity")
         self.assertEqual(tools[3]["name"], "create_challenge")
-        self.assertEqual(tools[4]["name"], "claim_challenge_reward")
+        self.assertEqual(len(tools), 4)
 
     def test_execute_tool_call_resolves_give_item(self):
         result = execute_tool_call("give_item", {"item_query": "уголь", "count": 5})

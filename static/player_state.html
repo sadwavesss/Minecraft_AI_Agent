@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AI Assistant - Player State</title>
+    <title>Состояние игрока — AI Assistant</title>
     <link rel="stylesheet" href="/static/style.css">
     <style>
         .state-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-top: 20px; }
@@ -22,34 +22,34 @@
             <a href="/admin/responses">Ответы LLM</a>
             <a href="/admin/wiki">Справочник</a>
             <a href="/admin/analytics">Аналитика</a>
-            <a href="/admin/player-state" class="active">Player State</a>
-            <a href="/admin/challenges">Challenges</a>
+            <a href="/admin/player-state" class="active">Состояние игрока</a>
+            <a href="/admin/challenges">Челленджи</a>
             <a href="/admin/settings">Настройки</a>
         </nav>
 
         <div class="analytics-container">
-            <h2>Player State Debug</h2>
-            <p>Текущее агрегированное состояние игрока: инвентарь, киллы и последние telemetry updates.</p>
+            <h2>Состояние игрока</h2>
+            <p>Текущее агрегированное состояние игрока: инвентарь, убийства и последние телеметрические обновления.</p>
             <div class="filters">
                 <button onclick="loadPlayerState()">Обновить</button>
             </div>
             <div id="updatedAt" class="meta"></div>
             <div class="state-grid">
                 <div class="state-card">
-                    <h3>Kills</h3>
+                    <h3>Убийства</h3>
                     <div id="killSummary" class="meta"></div>
                     <div id="killCounts" class="kv-list"></div>
-                    <h3>Recent kills</h3>
+                    <h3>Последние убийства</h3>
                     <div id="recentKills" class="kv-list"></div>
                 </div>
                 <div class="state-card">
-                    <h3>Inventory summary</h3>
+                    <h3>Сводка по инвентарю</h3>
                     <div id="inventoryCounts" class="kv-list"></div>
-                    <h3>Hotbar</h3>
+                    <h3>Хотбар</h3>
                     <div id="hotbar" class="pill-list"></div>
-                    <h3>Armor</h3>
+                    <h3>Броня</h3>
                     <div id="armor" class="pill-list"></div>
-                    <h3>Offhand</h3>
+                    <h3>Левая рука</h3>
                     <div id="offhand" class="pill-list"></div>
                 </div>
             </div>

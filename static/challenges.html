@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AI Assistant - Challenges</title>
+    <title>Челленджи — AI Assistant</title>
     <link rel="stylesheet" href="/static/style.css">
     <style>
         .state-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-top: 20px; }
@@ -25,29 +25,29 @@
             <a href="/admin/responses">Ответы LLM</a>
             <a href="/admin/wiki">Справочник</a>
             <a href="/admin/analytics">Аналитика</a>
-            <a href="/admin/player-state">Player State</a>
-            <a href="/admin/challenges" class="active">Challenges</a>
+            <a href="/admin/player-state">Состояние игрока</a>
+            <a href="/admin/challenges" class="active">Челленджи</a>
             <a href="/admin/settings">Настройки</a>
         </nav>
 
         <div class="analytics-container">
-            <h2>Challenges Debug</h2>
-            <p>Активный челлендж, прогресс, история и ручной debug-create через API.</p>
+            <h2>Челленджи</h2>
+            <p>Активный челлендж, прогресс, история и ручное создание через API для отладки.</p>
             <div class="filters">
                 <button onclick="loadChallenges()">Обновить</button>
             </div>
             <div id="updatedAt" class="meta"></div>
             <div class="state-grid">
                 <div class="state-card">
-                    <h3>Active challenge</h3>
+                    <h3>Активный челлендж</h3>
                     <div id="activeChallenge"></div>
+                    <div id="rewardInfo" class="meta">Награда за выполненный челлендж выдаётся автоматически.</div>
                     <div class="action-row">
-                        <button id="claimButton" onclick="claimReward()" disabled>Забрать награду</button>
                         <button id="cancelButton" onclick="cancelChallenge()" disabled>Отменить</button>
                     </div>
                 </div>
                 <div class="state-card">
-                    <h3>Manual debug create</h3>
+                    <h3>Ручное создание для отладки</h3>
                     <div class="meta">Для ручного теста указывай канонические `minecraft:id`.</div>
                     <div class="form-grid">
                         <input id="title" placeholder="Название челленджа">
@@ -55,9 +55,9 @@
                             <option value="kill">kill</option>
                             <option value="collect">collect</option>
                         </select>
-                        <input id="goalTargetId" placeholder="goal target id, например minecraft:zombie">
+                        <input id="goalTargetId" placeholder="ID цели, например minecraft:zombie">
                         <input id="goalCount" type="number" min="1" value="1">
-                        <input id="rewardItemId" placeholder="reward item id, например minecraft:iron_ingot">
+                        <input id="rewardItemId" placeholder="ID награды, например minecraft:iron_ingot">
                         <input id="rewardCount" type="number" min="1" max="64" value="1">
                     </div>
                     <div class="action-row">
@@ -66,7 +66,7 @@
                     <div id="createResult" class="meta"></div>
                 </div>
                 <div class="state-card">
-                    <h3>History</h3>
+                    <h3>История</h3>
                     <div id="challengeHistory" class="kv-list"></div>
                 </div>
             </div>

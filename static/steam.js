@@ -123,7 +123,7 @@ async function loadRecipes() {
         displayRecipes(recipes);
     } catch (error) {
         console.error('Error loading recipes:', error);
-        displayRecipeError('Failed to load recipes');
+        displayRecipeError('Не удалось загрузить рецепты');
     }
 }
 
@@ -194,7 +194,7 @@ function displayRecipes(recipesToShow) {
     grid.innerHTML = '';
     
     if (recipesToShow.length === 0) {
-        grid.innerHTML = '<p style="grid-column: 1/-1; color: #8892a1; text-align: center;">No recipes found</p>';
+        grid.innerHTML = '<p style="grid-column: 1/-1; color: #8892a1; text-align: center;">Ничего не найдено</p>';
         return;
     }
     
@@ -209,7 +209,7 @@ function displayRecipes(recipesToShow) {
             <div class="recipe-card-image">${recipe.emoji || '🔨'}</div>
             <div class="recipe-card-content">
                 <div class="recipe-card-name">${recipe.name}</div>
-                <div class="recipe-card-description">${recipe.description || 'No description'}</div>
+                <div class="recipe-card-description">${recipe.description || 'Описание пока отсутствует'}</div>
             </div>
         `;
         
@@ -224,7 +224,7 @@ function showRecipeModal(recipe) {
     const modal = document.getElementById('recipe-modal');
     
     document.getElementById('modal-recipe-name').textContent = recipe.name;
-    document.getElementById('modal-recipe-description').textContent = recipe.description || 'No description available';
+    document.getElementById('modal-recipe-description').textContent = recipe.description || 'Описание пока недоступно';
     
     // Display crafting grid
     const gridContainer = document.getElementById('modal-recipe-grid');
@@ -242,16 +242,16 @@ function showRecipeModal(recipe) {
             }
         });
     } else {
-        gridContainer.innerHTML = '<p>Grid data not available</p>';
+        gridContainer.innerHTML = '<p>Данные сетки крафта недоступны</p>';
     }
     
     // Update favorite button
     const favBtn = document.getElementById('favorite-btn');
     if (favorites.has(recipe.id)) {
-        favBtn.textContent = '⭐ Remove from Favorites';
+        favBtn.textContent = '⭐ Убрать из избранного';
         favBtn.classList.add('favorited');
     } else {
-        favBtn.textContent = '⭐ Add to Favorites';
+        favBtn.textContent = '⭐ Добавить в избранное';
         favBtn.classList.remove('favorited');
     }
     
@@ -279,10 +279,10 @@ function toggleFavorite() {
     // Update button
     const favBtn = document.getElementById('favorite-btn');
     if (favorites.has(currentRecipe.id)) {
-        favBtn.textContent = '⭐ Remove from Favorites';
+        favBtn.textContent = '⭐ Убрать из избранного';
         favBtn.classList.add('favorited');
     } else {
-        favBtn.textContent = '⭐ Add to Favorites';
+        favBtn.textContent = '⭐ Добавить в избранное';
         favBtn.classList.remove('favorited');
     }
 }

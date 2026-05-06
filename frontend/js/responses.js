@@ -8,7 +8,7 @@ const SOURCE_META = {
     groq:     { label: 'Groq',     color: '#7c3aed' },
     chat:     { label: 'Чат',      color: '#0ea5e9' },
     ollama:   { label: 'Ollama',   color: '#16a34a' },
-    fallback: { label: 'Fallback', color: '#64748b' },
+    fallback: { label: 'Правила', color: '#64748b' },
 };
 
 function sourceMeta(source) {
@@ -112,7 +112,7 @@ async function loadHistory() {
 function setWsStatus(ok) {
     const el = document.getElementById('wsIndicator');
     el.className = 'ws-indicator ' + (ok ? 'ws-connected' : 'ws-disconnected');
-    el.title = ok ? 'Live: подключено' : 'Live: переподключение…';
+    el.title = ok ? 'Онлайн: подключено' : 'Онлайн: переподключение…';
 }
 
 function connectWebSocket() {

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from functools import lru_cache
 from typing import Any, Dict, Optional
 
@@ -41,3 +42,25 @@ def get_entity_display_name_ru(entity_id: Any) -> Optional[str]:
     if not normalized:
         return None
     return _entity_display_names().get(normalized)
+
+
+def get_resource_display_name_ru(resource_id: Any) -> Optional[str]:
+    normalized = str(resource_id or "").strip()
+    if not normalized:
+        return None
+    return get_item_display_name_ru(normalized) or get_entity_display_name_ru(normalized)
+
+
+RESOURCE_ID_PATTERN = re.compile(r"\bminecraft:[a-z0-9_./-]+\b")
+
+
+def replace_resource_ids_with_labels(text: Any) -> str:
+    source_text = str(text or "")
+    if not source_text:
+        return ""
+
+    def _replace(match: re.Match[str]) -> str:
+        resource_id = match.group(0)
+        return get_resource_display_name_ru(resource_id) or resource_id
+
+    return RESOURCE_ID_PATTERN.sub(_replace, source_text)

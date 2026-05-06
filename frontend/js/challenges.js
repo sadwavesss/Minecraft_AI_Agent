@@ -1,5 +1,23 @@
 let currentActiveChallenge = null;
 
+function getChallengeStatusLabel(status) {
+    const labels = {
+        active: 'активен',
+        completed: 'выполнен',
+        rewarded: 'награда выдана',
+        cancelled: 'отменён'
+    };
+    return labels[status] || status || 'неизвестно';
+}
+
+function getGoalTypeLabel(goalType) {
+    const labels = {
+        kill: 'убить',
+        collect: 'собрать'
+    };
+    return labels[goalType] || goalType || 'цель';
+}
+
 function renderKeyValueList(containerId, entries, emptyText) {
     const container = document.getElementById(containerId);
     if (!entries || !entries.length) {
@@ -17,26 +35,28 @@ function renderKeyValueList(containerId, entries, emptyText) {
 
 function renderActiveChallenge(challenge) {
     const container = document.getElementById('activeChallenge');
-    const claimButton = document.getElementById('claimButton');
     const cancelButton = document.getElementById('cancelButton');
+    const rewardInfo = document.getElementById('rewardInfo');
 
     currentActiveChallenge = challenge || null;
     if (!challenge) {
         container.innerHTML = '<div class="empty">Сейчас активного челленджа нет.</div>';
-        claimButton.disabled = true;
         cancelButton.disabled = true;
+        rewardInfo.textContent = 'Награда за выполненный челлендж выдаётся автоматически.';
         return;
     }
 
-    claimButton.disabled = challenge.status !== 'completed';
     cancelButton.disabled = false;
+    rewardInfo.textContent = challenge.status === 'completed' && challenge.reward_status === 'failed'
+        ? `Автовыдача не удалась: ${challenge.reward_issue_error || 'неизвестная ошибка'}`
+        : 'Награда выдаётся автоматически сразу после выполнения челленджа.';
 
     container.innerHTML = `
         <div class="kv-list">
             <div class="kv-item"><span>ID</span><strong>${challenge.id}</strong></div>
-            <div class="kv-item"><span>Название</span><strong>${challenge.title || 'Untitled'}</strong></div>
-            <div class="kv-item"><span>Статус</span><strong><span class="status-pill">${challenge.status}</span></strong></div>
-            <div class="kv-item"><span>Цель</span><strong>${challenge.goal_type} ${challenge.goal_target_name || challenge.goal_target_id} x${challenge.goal_count}</strong></div>
+            <div class="kv-item"><span>Название</span><strong>${challenge.title || 'Без названия'}</strong></div>
+            <div class="kv-item"><span>Статус</span><strong><span class="status-pill">${getChallengeStatusLabel(challenge.status)}</span></strong></div>
+            <div class="kv-item"><span>Цель</span><strong>${getGoalTypeLabel(challenge.goal_type)} ${challenge.goal_target_name || challenge.goal_target_id} x${challenge.goal_count}</strong></div>
             <div class="kv-item"><span>Прогресс</span><strong>${challenge.progress_count || 0}/${challenge.goal_count || 1}</strong></div>
             <div class="kv-item"><span>Награда</span><strong>${challenge.reward_item_name || challenge.reward_item_id} x${challenge.reward_count || 1}</strong></div>
             <div class="kv-item"><span>Описание</span><strong>${challenge.description || '-'}</strong></div>
@@ -55,8 +75,8 @@ async function loadChallenges() {
     renderActiveChallenge(state.active || null);
 
     const historyEntries = (state.history || []).slice().reverse().slice(0, 15).map(challenge => [
-        `${challenge.title || challenge.id} (${challenge.status})`,
-        `${challenge.goal_type} ${challenge.goal_target_name || challenge.goal_target_id} x${challenge.goal_count} -> ${challenge.reward_item_name || challenge.reward_item_id} x${challenge.reward_count}`
+        `${challenge.title || challenge.id} (${getChallengeStatusLabel(challenge.status)})`,
+        `${getGoalTypeLabel(challenge.goal_type)} ${challenge.goal_target_name || challenge.goal_target_id} x${challenge.goal_count} -> ${challenge.reward_item_name || challenge.reward_item_id} x${challenge.reward_count}`
     ]);
     renderKeyValueList('challengeHistory', historyEntries, 'История челленджей пуста.');
 }
@@ -80,16 +100,6 @@ async function createChallenge() {
     document.getElementById('createResult').textContent = response.ok
         ? (data.summary || 'Челлендж создан.')
         : (data.detail || 'Не удалось создать челлендж.');
-    await loadChallenges();
-}
-
-async function claimReward() {
-    if (!currentActiveChallenge) {
-        return;
-    }
-    const response = await fetch(`/api/challenges/${currentActiveChallenge.id}/claim`, { method: 'POST' });
-    const data = await response.json();
-    alert(response.ok ? (data.summary || 'Награда выдана.') : (data.detail || 'Не удалось забрать награду.'));
     await loadChallenges();
 }
 

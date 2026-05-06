@@ -1,6 +1,7 @@
 import re
 from typing import Any, Dict, List
 
+from api.catalog_labels import get_entity_display_name_ru, get_item_display_name_ru
 from api.challenges import claim_active_challenge_reward, create_challenge
 from api.entity_catalog import resolve_entity_id_from_text
 from api.minecraft_catalog import resolve_item_id_from_text
@@ -54,6 +55,10 @@ def _build_summon_command(entity_id: str, count: int) -> str:
     return "\n".join([f"/summon {entity_id} ~ ~ ~" for _ in range(max(1, count))])
 
 
+def _goal_type_label(goal_type: str) -> str:
+    return "Убей" if goal_type == "kill" else "Собери"
+
+
 def get_tool_registry() -> List[Dict[str, Any]]:
     return [
         {
@@ -90,13 +95,6 @@ def get_tool_registry() -> List[Dict[str, Any]]:
                 "reward_item_query": "string, required, reward item or block",
                 "reward_count": "integer, optional, reward amount from 1 to 64",
                 "title": "string, optional, short challenge title",
-            },
-        },
-        {
-            "name": "claim_challenge_reward",
-            "description": "Claim the reward for the currently completed active challenge.",
-            "arguments": {
-                "challenge_id": "string, optional, active challenge id if the model wants to be explicit",
             },
         },
     ]
@@ -349,7 +347,7 @@ def _execute_create_challenge(arguments: Dict[str, Any]) -> Dict[str, Any]:
                 "error": "Не смог определить существо для челленджа.",
             }
         goal_target_id = _normalize_resource_id(target_resolution.get("entity_id"))
-        goal_target_name = target_resolution.get("display_name_ru") or goal_target_id
+        goal_target_name = get_entity_display_name_ru(goal_target_id) or target_resolution.get("display_name_ru") or goal_target_id
     else:
         target_resolution = resolve_item_id_from_text(target_query)
         if target_resolution.get("status") == "ambiguous":
@@ -371,7 +369,7 @@ def _execute_create_challenge(arguments: Dict[str, Any]) -> Dict[str, Any]:
                 "error": "Не смог определить предмет для цели челленджа.",
             }
         goal_target_id = _normalize_resource_id(target_resolution.get("item_id"))
-        goal_target_name = target_resolution.get("display_name_ru") or goal_target_id
+        goal_target_name = get_item_display_name_ru(goal_target_id) or target_resolution.get("display_name_ru") or goal_target_id
 
     reward_resolution = resolve_item_id_from_text(reward_item_query)
     if reward_resolution.get("status") == "ambiguous":
@@ -394,7 +392,7 @@ def _execute_create_challenge(arguments: Dict[str, Any]) -> Dict[str, Any]:
         }
 
     reward_item_id = _normalize_resource_id(reward_resolution.get("item_id"))
-    reward_name = reward_resolution.get("display_name_ru") or reward_item_id
+    reward_name = get_item_display_name_ru(reward_item_id) or reward_resolution.get("display_name_ru") or reward_item_id
     if goal_target_id is None or reward_item_id is None:
         return {
             "ok": False,
@@ -412,7 +410,7 @@ def _execute_create_challenge(arguments: Dict[str, Any]) -> Dict[str, Any]:
         reward_count=reward_count,
         title=str(title).strip() if isinstance(title, str) and title.strip() else None,
         description=(
-            f"Условие: {goal_type} {goal_count} x {goal_target_name}. Награда: {reward_count} x {reward_name}."
+            f"Условие: {_goal_type_label(goal_type)} {goal_count} x {goal_target_name}. Награда: {reward_count} x {reward_name}."
         ),
         source="chat",
     )
@@ -435,7 +433,7 @@ def _execute_create_challenge(arguments: Dict[str, Any]) -> Dict[str, Any]:
         "challenge_id": challenge.get("id"),
         "challenge": challenge,
         "summary": challenge_result.get("summary")
-        or f"Зафиксировал челлендж: {goal_type} {goal_count} x {goal_target_name} за {reward_count} x {reward_name}.",
+        or f"Зафиксировал челлендж: {_goal_type_label(goal_type)} {goal_count} x {goal_target_name} за {reward_count} x {reward_name}.",
     }
 
 
@@ -467,5 +465,5 @@ def execute_tool_call(tool_name: str, arguments: Any) -> Dict[str, Any]:
         "tool_name": normalized_name or "unknown",
         "execute": False,
         "error_type": "unsupported_tool",
-        "error": "Разрешены только tools `give_item`, `remove_item`, `summon_entity`, `create_challenge` и `claim_challenge_reward`.",
+        "error": "Разрешены только tools `give_item`, `remove_item`, `summon_entity` и `create_challenge`.",
     }

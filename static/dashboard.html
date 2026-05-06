@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minecraft AI Agent - Dashboard</title>
+    <title>Панель управления — Minecraft AI Assistant</title>
     <link rel="stylesheet" href="/static/dashboard.css">
+    <script src="/frontend/js/markdown.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -15,21 +16,21 @@
                     <rect width="32" height="32" rx="4" fill="#1e90ff"/>
                     <text x="16" y="22" font-size="20" font-weight="bold" fill="white" text-anchor="middle">⛏</text>
                 </svg>
-                <span>Minecraft AI Agent</span>
+                <span>Minecraft AI Assistant</span>
             </div>
             <nav class="main-nav">
-                <a href="#" class="nav-item active" data-page="dashboard">Dashboard</a>
-                <a href="#" class="nav-item" data-page="logs">Live Logs</a>
-                <a href="#" class="nav-item" data-page="challenges">Challenges</a>
-                <a href="#" class="nav-item" data-page="inventory">Inventory</a>
-                <a href="#" class="nav-item" data-page="crafting">Crafting</a>
-                <a href="#" class="nav-item" data-page="chat">Chat AI</a>
-                <a href="#" class="nav-item" data-page="analytics">Analytics</a>
+                <a href="#" class="nav-item active" data-page="dashboard">Обзор</a>
+                <a href="#" class="nav-item" data-page="logs">Логи</a>
+                <a href="#" class="nav-item" data-page="challenges">Челленджи</a>
+                <a href="#" class="nav-item" data-page="inventory">Инвентарь</a>
+                <a href="#" class="nav-item" data-page="crafting">Крафты</a>
+                <a href="#" class="nav-item" data-page="chat">Чат с ИИ</a>
+                <a href="#" class="nav-item" data-page="analytics">Аналитика</a>
             </nav>
             <div class="user-section">
                 <div class="connection-status" id="connection-status">
                     <span class="status-dot"></span>
-                    <span id="status-text">Connected</span>
+                    <span id="status-text">Подключено</span>
                 </div>
             </div>
         </div>
@@ -38,34 +39,34 @@
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-section">
-            <h3>Game Stats</h3>
+            <h3>Статистика игры</h3>
             <div class="stat-item">
-                <span class="stat-label">Total Kills</span>
+                <span class="stat-label">Всего убийств</span>
                 <span class="stat-value" id="total-kills">0</span>
             </div>
             <div class="stat-item">
-                <span class="stat-label">Deaths</span>
+                <span class="stat-label">Смерти</span>
                 <span class="stat-value" id="total-deaths">0</span>
             </div>
             <div class="stat-item">
-                <span class="stat-label">Inventory Items</span>
+                <span class="stat-label">Предметы в инвентаре</span>
                 <span class="stat-value" id="inventory-count">0</span>
             </div>
         </div>
 
         <div class="sidebar-section">
-            <h3>Active Challenge</h3>
+            <h3>Активный челлендж</h3>
             <div id="active-challenge" class="challenge-preview">
-                <p class="empty-state">No active challenge</p>
+                <p class="empty-state">Сейчас активного челленджа нет</p>
             </div>
         </div>
 
         <div class="sidebar-section">
-            <h3>Quick Actions</h3>
-            <button class="quick-action" onclick="switchPage('logs')">📜 View Logs</button>
-            <button class="quick-action" onclick="switchPage('inventory')">🎒 Inventory</button>
-            <button class="quick-action" onclick="switchPage('challenges')">🎯 Challenges</button>
-            <button class="quick-action" onclick="switchPage('chat')">💬 AI Chat</button>
+            <h3>Быстрые действия</h3>
+            <button class="quick-action" onclick="switchPage('logs')">📜 Открыть логи</button>
+            <button class="quick-action" onclick="switchPage('inventory')">🎒 Открыть инвентарь</button>
+            <button class="quick-action" onclick="switchPage('challenges')">🎯 Открыть челленджи</button>
+            <button class="quick-action" onclick="switchPage('chat')">💬 Открыть чат с ИИ</button>
         </div>
     </aside>
 
@@ -74,29 +75,29 @@
         <!-- Dashboard Page -->
         <section id="dashboard-page" class="page active">
             <div class="page-header">
-                <h1>Dashboard</h1>
-                <p class="subtitle">Real-time Minecraft AI Agent Status</p>
+                <h1>Обзор сессии</h1>
+                <p class="subtitle">Текущее состояние Minecraft AI Assistant в реальном времени</p>
             </div>
 
             <div class="dashboard-grid">
                 <!-- Stats Cards -->
                 <div class="card stats-card">
-                    <h3>📊 Session Statistics</h3>
+                    <h3>📊 Статистика сессии</h3>
                     <div class="stats-content">
                         <div class="stat-box">
-                            <span class="stat-title">Total Events</span>
+                            <span class="stat-title">Всего событий</span>
                             <span class="stat-number" id="total-events">0</span>
                         </div>
                         <div class="stat-box">
-                            <span class="stat-title">Kills</span>
+                            <span class="stat-title">Убийства</span>
                             <span class="stat-number" id="dashboard-kills">0</span>
                         </div>
                         <div class="stat-box">
-                            <span class="stat-title">Deaths</span>
+                            <span class="stat-title">Смерти</span>
                             <span class="stat-number" id="dashboard-deaths">0</span>
                         </div>
                         <div class="stat-box">
-                            <span class="stat-title">Health Warnings</span>
+                            <span class="stat-title">Предупреждения о здоровье</span>
                             <span class="stat-number" id="health-warnings">0</span>
                         </div>
                     </div>
@@ -104,25 +105,25 @@
 
                 <!-- Active Challenge -->
                 <div class="card challenge-card">
-                    <h3>🎯 Active Challenge</h3>
+                    <h3>🎯 Активный челлендж</h3>
                     <div id="dashboard-challenge" class="challenge-content">
-                        <p class="empty-state">No active challenge</p>
+                        <p class="empty-state">Сейчас активного челленджа нет</p>
                     </div>
                 </div>
 
                 <!-- Recent Events -->
                 <div class="card events-card">
-                    <h3>📝 Recent Events</h3>
+                    <h3>📝 Последние события</h3>
                     <div id="recent-events" class="events-list">
-                        <p class="empty-state">No events yet</p>
+                        <p class="empty-state">Событий пока нет</p>
                     </div>
                 </div>
 
                 <!-- LLM Status -->
                 <div class="card llm-card">
-                    <h3>🤖 AI Status</h3>
+                    <h3>🤖 Статус ИИ</h3>
                     <div id="llm-status" class="llm-content">
-                        <p>Checking AI status...</p>
+                        <p>Проверяем статус ИИ...</p>
                     </div>
                 </div>
             </div>
@@ -131,22 +132,22 @@
         <!-- Logs Page -->
         <section id="logs-page" class="page">
             <div class="page-header">
-                <h1>Live Logs</h1>
+                <h1>Логи в реальном времени</h1>
                 <div class="controls">
                     <select id="log-filter" class="filter-select">
-                        <option value="">All Levels</option>
+                        <option value="">Все уровни</option>
                         <option value="INFO">INFO</option>
                         <option value="WARNING">WARNING</option>
                         <option value="ERROR">ERROR</option>
                     </select>
-                    <button class="btn btn-secondary" onclick="clearLogs()">Clear</button>
-                    <button class="btn btn-primary" onclick="toggleAutoScroll()" id="auto-scroll-btn">Auto Scroll: ON</button>
+                    <button class="btn btn-secondary" onclick="clearLogs()">Очистить</button>
+                    <button class="btn btn-primary" onclick="toggleAutoScroll()" id="auto-scroll-btn">Автопрокрутка: вкл.</button>
                 </div>
             </div>
 
             <div class="logs-container">
                 <div id="logs-list" class="logs-list">
-                    <p class="loading">Loading logs...</p>
+                    <p class="loading">Загружаем логи...</p>
                 </div>
             </div>
         </section>
@@ -154,22 +155,22 @@
         <!-- Challenges Page -->
         <section id="challenges-page" class="page">
             <div class="page-header">
-                <h1>Challenges</h1>
-                <button class="btn btn-primary" onclick="openNewChallengeModal()">+ New Challenge</button>
+                <h1>Челленджи</h1>
+                <button class="btn btn-primary" onclick="openNewChallengeModal()">+ Новый челлендж</button>
             </div>
 
             <div class="challenges-grid">
                 <div class="card">
-                    <h3>Active Challenge</h3>
+                    <h3>Активный челлендж</h3>
                     <div id="active-challenge-detail" class="challenge-detail">
-                        <p class="empty-state">No active challenge</p>
+                        <p class="empty-state">Сейчас активного челленджа нет</p>
                     </div>
                 </div>
 
                 <div class="card">
-                    <h3>Recent History</h3>
+                    <h3>Последняя история</h3>
                     <div id="challenges-history" class="challenges-list">
-                        <p class="empty-state">No challenges completed</p>
+                        <p class="empty-state">Завершённых челленджей пока нет</p>
                     </div>
                 </div>
             </div>
@@ -178,35 +179,35 @@
         <!-- Inventory Page -->
         <section id="inventory-page" class="page">
             <div class="page-header">
-                <h1>Player Inventory</h1>
+                <h1>Инвентарь игрока</h1>
             </div>
 
             <div class="inventory-grid">
                 <div class="card inventory-card">
-                    <h3>🎒 Inventory</h3>
+                    <h3>🎒 Инвентарь</h3>
                     <div id="inventory-items" class="inventory-grid-display">
-                        <p class="empty-state">No items</p>
+                        <p class="empty-state">Предметов нет</p>
                     </div>
                 </div>
 
                 <div class="card armor-card">
-                    <h3>⚔️ Equipment</h3>
+                    <h3>⚔️ Снаряжение</h3>
                     <div id="armor-items" class="equipment-display">
-                        <p class="empty-state">No armor equipped</p>
+                        <p class="empty-state">Броня не надета</p>
                     </div>
                 </div>
 
                 <div class="card hotbar-card">
-                    <h3>⚡ Hotbar</h3>
+                    <h3>⚡ Хотбар</h3>
                     <div id="hotbar-items" class="hotbar-display">
-                        <p class="empty-state">Empty hotbar</p>
+                        <p class="empty-state">Хотбар пуст</p>
                     </div>
                 </div>
 
                 <div class="card offhand-card">
-                    <h3>🛡️ Offhand</h3>
+                    <h3>🛡️ Левая рука</h3>
                     <div id="offhand-items" class="offhand-display">
-                        <p class="empty-state">Empty offhand</p>
+                        <p class="empty-state">Левая рука пуста</p>
                     </div>
                 </div>
             </div>
@@ -215,49 +216,49 @@
         <!-- Crafting Page -->
         <section id="crafting-page" class="page">
             <div class="page-header">
-                <h1>Crafting Recipes</h1>
+                <h1>Рецепты крафта</h1>
                 <div class="controls">
-                    <input type="text" id="craft-search" placeholder="Search recipes..." class="search-input">
+                    <input type="text" id="craft-search" placeholder="Искать рецепты..." class="search-input">
                     <select id="craft-category" class="filter-select">
-                        <option value="">All Categories</option>
-                        <option value="tools">Tools</option>
-                        <option value="weapons">Weapons</option>
-                        <option value="armor">Armor</option>
-                        <option value="blocks">Blocks</option>
-                        <option value="decoration">Decoration</option>
+                        <option value="">Все категории</option>
+                        <option value="tools">Инструменты</option>
+                        <option value="weapons">Оружие</option>
+                        <option value="armor">Броня</option>
+                        <option value="blocks">Блоки</option>
+                        <option value="decoration">Декор</option>
                     </select>
                 </div>
             </div>
 
             <div id="crafting-grid" class="crafting-grid">
-                <p class="loading">Loading recipes...</p>
+                <p class="loading">Загружаем рецепты...</p>
             </div>
         </section>
 
         <!-- Chat Page -->
         <section id="chat-page" class="page">
             <div class="page-header">
-                <h1>AI Chat</h1>
+                <h1>Чат с ИИ</h1>
             </div>
 
             <div class="chat-container">
                 <div id="chat-messages" class="chat-messages">
-                    <div class="system-message">Connected to AI Agent</div>
+                    <div class="system-message">Подключено к AI Assistant</div>
                 </div>
 
                 <div class="chat-input-area">
-                    <input type="text" id="chat-input" placeholder="Type a message..." class="chat-input">
-                    <button class="btn btn-primary" onclick="sendChatMessage()">Send</button>
+                    <input type="text" id="chat-input" placeholder="Введите сообщение..." class="chat-input">
+                    <button class="btn btn-primary" onclick="sendChatMessage()">Отправить</button>
                 </div>
             </div>
 
             <div class="card chat-info">
-                <h3>Available Commands</h3>
+                <h3>Примеры команд</h3>
                 <ul class="commands-list">
-                    <li><code>give me [item]</code> - Request an item</li>
-                    <li><code>summon [mob]</code> - Summon an entity</li>
-                    <li><code>create challenge [description]</code> - Create a challenge</li>
-                    <li><code>claim reward</code> - Claim challenge reward</li>
+                    <li><code>дай [предмет]</code> — попросить предмет</li>
+                    <li><code>призови [моб]</code> — призвать существо</li>
+                    <li><code>создай челлендж [описание]</code> — создать челлендж</li>
+                    <li><code>какой у меня челлендж</code> — узнать текущий прогресс</li>
                 </ul>
             </div>
         </section>
@@ -265,12 +266,12 @@
         <!-- Analytics Page -->
         <section id="analytics-page" class="page">
             <div class="page-header">
-                <h1>Session Analytics</h1>
-                <button class="btn btn-primary" onclick="generateAnalysis()">Generate Report</button>
+                <h1>Аналитика сессии</h1>
+                <button class="btn btn-primary" onclick="generateAnalysis()">Сгенерировать отчёт</button>
             </div>
 
             <div id="analytics-content" class="analytics-content">
-                <p class="loading">Click "Generate Report" to analyze this session</p>
+                <p class="loading">Нажмите «Сгенерировать отчёт», чтобы проанализировать сессию</p>
             </div>
         </section>
     </main>
@@ -280,42 +281,42 @@
     <div id="new-challenge-modal" class="modal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeNewChallengeModal()">&times;</button>
-            <h2>Create New Challenge</h2>
+            <h2>Создать новый челлендж</h2>
             <form id="challenge-form" onsubmit="createChallenge(event)">
                 <div class="form-group">
-                    <label>Title</label>
-                    <input type="text" id="challenge-title" placeholder="Challenge title">
+                    <label>Название</label>
+                    <input type="text" id="challenge-title" placeholder="Название челленджа">
                 </div>
                 <div class="form-group">
-                    <label>Description</label>
-                    <textarea id="challenge-desc" placeholder="Challenge description"></textarea>
+                    <label>Описание</label>
+                    <textarea id="challenge-desc" placeholder="Описание челленджа"></textarea>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Goal Type</label>
+                        <label>Тип цели</label>
                         <select id="challenge-type">
-                            <option value="kill">Kill</option>
-                            <option value="collect">Collect</option>
+                            <option value="kill">Убить</option>
+                            <option value="collect">Собрать</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Target ID</label>
-                        <input type="text" id="challenge-target" placeholder="Entity/Item ID">
+                        <label>ID цели</label>
+                        <input type="text" id="challenge-target" placeholder="ID сущности или предмета">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Count</label>
+                        <label>Количество</label>
                         <input type="number" id="challenge-count" value="1" min="1">
                     </div>
                     <div class="form-group">
-                        <label>Reward Item</label>
-                        <input type="text" id="challenge-reward" placeholder="Item ID">
+                        <label>Награда</label>
+                        <input type="text" id="challenge-reward" placeholder="ID предмета">
                     </div>
                 </div>
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Create</button>
-                    <button type="button" class="btn btn-secondary" onclick="closeNewChallengeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Создать</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeNewChallengeModal()">Отмена</button>
                 </div>
             </form>
         </div>

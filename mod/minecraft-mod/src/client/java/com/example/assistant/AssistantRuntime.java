@@ -10,6 +10,9 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -359,23 +362,26 @@ public final class AssistantRuntime {
         rpRequestInFlight = true;
         http.getRP()
                 .thenAccept(rpResponse -> {
-                    if (rpResponse == null || rpResponse.response == null || rpResponse.response.isBlank()) {
+                    if (rpResponse == null) {
                         rpPollingPausedUntilTick = localTick + 100;
                         return;
                     }
-
-                    String msg = rpResponse.response.trim();
-                    if (msg.equals(lastAdviceShown)) {
-                        return;
-                    }
-
-                    lastAdviceShown = msg;
 
                     client.execute(() -> {
                         if (client.player == null) {
                             return;
                         }
-                        // Display in chat (false) instead of action bar (true)
+
+                        String msg = handleChatResponse(client, rpResponse);
+                        if (msg == null || msg.isBlank()) {
+                            rpPollingPausedUntilTick = localTick + 100;
+                            return;
+                        }
+                        if (!"action".equalsIgnoreCase(safe(rpResponse.mode)) && msg.equals(lastAdviceShown)) {
+                            return;
+                        }
+
+                        lastAdviceShown = msg;
                         client.player.displayClientMessage(Component.literal("[AI] " + msg), false);
                     });
                 })
@@ -483,18 +489,18 @@ public final class AssistantRuntime {
             return "Не могу выполнить /summon: существо '" + entityId + "' не найдено.";
         }
 
-        String command = safe(rpResponse.command);
-        if (command.isBlank()) {
-            int count = normalizeSummonCount(rpResponse.entity_count);
-            StringBuilder builder = new StringBuilder();
-            for (int idx = 0; idx < count; idx++) {
-                if (idx > 0) {
-                    builder.append("\n");
-                }
-                builder.append("/summon ").append(entityId).append(" ~ ~ ~");
+        int count = normalizeSummonCount(rpResponse.entity_count);
+        SummonTarget target = resolveSummonTarget(mc);
+        String coordinateText = formatCoordinate(target.x) + " " + formatCoordinate(target.y) + " " + formatCoordinate(target.z);
+
+        StringBuilder builder = new StringBuilder();
+        for (int idx = 0; idx < count; idx++) {
+            if (idx > 0) {
+                builder.append("\n");
             }
-            command = builder.toString();
+            builder.append("/summon ").append(entityId).append(" ").append(coordinateText);
         }
+        String command = builder.toString();
 
         return sendCommand(mc, command, rpResponse.response);
     }
@@ -595,6 +601,22 @@ public final class AssistantRuntime {
         return Math.min(count, 16);
     }
 
+    private SummonTarget resolveSummonTarget(Minecraft mc) {
+        if (mc.level != null && mc.hitResult instanceof BlockHitResult blockHit && blockHit.getType() == HitResult.Type.BLOCK) {
+            Vec3 hitLocation = blockHit.getLocation();
+            Vec3 directionOffset = Vec3.atLowerCornerOf(blockHit.getDirection().getNormal()).scale(0.75);
+            Vec3 spawnLocation = hitLocation.add(directionOffset);
+            return new SummonTarget(spawnLocation.x, spawnLocation.y, spawnLocation.z);
+        }
+
+        Vec3 fallback = mc.player.position().add(mc.player.getLookAngle().scale(2.0));
+        return new SummonTarget(fallback.x, mc.player.getY(), fallback.z);
+    }
+
+    private String formatCoordinate(double value) {
+        return String.format(Locale.ROOT, "%.2f", value);
+    }
+
     private String firstNonBlank(String... values) {
         for (String value : values) {
             if (value != null && !value.isBlank()) {
@@ -606,6 +628,18 @@ public final class AssistantRuntime {
 
     private String safe(String value) {
         return value == null ? "" : value;
+    }
+
+    private static final class SummonTarget {
+        private final double x;
+        private final double y;
+        private final double z;
+
+        private SummonTarget(double x, double y, double z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
     }
 
     private void pullSettings() {

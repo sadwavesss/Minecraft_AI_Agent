@@ -4,6 +4,24 @@ let autoScroll = true;
 let recipes = [];
 let currentPage = 'dashboard';
 
+function getChallengeStatusLabel(status) {
+    const labels = {
+        active: 'активен',
+        completed: 'выполнен',
+        rewarded: 'награда выдана',
+        cancelled: 'отменён'
+    };
+    return labels[status] || status || 'неизвестно';
+}
+
+function getGoalTypeLabel(goalType) {
+    const labels = {
+        kill: 'Убей',
+        collect: 'Собери'
+    };
+    return labels[goalType] || goalType || 'Цель';
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     setupNavigation();
@@ -48,7 +66,7 @@ function connectWebSocket() {
     ws = new WebSocket(`${protocol}//${window.location.host}/api/logs/ws`);
     
     ws.onopen = () => {
-        updateConnectionStatus('Connected', true);
+        updateConnectionStatus('Подключено', true);
     };
     
     ws.onmessage = (event) => {
@@ -59,11 +77,11 @@ function connectWebSocket() {
     
     ws.onerror = (error) => {
         console.error('WebSocket error:', error);
-        updateConnectionStatus('Error', false);
+        updateConnectionStatus('Ошибка', false);
     };
     
     ws.onclose = () => {
-        updateConnectionStatus('Disconnected', false);
+        updateConnectionStatus('Отключено', false);
         setTimeout(connectWebSocket, 3000);
     };
 }
@@ -133,8 +151,8 @@ function addLogEntry(log, container = null) {
     const entry = document.createElement('div');
     entry.className = `log-entry ${log.level || 'INFO'}`;
     
-    const time = log.timestamp ? new Date(log.timestamp).toLocaleTimeString() : 'N/A';
-    const message = log.message || log.event_type || 'Unknown event';
+    const time = log.timestamp ? new Date(log.timestamp).toLocaleTimeString() : '—';
+    const message = log.message || log.event_type || 'Неизвестное событие';
     
     entry.innerHTML = `
         <span class="log-time">${time}</span>
@@ -162,37 +180,41 @@ async function loadChallenges() {
         const preview = document.getElementById('active-challenge');
         if (active) {
             preview.innerHTML = `
-                <div class="challenge-title">${active.title || 'Unnamed'}</div>
+                <div class="challenge-title">${active.title || 'Без названия'}</div>
                 <div class="challenge-progress">
-                    Progress: ${active.progress_count || 0}/${active.goal_count || 1}
+                    Прогресс: ${active.progress_count || 0}/${active.goal_count || 1}
                 </div>
             `;
         } else {
-            preview.innerHTML = '<p class="empty-state">No active challenge</p>';
+            preview.innerHTML = '<p class="empty-state">Сейчас активного челленджа нет</p>';
         }
         
         // Update detail page
         const detail = document.getElementById('active-challenge-detail');
         if (active) {
+            const rewardHint = active.status === 'completed' && active.reward_status === 'failed'
+                ? `<small>Автовыдача не удалась: ${active.reward_issue_error || 'неизвестная ошибка'}</small>`
+                : '<small>Награда будет выдана автоматически после выполнения.</small>';
             detail.innerHTML = `
                 <div class="challenge-item">
-                    <div class="challenge-title">${active.title || 'Unnamed Challenge'}</div>
-                    <p>${active.description || ''}</p>
+                    <div class="challenge-title">${active.title || 'Челлендж без названия'}</div>
+                    <p>${getGoalTypeLabel(active.goal_type)} ${active.goal_target_name || active.goal_target_id} x${active.goal_count}. Награда: ${active.reward_item_name || active.reward_item_id} x${active.reward_count || 1}.</p>
                     <div class="challenge-progress">
                         <div class="progress-bar">
                             <div class="progress-fill" style="width: ${(active.progress_count || 0) / (active.goal_count || 1) * 100}%"></div>
                         </div>
-                        <small>Progress: ${active.progress_count || 0}/${active.goal_count || 1}</small>
+                        <small>Прогресс: ${active.progress_count || 0}/${active.goal_count || 1}</small>
                     </div>
                     <div class="challenge-actions">
                         ${active.status === 'active' ? `
-                            <button class="btn btn-secondary" onclick="cancelChallenge('${active.id}')">Cancel</button>
-                        ` : `
-                            <button class="btn btn-primary" onclick="claimReward('${active.id}')">Claim Reward</button>
-                        `}
+                            <button class="btn btn-secondary" onclick="cancelChallenge('${active.id}')">Отменить</button>
+                        ` : ''}
                     </div>
+                    ${rewardHint}
                 </div>
             `;
+        } else {
+            detail.innerHTML = '<p class="empty-state">Сейчас активного челленджа нет. Награды за завершённые челленджи выдаются автоматически.</p>';
         }
         
         // Update history
@@ -200,10 +222,12 @@ async function loadChallenges() {
         if (history.length > 0) {
             historyEl.innerHTML = history.slice(0, 10).map(c => `
                 <div class="challenge-item">
-                    <div class="challenge-title">${c.title || 'Challenge'}</div>
-                    <small>Status: ${c.status}</small>
+                    <div class="challenge-title">${c.title || 'Челлендж'}</div>
+                    <small>Статус: ${getChallengeStatusLabel(c.status)}</small>
                 </div>
             `).join('');
+        } else {
+            historyEl.innerHTML = '<p class="empty-state">История челленджей пока пуста</p>';
         }
     } catch (error) {
         console.error('Error loading challenges:', error);
@@ -223,12 +247,12 @@ async function loadInventory() {
         if (countEntries.length > 0) {
             invGrid.innerHTML = countEntries.map((entry) => `
                 <div class="inventory-slot">
-                    <div class="inventory-slot-item">${entry.display_name || entry.id}</div>
+                    <div class="inventory-slot-item" title="${entry.display_name || entry.id}">${entry.display_name || entry.id}</div>
                     <div class="inventory-slot-count">×${entry.count}</div>
                 </div>
             `).join('');
         } else {
-            invGrid.innerHTML = '<p class="empty-state">No items</p>';
+            invGrid.innerHTML = '<p class="empty-state">Предметов нет</p>';
         }
         
         // Armor
@@ -237,11 +261,11 @@ async function loadInventory() {
         if (armor.length > 0) {
             armorGrid.innerHTML = armor.map(item => `
                 <div class="inventory-slot">
-                    <div class="inventory-slot-item">${item.display_name || item.item_id || 'Unknown item'}</div>
+                    <div class="inventory-slot-item" title="${item.display_name || item.item_id || 'Неизвестный предмет'}">${item.display_name || item.item_id || 'Неизвестный предмет'}</div>
                 </div>
             `).join('');
         } else {
-            armorGrid.innerHTML = '<p class="empty-state">No armor equipped</p>';
+            armorGrid.innerHTML = '<p class="empty-state">Броня не надета</p>';
         }
         
         // Hotbar
@@ -250,11 +274,11 @@ async function loadInventory() {
         if (hotbar.length > 0) {
             hotbarGrid.innerHTML = hotbar.map(item => `
                 <div class="inventory-slot">
-                    <div class="inventory-slot-item">${item.display_name || item.item_id || 'Unknown item'}</div>
+                    <div class="inventory-slot-item" title="${item.display_name || item.item_id || 'Неизвестный предмет'}">${item.display_name || item.item_id || 'Неизвестный предмет'}</div>
                 </div>
             `).join('');
         } else {
-            hotbarGrid.innerHTML = '<p class="empty-state">Empty hotbar</p>';
+            hotbarGrid.innerHTML = '<p class="empty-state">Хотбар пуст</p>';
         }
         
         // Offhand
@@ -263,11 +287,11 @@ async function loadInventory() {
         if (offhand.length > 0) {
             offhandGrid.innerHTML = offhand.map(item => `
                 <div class="inventory-slot">
-                    <div class="inventory-slot-item">${item.display_name || item.item_id || 'Unknown item'}</div>
+                    <div class="inventory-slot-item" title="${item.display_name || item.item_id || 'Неизвестный предмет'}">${item.display_name || item.item_id || 'Неизвестный предмет'}</div>
                 </div>
             `).join('');
         } else {
-            offhandGrid.innerHTML = '<p class="empty-state">Empty offhand</p>';
+            offhandGrid.innerHTML = '<p class="empty-state">Левая рука пуста</p>';
         }
     } catch (error) {
         console.error('Error loading inventory:', error);
@@ -388,7 +412,7 @@ async function sendChatToAI(message) {
         const messagesContainer = document.getElementById('chat-messages');
         const aiMsg = document.createElement('div');
         aiMsg.className = 'message ai';
-        aiMsg.innerHTML = `<div class="message-content">${escapeHtml(data.response || data.message || 'No response')}</div>`;
+        aiMsg.innerHTML = `<div class="message-content">${escapeHtml(data.response || data.message || 'Ответа пока нет')}</div>`;
         messagesContainer.appendChild(aiMsg);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     } catch (error) {
@@ -404,18 +428,22 @@ async function generateAnalysis() {
         
         const contentEl = document.getElementById('analytics-content');
         if (data.status === 'success') {
+            const renderedMarkdown = data.analysis_html
+                || (typeof renderMarkdown === 'function'
+                    ? renderMarkdown(data.analysis_markdown || '')
+                    : escapeHtml(data.analysis_markdown || ''));
             contentEl.innerHTML = `
                 <div class="analysis-section">
-                    <h3>Session Analysis</h3>
-                    <div class="analysis-text">${data.analysis_markdown}</div>
+                    <h3>Разбор сессии</h3>
+                    <div class="analysis-text markdown-output">${renderedMarkdown}</div>
                 </div>
                 <div class="analysis-section">
-                    <h3>Statistics</h3>
+                    <h3>Статистика</h3>
                     <div class="analysis-text">
-                        <p>Total Logs: ${data.stats.total_logs}</p>
-                        <p>Deaths: ${data.stats.deaths}</p>
-                        <p>Low Health Warnings: ${data.stats.low_health_warnings}</p>
-                        <p>Hostile Encounters: ${data.stats.hostile_encounters}</p>
+                        <p>Всего логов: ${data.stats.total_logs}</p>
+                        <p>Смертей: ${data.stats.deaths}</p>
+                        <p>Предупреждений о низком здоровье: ${data.stats.low_health_warnings}</p>
+                        <p>Встреч с враждебными мобами: ${data.stats.hostile_encounters}</p>
                     </div>
                 </div>
             `;
@@ -424,7 +452,7 @@ async function generateAnalysis() {
         }
     } catch (error) {
         console.error('Error generating analysis:', error);
-        document.getElementById('analytics-content').innerHTML = '<p class="error">Failed to generate analysis</p>';
+        document.getElementById('analytics-content').innerHTML = '<p class="error">Не удалось сгенерировать аналитику</p>';
     }
 }
 
@@ -476,18 +504,6 @@ async function cancelChallenge(id) {
     }
 }
 
-async function claimReward(id) {
-    try {
-        const response = await fetch(`/api/challenges/${id}/claim`, { method: 'POST' });
-        if (response.ok) {
-            loadChallenges();
-            loadInventory();
-        }
-    } catch (error) {
-        console.error('Error claiming reward:', error);
-    }
-}
-
 // Log Control
 function clearLogs() {
     document.getElementById('logs-list').innerHTML = '';
@@ -496,7 +512,7 @@ function clearLogs() {
 function toggleAutoScroll() {
     autoScroll = !autoScroll;
     const btn = document.getElementById('auto-scroll-btn');
-    btn.textContent = `Auto Scroll: ${autoScroll ? 'ON' : 'OFF'}`;
+    btn.textContent = `Автопрокрутка: ${autoScroll ? 'вкл.' : 'выкл.'}`;
 }
 
 // Setup Event Listeners

@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from datetime import datetime, timezone
 import time
 
-from api.challenges import get_active_challenge, refresh_challenge_progress
+from api.challenges import consume_pending_reward_action, get_active_challenge, refresh_challenge_progress
 from api.console_utils import make_console_safe
 from api.logs import logs_db
 from api.settings import current_settings
@@ -251,107 +251,15 @@ def _determine_severity_level(last: Any, threats: Optional[list]) -> str:
         return "INFO"
 
 
-def _get_fallback_rp_response(last: Any) -> Dict[str, Any]:
-    """Fallback rule-based RP response when Groq is unavailable."""
-    # Check for death event first (highest priority)
-    death = _find_last_event("death", limit=5)
-    if death is not None:
-        ed = getattr(death, "event_data", None) or {}
-        cause = ed.get("cause", "unknown")
-        return {
-            "response": f"[STATIC] О нет! Ты умер от {cause}. Может быть, в следующий раз будешь осторожнее?",
-            "confidence": 1.0,
-            "level": "CRITICAL",
-            "threats": getattr(last, "threats_detected", None) or [],
-            "source": "fallback",
-        }
-
-    # Check recent critical events
-    low_health = _find_last_event("low_health", limit=30)
-    if low_health is not None:
-        ed = getattr(low_health, "event_data", None) or {}
-        hp = ed.get("health")
-        food = ed.get("food")
-        return {
-            "response": f"[STATIC] Эй, твоё здоровье падает ({hp})! Может быть, поешь что-нибудь?",
-            "confidence": 0.85,
-            "level": "WARNING",
-            "threats": getattr(last, "threats_detected", None) or [],
-            "source": "fallback",
-        }
-
-    hunger_low = _find_last_event("hunger_low", limit=40)
-    if hunger_low is not None:
-        ed = getattr(hunger_low, "event_data", None) or {}
-        food = ed.get("food")
-        # Note: Hunger value ranges from 0-20 (20 = full)
-        # This response should only trigger when food < 10 (mod needs to enforce this)
-        return {
-            "response": f"[STATIC] Хм, ты кажется голоден ({food}). Может быть, пора что-нибудь поесть?",
-            "confidence": 0.75,
-            "level": "INFO",
-            "threats": getattr(last, "threats_detected", None) or [],
-            "source": "fallback",
-        }
-
-    near_hostile = _find_last_event("near_hostile", limit=50)
-    if near_hostile is not None:
-        ed = getattr(near_hostile, "event_data", None) or {}
-        cnt = ed.get("count")
-        radius = ed.get("radius")
-        types = ed.get("types")
-        suffix = f" (примерно {cnt} в радиусе {radius})" if cnt is not None and radius is not None else ""
-        if isinstance(types, list) and types:
-            suffix += f"; типы: {', '.join([str(t) for t in types[:3]])}"
-        return {
-            "response": "[STATIC] Слышишь? Рядом враждебные мобы" + suffix + ". Будь осторожен!",
-            "confidence": 0.8,
-            "level": "WARNING",
-            "threats": getattr(last, "threats_detected", None) or [],
-            "source": "fallback",
-        }
-
-    night = _find_last_event("night", limit=80)
-    if night is not None:
-        return {
-            "response": "[STATIC] Ночь наступила! Может быть, спать пойдёшь или хотя бы факелы зажжёшь?",
-            "confidence": 0.65,
-            "level": "INFO",
-            "threats": getattr(last, "threats_detected", None) or [],
-            "source": "fallback",
-        }
-
-    health = getattr(last, "player_health", None)
-    threats = getattr(last, "threats_detected", None)
-
-    threshold = getattr(current_settings, "threat_threshold", 0.7)
-    threat_score = _extract_threat_score(threats)
-
-    if isinstance(health, (int, float)) and health <= 6:
-        return {
-            "response": "[STATIC] Ты в опасности! Низкое здоровье. Может быть, спрячешься?",
-            "confidence": 0.8,
-            "level": "WARNING",
-            "threats": threats or [],
-            "source": "fallback",
-        }
-
-    if threat_score >= float(threshold):
-        return {
-            "response": "[STATIC] Чувствую опасность где-то рядом. Будь начеку!",
-            "confidence": 0.75,
-            "level": "WARNING",
-            "threats": threats or [],
-            "source": "fallback",
-        }
-
-    return {
-        "response": "[STATIC] Как твои дела? Всё спокойно, похоже.",
-        "confidence": 0.6,
-        "level": "INFO",
-        "threats": threats or [],
-        "source": "fallback",
-    }
+def _build_silent_poll_response(last: Any) -> GroqAdvice:
+    return _build_chat_result(
+        response="",
+        last=last,
+        source="fallback",
+        confidence=0.0,
+        mode="chat",
+        fallback=True,
+    )
 
 
 def _should_use_llm_for_rp(*, is_critical: bool) -> bool:
@@ -482,9 +390,24 @@ def _looks_like_challenge_status_request(text: str) -> bool:
 
 
 def _build_challenge_status_response(last: Any) -> GroqAdvice:
-    refresh_challenge_progress()
-    active = get_active_challenge()
+    state = refresh_challenge_progress()
+    active = state.get("active")
     if not active:
+        history = state.get("history") or []
+        latest = history[-1] if history else None
+        if isinstance(latest, dict) and latest.get("status") == "rewarded":
+            return _build_chat_result(
+                response=(
+                    f"Сейчас активного челленджа нет. "
+                    f"Последний челлендж «{latest.get('title') or 'Челлендж'}» уже завершён, "
+                    f"и награда {latest.get('reward_item_name') or latest.get('reward_item_id')} x{latest.get('reward_count') or 1} "
+                    f"была выдана автоматически."
+                ),
+                last=last,
+                source="chat",
+                confidence=0.9,
+                mode="chat",
+            )
         return _build_chat_result(
             response="Сейчас активного челленджа нет.",
             last=last,
@@ -506,8 +429,14 @@ def _build_challenge_status_response(last: Any) -> GroqAdvice:
         response = (
             f"{title}: цель уже выполнена. "
             f"Условие было {goal_type} {goal_target_id} x{goal_count}. "
-            f"Можешь забрать награду: {reward_item_id} x{reward_count}."
+            f"Автовыдача награды сейчас в обработке: {reward_item_id} x{reward_count}."
         )
+        if active.get("reward_status") == "failed":
+            response = (
+                f"{title}: цель уже выполнена, но автвыдача награды пока не удалась. "
+                f"Награда: {reward_item_id} x{reward_count}. "
+                f"Причина: {active.get('reward_issue_error') or 'неизвестная ошибка'}."
+            )
     else:
         response = (
             f"{title}: {goal_type} {goal_target_id} x{goal_count}. "
@@ -673,7 +602,7 @@ def _build_chat_action_response(action_payload: Dict[str, Any], last: Any) -> Op
         )
 
     if tool_name not in {"give_item", "remove_item", "summon_entity", "create_challenge", "claim_challenge_reward"}:
-        return _build_action_error(last, _merge_action_message(spoken_response, "Я пока умею вызывать только tools `give_item`, `remove_item`, `summon_entity`, `create_challenge` и `claim_challenge_reward`."))
+        return _build_action_error(last, _merge_action_message(spoken_response, "Я пока умею вызывать только tools `give_item`, `remove_item`, `summon_entity` и `create_challenge`."))
 
     arguments = action_payload.get("arguments")
     if not isinstance(arguments, dict):
@@ -800,15 +729,13 @@ async def get_rp_response() -> GroqAdvice:
     """
     global _last_rp_response_time, _last_rp_response, _processed_log_ids
 
+    pending_reward = consume_pending_reward_action()
+    if isinstance(pending_reward, dict):
+        return GroqAdvice(**pending_reward)
+
     last = _safe_last_log()
     if last is None:
-        return GroqAdvice(
-            response="Хм, я пока ничего не вижу. Может быть, давай запустим Minecraft?",
-            confidence=0.2,
-            level="INFO",
-            threats=[],
-            source="fallback",
-        )
+        return _build_silent_poll_response(None)
 
     # Check for unprocessed critical events (death, etc.)
     critical_event = _has_unprocessed_critical_event()
@@ -858,25 +785,10 @@ async def get_rp_response() -> GroqAdvice:
             elif _last_rp_response:
                 return GroqAdvice(**_last_rp_response)
 
-    # Fallback to rule-based logic if Groq is unavailable or fails
-    current_response = _get_fallback_rp_response(last)
-    
-    # Check if we should send this response
-    if _should_send_response(is_critical=is_critical) and _has_situation_changed(current_response):
-        _last_rp_response_time = time.time()
-        _last_rp_response = current_response
-        entry = _add_to_history(current_response)
-        await _broadcast_response(entry)
-        return GroqAdvice(**current_response)
-    elif _last_rp_response:
+    if _last_rp_response:
         return GroqAdvice(**_last_rp_response)
-    
-    # First response (no previous response)
-    _last_rp_response_time = time.time()
-    _last_rp_response = current_response
-    entry = _add_to_history(current_response)
-    await _broadcast_response(entry)
-    return GroqAdvice(**current_response)
+
+    return _build_silent_poll_response(last)
 
 
 @router.post("/chat")
@@ -993,11 +905,12 @@ async def player_chat_message(message: ChatMessage) -> GroqAdvice:
         return await _store_chat_result(direct_remove_response, text)
 
     if _looks_like_claim_challenge_request(text):
-        direct_claim_result = execute_tool_call("claim_challenge_reward", {})
-        direct_claim_response = _build_response_from_tool_result(
-            direct_claim_result,
-            None if direct_claim_result.get("ok") else "",
-            last,
+        direct_claim_response = _build_chat_result(
+            response="Награда за челлендж выдаётся автоматически сразу после выполнения. Проверь статус челленджа или инвентарь.",
+            last=last,
+            source="chat",
+            confidence=0.9,
+            mode="chat",
         )
         _safe_console_log(f"[Chat] Direct challenge claim response: {direct_claim_response.model_dump()}", print_message=False)
         _safe_console_log(f"[AI Assistant API] Direct challenge claim response: {direct_claim_response.model_dump()}")
@@ -1142,7 +1055,7 @@ async def get_compact_status() -> Dict[str, Any]:
             "status": active.get("status") if active else None,
             "progress": f"{active.get('progress_count', 0)}/{active.get('goal_count', 1)}" if active else None,
             "goal_type": active.get("goal_type") if active else None,
-            "reward": active.get("reward_item_id") if active else None,
+            "reward": active.get("reward_item_name") or active.get("reward_item_id") if active else None,
         } if active else None,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }

@@ -90,7 +90,7 @@ class UISmokeTests(unittest.TestCase):
         self.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "header.steam-header")))
         self.assertEqual(
             self.driver.find_element(By.CSS_SELECTOR, "#dashboard-page.active h1").text,
-            "Dashboard",
+            "Обзор сессии",
         )
 
         crafting_nav = self.driver.find_element(By.CSS_SELECTOR, "a.nav-item[data-page='crafting']")
@@ -103,7 +103,7 @@ class UISmokeTests(unittest.TestCase):
         )
         self.assertEqual(
             self.driver.find_element(By.CSS_SELECTOR, "#crafting-page.active h1").text,
-            "Crafting Recipes",
+            "Рецепты крафта",
         )
 
     def test_wiki_search_shows_recipe_grid(self):

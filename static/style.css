@@ -1,10 +1,22 @@
+@font-face {
+    font-family: "UI Sans";
+    src: local("Segoe UI Variable Text"), local("Segoe UI"), local("Inter"), local("Roboto"), local("Noto Sans");
+}
+
+@font-face {
+    font-family: "UI Heading";
+    src: local("Segoe UI Variable Display"), local("Segoe UI Semibold"), local("Inter SemiBold"), local("Roboto Medium");
+}
+
 html, body {
     height: 100%;
 }
 
 body {
     margin: 0;
-    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    font-family: "UI Sans", "Segoe UI Variable Text", "Segoe UI", Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    line-height: 1.55;
+    letter-spacing: 0.01em;
     color: #111827;
     background: linear-gradient(180deg, #f8fafc, #eef2ff);
 }
@@ -31,6 +43,7 @@ nav a {
     text-decoration: none;
     color: #0f172a;
     font-weight: 600;
+    letter-spacing: 0.01em;
     padding: 10px 12px;
     border-radius: 10px;
 }
@@ -87,9 +100,11 @@ button {
     border: 0;
     background: linear-gradient(180deg, #6366f1, #4f46e5);
     color: #ffffff;
+    font-family: "UI Heading", "Segoe UI Variable Display", "Segoe UI", sans-serif;
     font-weight: 700;
+    letter-spacing: 0.015em;
     border-radius: 10px;
-    padding: 10px 14px;
+    padding: 10px 16px;
     cursor: pointer;
     box-shadow: 0 8px 18px rgba(79, 70, 229, 0.25);
 }
@@ -122,7 +137,7 @@ button:active {
 
 .log-message {
     font-size: 1em;
-    line-height: 1.4;
+    line-height: 1.55;
     color: #0f172a;
     word-break: break-word;
 }
@@ -207,12 +222,14 @@ nav a.nav-active {
 }
 
 .model-label {
+    font-family: "UI Heading", "Segoe UI Variable Display", "Segoe UI", sans-serif;
     font-weight: 600;
     color: #475569;
     font-size: 0.9em;
 }
 
 .model-badge {
+    font-family: "UI Heading", "Segoe UI Variable Display", "Segoe UI", sans-serif;
     font-weight: 700;
     color: #0f172a;
     font-size: 0.95em;
