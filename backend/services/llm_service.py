@@ -1,3 +1,5 @@
+import google.generativeai as genai
+from google.generativeai.types import HarmCategory, HarmBlockThreshold
 from backend.core.config import settings
 from backend.core.presets import PERSONAS
 
@@ -13,54 +15,58 @@ BASE_SYSTEM_PROMPT = (
     "ТВОЙ ХАРАКТЕР И СТИЛЬ ОБЩЕНИЯ:\n"
 )
 
-def ask_gemini(question: str, image_bytes: bytes = None, history: list = None, system_prompt: str = None) -> str:
-    """
-    Отправляет мультимодальный запрос в Gemini с учетом истории диалога и заданного промпта.
-    """
-    try:
-        import google.genai as genai
-        from google.genai import types
-    except ImportError:
-        return "[gemini-unavailable] Пакет google-genai не установлен."
-
-    if not settings.gemini_api_key:
-        return "[gemini-no-key] Не найден API ключ."
-
-    client = genai.Client(api_key=settings.gemini_api_key)
+class LLMService:
+    """Сервис для взаимодействия с LLM (Gemini) через google.generativeai."""
     
-    # Определяем активный характер и комбинируем с базовым правилом
-    persona_prompt = system_prompt if system_prompt else PERSONAS.get("friendly", "")
-    full_system_prompt = BASE_SYSTEM_PROMPT + persona_prompt
-    
-    # Формируем структуру сообщений
-    contents = []
-    
-    # 1. Добавляем системную инструкцию
-    contents.append(types.Content(role="user", parts=[types.Part.from_text(text=f"System Instruction: {full_system_prompt}")]))
-    contents.append(types.Content(role="model", parts=[types.Part.from_text(text="Понял! Я твой игровой ассистент. Жду команд.")]))
+    def __init__(self):
+        self.api_key = settings.gemini_api_key
+        self.is_configured = False
+        if self.api_key:
+            try:
+                genai.configure(api_key=self.api_key)
+                self.is_configured = True
+            except Exception as e:
+                print(f"[LLMService Error] Ошибка конфигурации Gemini API: {e}")
 
-    # 2. Добавляем историю диалога (если есть)
-    if history:
-        for msg in history:
-            role = "user" if msg["role"] == "user" else "model"
-            contents.append(types.Content(role=role, parts=[types.Part.from_text(text=msg["content"])]))
+    def ask_gemini(self, question: str, image_bytes: bytes = None, history: list = None, system_prompt: str = None) -> str:
+        """
+        Отправляет мультимодальный запрос в Gemini с учетом истории диалога и заданного промпта.
+        """
+        if not self.is_configured:
+            return "Ошибка: Неверный или отсутствующий ключ API Gemini."
 
-    # 3. Текущий запрос
-    current_parts = [types.Part.from_text(text=question)]
-    if image_bytes:
-        try:
-            current_parts.append(types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"))
-        except Exception as err:
-            return f"[gemini-error] Ошибка упаковки изображения: {err}"
-    
-    contents.append(types.Content(role="user", parts=current_parts))
-
-    try:
-        response = client.models.generate_content(
-            model="gemini-flash-lite-latest",
-            contents=contents,
+        # Определяем активный характер и комбинируем с базовым правилом
+        persona_prompt = system_prompt if system_prompt else PERSONAS.get("friendly", "")
+        full_system_prompt = BASE_SYSTEM_PROMPT + persona_prompt
+        
+        # Настройка модели с системной инструкцией
+        model = genai.GenerativeModel(
+            "gemini-flash-lite-latest",
+            system_instruction=full_system_prompt
         )
-        return response.text
-    except Exception as e:
-        return f"[gemini-error] {e}"
+        
+        contents = []
 
+        # 1. Добавляем историю диалога (если есть)
+        if history:
+            for msg in history:
+                role = "user" if msg["role"] == "user" else "model"
+                contents.append({"role": role, "parts": [msg["content"]]})
+
+        # 2. Текущий запрос
+        current_parts = []
+        if image_bytes:
+            try:
+                current_parts.append({"mime_type": "image/jpeg", "data": image_bytes})
+            except Exception as err:
+                return f"Ошибка упаковки изображения: {err}"
+                
+        current_parts.append(question)
+        contents.append({"role": "user", "parts": current_parts})
+
+        try:
+            response = model.generate_content(contents)
+            return response.text
+        except Exception as e:
+            print(f"[Gemini API Error] {e}")
+            return "Произошла ошибка при обращении к сервису."

@@ -1,10 +1,11 @@
 import asyncio
 import time
+import os
 from dataclasses import dataclass, field
 from typing import Optional, Callable
 
-from backend.services.llm_service import ask_gemini
-from backend.services.tts_service import speak
+from backend.services.llm_service import LLMService
+from backend.services.tts_service import TTSManager
 from backend.services.memory_service import MemoryService
 
 
@@ -12,6 +13,7 @@ from backend.services.memory_service import MemoryService
 class UserRequest:
     text: str
     image_bytes: Optional[bytes] = None
+    frames_buffer: Optional[list] = None
     timestamp: float = field(default_factory=time.time)
 
 
@@ -22,10 +24,20 @@ class RequestPipeline:
     Оверлей и TTS запускаются параллельно согласно ТЗ.
     """
 
-    def __init__(self, overlay_callback: Callable[[str], None], memory_service: MemoryService):
+    def __init__(
+        self, 
+        overlay_callback: Callable[[str], None], 
+        memory_service: MemoryService,
+        tts_manager: TTSManager,
+        llm_service: LLMService,
+        get_settings_callback: Callable[[], dict]
+    ):
         self.queue: asyncio.Queue[UserRequest] = asyncio.Queue()
         self.overlay_callback = overlay_callback
         self.memory_service = memory_service
+        self.tts_manager = tts_manager
+        self.llm_service = llm_service
+        self.get_settings_callback = get_settings_callback
         self.is_running = False
         self._worker_task: Optional[asyncio.Task] = None
 
@@ -41,9 +53,19 @@ class RequestPipeline:
             self._worker_task.cancel()
             print("[INFO] Pipeline worker stopped.")
 
-    async def add_request(self, text: str, image_bytes: Optional[bytes] = None) -> None:
-        request = UserRequest(text=text, image_bytes=image_bytes)
+    async def add_request(self, text: str, image_bytes: Optional[bytes] = None, frames_buffer: Optional[list] = None) -> None:
+        request = UserRequest(text=text, image_bytes=image_bytes, frames_buffer=frames_buffer)
         await self.queue.put(request)
+
+    def clear_queue(self) -> None:
+        """Очищает очередь невыполненных запросов."""
+        try:
+            while not self.queue.empty():
+                self.queue.get_nowait()
+                self.queue.task_done()
+        except Exception as e:
+            print(f"[WARNING] Ошибка при очистке очереди: {e}")
+        print("[INFO] Pipeline queue cleared.")
 
     async def _worker(self) -> None:
         loop = asyncio.get_running_loop()
@@ -56,28 +78,27 @@ class RequestPipeline:
                 history = self.memory_service.get_recent_history(limit=5)
 
                 # Получаем текущие настройки из контейнера
-                from backend.core.container import container
                 from backend.core.presets import PERSONAS
-                from backend.services.tts_service import tts_manager
                 
-                sys_prompt = PERSONAS.get(container.settings_persona, PERSONAS["friendly"])
-                tts_manager.set_speaker(container.settings_voice)
-                tts_manager.set_volume(container.settings_volume)
+                settings = self.get_settings_callback()
+                sys_prompt = PERSONAS.get(settings.get("persona", "friendly"), PERSONAS["friendly"])
+                self.tts_manager.set_speaker(settings.get("voice", "baya"))
+                self.tts_manager.set_volume(settings.get("volume", 1.0))
 
-                # 2. Запрос к Gemini (sync → async через executor)
+                # 3. Запрос к Gemini (sync → async через executor)
                 answer = await loop.run_in_executor(
-                    None, ask_gemini, request.text, request.image_bytes, history, sys_prompt
+                    None, self.llm_service.ask_gemini, request.text, request.image_bytes, history, sys_prompt
                 )
 
                 if answer:
-                    # 3. Сохраняем диалог в память
+                    # 4. Сохраняем диалог в память
                     self.memory_service.add_message("user", request.text)
                     self.memory_service.add_message("assistant", answer)
 
-                    # 4. Вывод в оверлей и TTS запускаются ПАРАЛЛЕЛЬНО (требование ТЗ)
+                    # 5. Вывод в оверлей и TTS запускаются ПАРАЛЛЕЛЬНО (требование ТЗ)
                     await asyncio.gather(
                         loop.run_in_executor(None, self.overlay_callback, answer),
-                        loop.run_in_executor(None, speak, answer),
+                        loop.run_in_executor(None, self.tts_manager.say, answer),
                     )
 
                 self.queue.task_done()

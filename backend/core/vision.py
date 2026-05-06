@@ -1,5 +1,6 @@
-﻿import cv2
-
+import cv2
+import os
+from typing import Optional
 
 def preprocess_frame(frame, width=1280, height=720, quality=80):
     if frame is None:

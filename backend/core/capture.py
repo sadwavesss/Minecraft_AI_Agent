@@ -17,7 +17,7 @@ import numpy as np
 
 
 class ScreenCapture:
-    def __init__(self, monitor=1, fps=15, buffer_seconds=60):
+    def __init__(self, monitor=1, fps=15, buffer_seconds=30):
         self.monitor = monitor
         self.fps = fps
         self.latest_frame = None

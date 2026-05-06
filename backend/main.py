@@ -50,5 +50,21 @@ app.include_router(router, prefix="/api")
 
 if __name__ == "__main__":
     import uvicorn
-    # log_level="warning" уберет сообщения о каждом GET/POST запросе
-    uvicorn.run("backend.main:app", host="0.0.0.0", port=8000, reload=True, log_level="warning")
+    from uvicorn.config import LOGGING_CONFIG
+
+    # Настраиваем фильтрацию спама через LOGGING_CONFIG
+    LOGGING_CONFIG["filters"] = {
+        "endpoint_filter": {
+            "()": "backend.core.config.EndpointFilter",
+        }
+    }
+    LOGGING_CONFIG["loggers"]["uvicorn.access"]["filters"] = ["endpoint_filter"]
+
+    uvicorn.run(
+        "backend.main:app", 
+        host="0.0.0.0", 
+        port=8000, 
+        reload=True, 
+        log_level="info",
+        log_config=LOGGING_CONFIG
+    )

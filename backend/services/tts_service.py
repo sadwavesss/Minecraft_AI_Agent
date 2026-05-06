@@ -22,6 +22,7 @@ class TTSManager:
         self.speed = settings.tts_speed
         self.volume = 1.0
 
+        self._init_model()
         self._text_queue: Queue[str] = Queue()
         threading.Thread(target=self._worker, daemon=True).start()
 
@@ -34,6 +35,13 @@ class TTSManager:
     def set_volume(self, volume: float) -> None:
         """Устанавливает уровень громкости (0.0 - 1.0)."""
         self.volume = max(0.0, min(1.0, volume))
+
+    def stop_playback(self) -> None:
+        """Останавливает текущее воспроизведение и очищает очередь."""
+        sd.stop()
+        with self._text_queue.mutex:
+            self._text_queue.queue.clear()
+        print("[INFO] TTS остановлен, очередь очищена.")
 
     def _init_model(self) -> None:
         if self.model is None:
@@ -55,7 +63,6 @@ class TTSManager:
 
     def _worker(self) -> None:
         """Фоновый поток: берёт текст из очереди и синтезирует речь."""
-        self._init_model()
         import torch.nn.functional as F
 
         while True:
@@ -76,17 +83,12 @@ class TTSManager:
                     sample_rate=self.sample_rate,
                 )
 
-                sd.play(audio.cpu().numpy(), self.sample_rate)
+                audio_np = audio.cpu().numpy() * self.volume
+                sd.play(audio_np, self.sample_rate)
                 sd.wait()
             except Exception as e:
                 print(f"[TTS Worker Error] {e}")
             finally:
                 self._text_queue.task_done()
 
-
-tts_manager = TTSManager()
-
-
-def speak(text: str) -> None:
-    tts_manager.say(text)
 

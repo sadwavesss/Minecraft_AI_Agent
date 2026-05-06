@@ -59,7 +59,7 @@ class OverlayWindow(QtWidgets.QWidget):
         self._settings_panel = SettingsPanel(self._on_settings_changed, self)
         self._settings_panel.move(60, 60)
 
-        self._status_panel = StatusPanel(self._on_start_clicked, self)
+        self._status_panel = StatusPanel(self._on_start_clicked, self._on_stop_clicked, self)
         self._status_panel.move((screen_w - 320) // 2, (screen_h - 200) // 2)
 
         self._hotkey_panel = HotkeyPanel(self)
@@ -80,6 +80,15 @@ class OverlayWindow(QtWidgets.QWidget):
         except requests.exceptions.RequestException as e:
             self._status_panel.set_offline()
             print(f"[API ERROR] Не удалось связаться с бэкендом (start): {e}")
+
+    def _on_stop_clicked(self):
+        try:
+            r = requests.post("http://127.0.0.1:8000/api/stop", timeout=1.0)
+            if r.status_code == 200:
+                self._status_panel.set_offline()
+                self._status_panel.sys_status_label.setText("ОСТАНОВЛЕНО")
+        except requests.exceptions.RequestException as e:
+            print(f"[API ERROR] Не удалось связаться с бэкендом (stop): {e}")
 
     def _load_settings_once(self):
         if self._settings_loaded:
@@ -201,10 +210,17 @@ class OverlayWindow(QtWidgets.QWidget):
             pass
 
 def run() -> None:
+    import signal
+    # Позволяем Python корректно обрабатывать Ctrl+C в GUI приложении
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+    
     app = QtWidgets.QApplication(sys.argv)
     window = OverlayWindow()
     window.show()
-    sys.exit(app.exec())
+    try:
+        sys.exit(app.exec())
+    except KeyboardInterrupt:
+        pass
 
 if __name__ == "__main__":
     run()

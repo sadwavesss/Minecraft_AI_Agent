@@ -61,6 +61,22 @@ START_BUTTON_ACTIVE_STYLE = """
     font-weight: 800;
 """
 
+STOP_BUTTON_STYLE = """
+    QPushButton {
+        background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #ef4444, stop:1 #b91c1c);
+        color: white;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 15px;
+        letter-spacing: 1px;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    QPushButton:hover { 
+        background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #dc2626, stop:1 #991b1b);
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+"""
+
 COLOR_GREEN = "#22c55e"
 COLOR_YELLOW = "#eab308"
 COLOR_RED = "#ef4444"

@@ -19,8 +19,8 @@ class VoiceListener:
         self.is_listening = False
         self.on_transcription = None
         
-        # Загружаем модель в фоновом потоке, чтобы не блокировать запуск программы
-        threading.Thread(target=self._init_model, daemon=True).start()
+        # Загружаем модель последовательно
+        self._init_model()
 
     def _init_model(self):
         print("[INFO] Начинается фоновая загрузка голосовой модели (faster-whisper)...")

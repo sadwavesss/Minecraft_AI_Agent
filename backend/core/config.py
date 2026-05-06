@@ -1,6 +1,14 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from functools import lru_cache
 
+import logging
+
+class EndpointFilter(logging.Filter):
+    """Фильтр для очистки логов от частых запросов оверлея."""
+    def filter(self, record: logging.LogRecord) -> bool:
+        msg = record.getMessage()
+        return "/api/latest_response" not in msg and "/api/status" not in msg
+
 class Settings(BaseSettings):
     # Gemini API Key
     gemini_api_key: str 
