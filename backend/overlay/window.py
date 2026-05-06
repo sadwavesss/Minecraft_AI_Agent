@@ -151,14 +151,21 @@ class OverlayWindow(QtWidgets.QWidget):
         
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TransparentForMouseEvents, not interactive)
         
-        flags = self.windowFlags()
-        if interactive:
-            flags &= ~QtCore.Qt.WindowType.WindowTransparentForInput
-        else:
-            flags |= QtCore.Qt.WindowType.WindowTransparentForInput
-        self.setWindowFlags(flags)
-        self.showFullScreen()
-        
+        import sys
+        if sys.platform == "win32":
+            import ctypes
+            hwnd = int(self.winId())
+            GWL_EXSTYLE = -20
+            WS_EX_TRANSPARENT = 0x00000020
+            
+            user32 = ctypes.windll.user32
+            # В PyQt6 winId возвращает sip.voidptr, который приводится к int
+            ex_style = user32.GetWindowLongW(hwnd, GWL_EXSTYLE)
+            if interactive:
+                user32.SetWindowLongW(hwnd, GWL_EXSTYLE, ex_style & ~WS_EX_TRANSPARENT)
+            else:
+                user32.SetWindowLongW(hwnd, GWL_EXSTYLE, ex_style | WS_EX_TRANSPARENT)
+                
         self._subtitles_hud.toggle_interactive(interactive)
         self._visualizer_hud.toggle_interactive(interactive)
         
