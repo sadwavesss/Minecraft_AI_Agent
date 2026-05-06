@@ -508,6 +508,58 @@ async function loadDashboardSettings() {
         console.error('Error loading dashboard settings:', error);
         setStatus(`Ошибка загрузки: ${error.message}`, true);
     }
+
+    loadModelSelector();
+}
+
+const PROVIDER_LABELS = {
+    groq: 'Groq',
+    ollama: 'Ollama (локально)',
+    openrouter: 'OpenRouter'
+};
+
+async function loadModelSelector() {
+    const grid = document.getElementById('model-selector-grid');
+    const status = document.getElementById('model-switch-status');
+    if (!grid) return;
+
+    try {
+        const resp = await fetch('/api/rp/models/available');
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const data = await resp.json();
+        const current = data.current_model;
+        const details = data.model_details || {};
+
+        grid.innerHTML = data.available_models.map(key => {
+            const info = details[key] || {};
+            const isActive = key === current;
+            const provider = info.provider || '';
+            const providerLabel = PROVIDER_LABELS[provider] || provider;
+            return `<button class="model-card${isActive ? ' active' : ''}" data-model="${key}" onclick="switchModel('${key}')" ${isActive ? 'disabled' : ''}>
+                <span class="model-card-name">${info.name || key}</span>
+                <span class="model-card-id">${key}</span>
+                <span class="provider-badge provider-${provider}">${providerLabel}</span>
+                ${isActive ? '<span class="model-active-badge">Активна</span>' : ''}
+            </button>`;
+        }).join('');
+    } catch (e) {
+        grid.innerHTML = `<p class="settings-status error">Ошибка загрузки моделей: ${e.message}</p>`;
+    }
+}
+
+async function switchModel(modelType) {
+    const status = document.getElementById('model-switch-status');
+    if (status) { status.textContent = `Переключаем на ${modelType}…`; status.className = 'settings-status'; }
+
+    try {
+        const resp = await fetch(`/api/rp/models/switch?model_type=${encodeURIComponent(modelType)}`, { method: 'POST' });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${await resp.text()}`);
+        const data = await resp.json();
+        if (status) { status.textContent = `Модель переключена: ${data.current_model}`; status.className = 'settings-status success'; }
+        await loadModelSelector();
+    } catch (e) {
+        if (status) { status.textContent = `Ошибка: ${e.message}`; status.className = 'settings-status error'; }
+    }
 }
 
 async function saveDashboardSettings(event) {

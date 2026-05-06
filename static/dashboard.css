@@ -1021,3 +1021,78 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--accent);
 }
+
+/* ── Model Selector ─────────────────────────────────── */
+.model-selector-card {
+    grid-column: 1 / -1;
+}
+
+.model-selector-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+}
+
+.model-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+    min-width: 180px;
+    text-align: left;
+    color: var(--text-primary);
+}
+
+.model-card:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: var(--card-hover, rgba(255,255,255,0.04));
+    box-shadow: 0 0 0 2px rgba(102, 192, 244, 0.15);
+}
+
+.model-card.active {
+    border-color: var(--accent);
+    background: rgba(102, 192, 244, 0.08);
+    cursor: default;
+}
+
+.model-card-name {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-family: 'Consolas', 'Courier New', monospace;
+    word-break: break-all;
+}
+
+.model-card-id {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.provider-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.provider-groq    { background: rgba(160, 70, 220, 0.2); color: #c084fc; }
+.provider-ollama  { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+.provider-openrouter { background: rgba(251, 191, 36, 0.15); color: #fbbf24; }
+
+.model-active-badge {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 2px;
+}

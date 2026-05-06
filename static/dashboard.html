@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Панель управления — Minecraft AI Assistant</title>
-    <link rel="stylesheet" href="/static/dashboard.css?v=4">
+    <link rel="stylesheet" href="/static/dashboard.css?v=5">
     <script src="/frontend/js/markdown.js?v=2"></script>
 </head>
 <body>
@@ -286,6 +286,14 @@
             </div>
 
             <div class="settings-grid">
+                <div class="card model-selector-card">
+                    <h3>Модель LLM</h3>
+                    <div id="model-selector-grid" class="model-selector-grid">
+                        <p class="settings-status">Загружаем модели…</p>
+                    </div>
+                    <p id="model-switch-status" class="settings-status"></p>
+                </div>
+
                 <div class="card">
                     <h3>Игровые настройки</h3>
                     <form id="dashboard-settings-form">
@@ -394,6 +402,6 @@
         </div>
     </div>
 
-    <script src="/static/dashboard.js?v=4"></script>
+    <script src="/static/dashboard.js?v=5"></script>
 </body>
 </html>
