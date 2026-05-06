@@ -27,8 +27,10 @@ document.addEventListener('DOMContentLoaded', () => {
     setupNavigation();
     connectWebSocket();
     loadInitialData();
+    loadDashboardSettings();
     setupEventListeners();
-    switchPage('dashboard');
+    const initialPage = window.location.hash ? window.location.hash.slice(1) : 'dashboard';
+    switchPage(initialPage);
 });
 
 // Navigation Setup
@@ -44,20 +46,23 @@ function setupNavigation() {
 
 // Switch Pages
 function switchPage(page) {
+    const targetPage = document.getElementById(`${page}-page`) ? page : 'dashboard';
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById(`${page}-page`).classList.add('active');
+    document.getElementById(`${targetPage}-page`).classList.add('active');
     
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.querySelector(`[data-page="${page}"]`).classList.add('active');
+    document.querySelector(`[data-page="${targetPage}"]`).classList.add('active');
     
-    currentPage = page;
+    currentPage = targetPage;
+    window.history.replaceState(null, '', `#${targetPage}`);
     
     // Load page-specific data
-    if (page === 'logs') loadLogs();
-    else if (page === 'challenges') loadChallenges();
-    else if (page === 'inventory') loadInventory();
-    else if (page === 'crafting') loadCrafting();
-    else if (page === 'dashboard') updateDashboard();
+    if (targetPage === 'logs') loadLogs();
+    else if (targetPage === 'challenges') loadChallenges();
+    else if (targetPage === 'inventory') loadInventory();
+    else if (targetPage === 'crafting') loadCrafting();
+    else if (targetPage === 'dashboard') updateDashboard();
+    else if (targetPage === 'settings') loadDashboardSettings();
 }
 
 // WebSocket Connection
@@ -456,6 +461,112 @@ async function generateAnalysis() {
     }
 }
 
+async function loadDashboardSettings() {
+    const setStatus = (msg, isError = false) => {
+        const el = document.getElementById('dashboard-settings-status');
+        if (el) {
+            el.textContent = msg;
+            el.className = 'settings-status ' + (isError ? 'error' : '');
+        }
+    };
+
+    try {
+        setStatus('Загружаем настройки…');
+        const [settingsResponse, promptsResponse] = await Promise.all([
+            fetch('/api/settings/'),
+            fetch('/api/rp/prompts')
+        ]);
+
+        if (!settingsResponse.ok || !promptsResponse.ok) {
+            throw new Error(`HTTP ${settingsResponse.status} / ${promptsResponse.status}`);
+        }
+
+        const settings = await settingsResponse.json();
+        const promptPayload = await promptsResponse.json();
+        const prompts = promptPayload.prompts || {};
+
+        const intervalEl = document.getElementById('settings-interval');
+        if (intervalEl) intervalEl.value = settings.analysis_interval ?? 500;
+        const threshEl = document.getElementById('settings-threshold');
+        if (threshEl) threshEl.value = settings.threat_threshold ?? 0.7;
+        const voiceEl = document.getElementById('settings-voice');
+        if (voiceEl) voiceEl.value = String(!!settings.enable_voice);
+        const threatsEl = document.getElementById('settings-max-threats');
+        if (threatsEl) threatsEl.value = settings.max_threats_display ?? 3;
+
+        const stateEl = document.getElementById('dashboard-state-prompt');
+        if (stateEl) stateEl.value = prompts.state_based || '';
+        const chatEl = document.getElementById('dashboard-chat-prompt');
+        if (chatEl) chatEl.value = prompts.chat_based || '';
+        const actionEl = document.getElementById('dashboard-action-prompt');
+        if (actionEl) actionEl.value = prompts.action_based || '';
+        const toolEl = document.getElementById('dashboard-tool-result-prompt');
+        if (toolEl) toolEl.value = prompts.tool_result_based || '';
+
+        setStatus('');
+    } catch (error) {
+        console.error('Error loading dashboard settings:', error);
+        setStatus(`Ошибка загрузки: ${error.message}`, true);
+    }
+}
+
+async function saveDashboardSettings(event) {
+    event.preventDefault();
+    const statusEl = document.getElementById('dashboard-settings-status');
+    statusEl.textContent = '';
+
+    const payload = {
+        analysis_interval: Number(document.getElementById('settings-interval').value),
+        threat_threshold: Number(document.getElementById('settings-threshold').value),
+        enable_voice: document.getElementById('settings-voice').value === 'true',
+        max_threats_display: Number(document.getElementById('settings-max-threats').value)
+    };
+
+    const response = await fetch('/api/settings/', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+        statusEl.textContent = `Ошибка сохранения: ${await response.text()}`;
+        statusEl.className = 'settings-status error';
+        return;
+    }
+
+    statusEl.textContent = 'Игровые настройки сохранены.';
+    statusEl.className = 'settings-status success';
+}
+
+async function saveDashboardPrompts(event) {
+    event.preventDefault();
+    const statusEl = document.getElementById('dashboard-prompts-status');
+    statusEl.textContent = '';
+
+    const payload = {
+        state_based: document.getElementById('dashboard-state-prompt').value,
+        chat_based: document.getElementById('dashboard-chat-prompt').value,
+        action_based: document.getElementById('dashboard-action-prompt').value,
+        tool_result_based: document.getElementById('dashboard-tool-result-prompt').value
+    };
+
+    const response = await fetch('/api/rp/prompts', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+        statusEl.textContent = `Ошибка сохранения промптов: ${await response.text()}`;
+        statusEl.className = 'settings-status error';
+        return;
+    }
+
+    await loadDashboardSettings();
+    statusEl.textContent = 'Промпты сохранены.';
+    statusEl.className = 'settings-status success';
+}
+
 // Challenge Management
 function openNewChallengeModal() {
     document.getElementById('new-challenge-modal').classList.add('active');
@@ -548,6 +659,16 @@ function setupEventListeners() {
         modal.addEventListener('click', (e) => {
             if (e.target === modal) closeNewChallengeModal();
         });
+    }
+
+    const settingsForm = document.getElementById('dashboard-settings-form');
+    if (settingsForm) {
+        settingsForm.addEventListener('submit', saveDashboardSettings);
+    }
+
+    const promptForm = document.getElementById('dashboard-prompt-form');
+    if (promptForm) {
+        promptForm.addEventListener('submit', saveDashboardPrompts);
     }
 }
 

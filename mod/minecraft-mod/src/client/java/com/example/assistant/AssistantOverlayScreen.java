@@ -1,5 +1,6 @@
 package com.example.assistant;
 
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -22,6 +23,7 @@ public class AssistantOverlayScreen extends Screen {
     private HttpAssistantClient.CompactResponse lastCompactData;
     private long lastDataFetchTime = 0;
     private Button refreshButton;
+    private Button promptSettingsButton;
     private Button closeButton;
     private Button statusTabButton;
     private Button recipesTabButton;
@@ -190,21 +192,26 @@ public class AssistantOverlayScreen extends Screen {
         addRenderableWidget(recipesTabButton);
         
         int btnY = this.height - 40;
-        int btnWidth = 100;
+        int btnWidth = 95;
         int spacing = 10;
-        int startX = (this.width - (btnWidth * 2 + spacing)) / 2;
+        int startX = (this.width - (btnWidth * 3 + spacing * 2)) / 2;
         
         // Кнопка обновления
         refreshButton = Button.builder(Component.literal("§b🔄 Обновить"), btn -> {
             fetchCompactData();
         }).bounds(startX, btnY, btnWidth, 20).build();
+
+        promptSettingsButton = Button.builder(Component.literal("§6⚙ Промпты"), btn -> {
+            Util.getPlatform().openUri(runtime.getHttpClient().getBaseUrl() + "/dashboard#settings");
+        }).bounds(startX + btnWidth + spacing, btnY, btnWidth, 20).build();
         
         // Кнопка закрытия
         closeButton = Button.builder(Component.literal("§c✕ Закрыть"), btn -> {
             onClose();
-        }).bounds(startX + btnWidth + spacing, btnY, btnWidth, 20).build();
+        }).bounds(startX + (btnWidth + spacing) * 2, btnY, btnWidth, 20).build();
         
         addRenderableWidget(refreshButton);
+        addRenderableWidget(promptSettingsButton);
         addRenderableWidget(closeButton);
 
         // Recipes controls (rendered + enabled only on Recipes tab)
@@ -306,6 +313,7 @@ public class AssistantOverlayScreen extends Screen {
         int contentY = top + 35;
         int col1X = left + 15;
         int col2X = left + 175;
+        int positionY = contentY + 32;
 
         // === КОЛОНКА 1: Статус игрока ===
         graphics.drawString(font, "§l❤ Здоровье", col1X, contentY, COLOR_ACCENT);
@@ -324,24 +332,31 @@ public class AssistantOverlayScreen extends Screen {
             String title = ch.title != null ? ch.title : "Без названия";
             String status = ch.status != null ? ch.status : "—";
             String progress = ch.progress != null ? ch.progress : "—";
+            String[] titleLines = wrapText(title, 16);
 
             int statusColor = "completed".equals(status) ? COLOR_SUCCESS :
                     "active".equals(status) ? COLOR_HEALTH_HIGH : COLOR_MUTED;
 
-            graphics.drawString(font, "   " + title, col2X, contentY + 12, COLOR_TEXT);
-            graphics.drawString(font, "   §7Статус: §r" + status, col2X, contentY + 24, statusColor);
-            graphics.drawString(font, "   §7Прогресс: §r" + progress, col2X, contentY + 36, COLOR_HEALTH_HIGH);
+            int challengeLineY = contentY + 12;
+            for (String titleLine : titleLines) {
+                graphics.drawString(font, "   " + titleLine, col2X, challengeLineY, COLOR_TEXT);
+                challengeLineY += 11;
+            }
+            graphics.drawString(font, "   §7Статус: §r" + status, col2X, challengeLineY, statusColor);
+            challengeLineY += 12;
+            graphics.drawString(font, "   §7Прогресс: §r" + progress, col2X, challengeLineY, COLOR_HEALTH_HIGH);
+            positionY = challengeLineY + 16;
         } else {
             graphics.drawString(font, "   §7Нет активного челленджа", col2X, contentY + 12, COLOR_MUTED);
         }
 
         // === КООРДИНАТЫ И ВРЕМЯ ===
-        graphics.drawString(font, "§lПозиция", col2X, contentY + 32, COLOR_TEXT);
-        graphics.drawString(font, "   §7" + getPlayerCoords(), col2X, contentY + 44, COLOR_MUTED);
-        graphics.drawString(font, "   " + getWorldTimeLabel(), col2X, contentY + 56, COLOR_MUTED);
+        graphics.drawString(font, "§lПозиция", col2X, positionY, COLOR_TEXT);
+        graphics.drawString(font, "   §7" + getPlayerCoords(), col2X, positionY + 12, COLOR_MUTED);
+        graphics.drawString(font, "   " + getWorldTimeLabel(), col2X, positionY + 24, COLOR_MUTED);
 
         // === НИЖНЯЯ СЕКЦИЯ: Совет ===
-        int adviceY = top + 110;
+        int adviceY = Math.max(top + 110, positionY + 44);
         graphics.hLine(left + 10, left + panelW - 10, adviceY - 5, 0xFF444466);
         graphics.drawString(font, "§l💡 Последний совет", left + 15, adviceY, COLOR_HEADER);
 

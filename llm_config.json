@@ -1,5 +1,5 @@
 {
-  "model_type": "qwen",
+  "model_type": "ling-2.6-1t",
   "models": {
     "qwen": {
       "name": "qwen/qwen3-32b",
@@ -24,6 +24,33 @@
       "name": "qwen3:8b",
       "provider": "ollama",
       "description": "Qwen3 8B running locally via Ollama (localhost:11434)",
+      "parameters": {
+        "max_tokens": 100,
+        "temperature": 0.7
+      }
+    },
+    "ling-2.6-1t": {
+      "name": "inclusionai/ling-2.6-1t:free",
+      "provider": "openrouter",
+      "description": "InclusionAI Ling 2.6 1T (free) via OpenRouter",
+      "parameters": {
+        "max_tokens": 100,
+        "temperature": 0.7
+      }
+    },
+    "nvisia-nemotron": {
+      "name": "nvidia/nemotron-3-super-120b-a12b:free",
+      "provider": "openrouter",
+      "description": "Nvidia model",
+      "parameters": {
+        "max_tokens": 100,
+        "temperature": 0.7
+      }
+    },
+    "owl-alpha": {
+      "name": "openrouter/owl-alpha",
+      "provider": "openrouter",
+      "description": "Owl Alpha model via OpenRouter",
       "parameters": {
         "max_tokens": 100,
         "temperature": 0.7

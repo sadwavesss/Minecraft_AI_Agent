@@ -78,7 +78,8 @@ nav a:hover {
 
 select,
 input[type="number"],
-input[type="text"] {
+input[type="text"],
+textarea {
     appearance: none;
     border: 1px solid rgba(15, 23, 42, 0.14);
     background: #ffffff;
@@ -91,7 +92,8 @@ input[type="text"] {
 
 select:focus,
 input[type="number"]:focus,
-input[type="text"]:focus {
+input[type="text"]:focus,
+textarea:focus {
     border-color: rgba(99, 102, 241, 0.6);
     box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.16);
 }
@@ -166,6 +168,25 @@ button:active {
 
 .settings-container {
     padding: 16px;
+    display: grid;
+    gap: 20px;
+}
+
+.settings-section {
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 18px;
+}
+
+.settings-section h2 {
+    margin: 0 0 6px;
+    font-family: "UI Heading", "Segoe UI Variable Display", "Segoe UI", sans-serif;
+}
+
+.section-subtitle {
+    margin: 0 0 14px;
+    color: #475569;
 }
 
 #settingsForm {
@@ -180,6 +201,38 @@ button:active {
     gap: 6px;
     font-weight: 600;
     color: #0f172a;
+}
+
+.prompt-form {
+    display: grid;
+    gap: 14px;
+}
+
+.prompt-form label {
+    display: grid;
+    gap: 6px;
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.prompt-form textarea {
+    min-height: 130px;
+    resize: vertical;
+    font-family: Consolas, "Courier New", monospace;
+    line-height: 1.45;
+}
+
+.status-message {
+    margin: 12px 0 0;
+    font-weight: 600;
+}
+
+.status-message.success {
+    color: #047857;
+}
+
+.status-message.error {
+    color: #b91c1c;
 }
 
 input[type="checkbox"] {

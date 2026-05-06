@@ -37,6 +37,10 @@ public final class HttpAssistantClient {
         return url;
     }
 
+    public String getBaseUrl() {
+        return baseUrl();
+    }
+
     public CompletableFuture<Void> postLog(Map<String, Object> payload) {
         String json = GSON.toJson(payload);
         byte[] body = json.getBytes(StandardCharsets.UTF_8);

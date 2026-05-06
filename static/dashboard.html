@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Панель управления — Minecraft AI Assistant</title>
-    <link rel="stylesheet" href="/static/dashboard.css">
-    <script src="/frontend/js/markdown.js"></script>
+    <link rel="stylesheet" href="/static/dashboard.css?v=4">
+    <script src="/frontend/js/markdown.js?v=2"></script>
 </head>
 <body>
     <!-- Header -->
@@ -26,6 +26,7 @@
                 <a href="#" class="nav-item" data-page="crafting">Крафты</a>
                 <a href="#" class="nav-item" data-page="chat">Чат с ИИ</a>
                 <a href="#" class="nav-item" data-page="analytics">Аналитика</a>
+                <a href="#" class="nav-item" data-page="settings">Настройки</a>
             </nav>
             <div class="user-section">
                 <div class="connection-status" id="connection-status">
@@ -67,6 +68,7 @@
             <button class="quick-action" onclick="switchPage('inventory')">🎒 Открыть инвентарь</button>
             <button class="quick-action" onclick="switchPage('challenges')">🎯 Открыть челленджи</button>
             <button class="quick-action" onclick="switchPage('chat')">💬 Открыть чат с ИИ</button>
+            <button class="quick-action" onclick="switchPage('settings')">⚙ Открыть настройки</button>
         </div>
     </aside>
 
@@ -182,7 +184,7 @@
                 <h1>Инвентарь игрока</h1>
             </div>
 
-            <div class="inventory-grid">
+            <div class="inventory-layout">
                 <div class="card inventory-card">
                     <h3>🎒 Инвентарь</h3>
                     <div id="inventory-items" class="inventory-grid-display">
@@ -190,24 +192,26 @@
                     </div>
                 </div>
 
-                <div class="card armor-card">
-                    <h3>⚔️ Снаряжение</h3>
-                    <div id="armor-items" class="equipment-display">
-                        <p class="empty-state">Броня не надета</p>
+                <div class="inventory-side-grid">
+                    <div class="card armor-card">
+                        <h3>⚔️ Снаряжение</h3>
+                        <div id="armor-items" class="equipment-display">
+                            <p class="empty-state">Броня не надета</p>
+                        </div>
                     </div>
-                </div>
 
-                <div class="card hotbar-card">
-                    <h3>⚡ Хотбар</h3>
-                    <div id="hotbar-items" class="hotbar-display">
-                        <p class="empty-state">Хотбар пуст</p>
+                    <div class="card hotbar-card">
+                        <h3>⚡ Хотбар</h3>
+                        <div id="hotbar-items" class="hotbar-display">
+                            <p class="empty-state">Хотбар пуст</p>
+                        </div>
                     </div>
-                </div>
 
-                <div class="card offhand-card">
-                    <h3>🛡️ Левая рука</h3>
-                    <div id="offhand-items" class="offhand-display">
-                        <p class="empty-state">Левая рука пуста</p>
+                    <div class="card offhand-card">
+                        <h3>🛡️ Левая рука</h3>
+                        <div id="offhand-items" class="offhand-display">
+                            <p class="empty-state">Левая рука пуста</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -274,6 +278,74 @@
                 <p class="loading">Нажмите «Сгенерировать отчёт», чтобы проанализировать сессию</p>
             </div>
         </section>
+
+        <section id="settings-page" class="page">
+            <div class="page-header">
+                <h1>Настройки</h1>
+                <p class="subtitle">Управление игровыми настройками и prompt templates для LLM.</p>
+            </div>
+
+            <div class="settings-grid">
+                <div class="card">
+                    <h3>Игровые настройки</h3>
+                    <form id="dashboard-settings-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Интервал анализа (мс)</label>
+                                <input type="number" id="settings-interval" min="100" max="5000">
+                            </div>
+                            <div class="form-group">
+                                <label>Порог угроз</label>
+                                <input type="number" id="settings-threshold" min="0" max="1" step="0.1">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Голосовые уведомления</label>
+                                <select id="settings-voice">
+                                    <option value="true">Включены</option>
+                                    <option value="false">Выключены</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Макс. угроз на экране</label>
+                                <input type="number" id="settings-max-threats" min="1" max="10">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Сохранить игровые настройки</button>
+                        </div>
+                        <p id="dashboard-settings-status" class="settings-status"></p>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h3>Промпты LLM</h3>
+                    <form id="dashboard-prompt-form">
+                        <div class="form-group">
+                            <label>State prompt</label>
+                            <textarea id="dashboard-state-prompt" rows="8"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Chat prompt</label>
+                            <textarea id="dashboard-chat-prompt" rows="8"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Action prompt</label>
+                            <textarea id="dashboard-action-prompt" rows="14"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Tool result prompt</label>
+                            <textarea id="dashboard-tool-result-prompt" rows="8"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Сохранить промпты</button>
+                        </div>
+                        <p id="dashboard-prompts-status" class="settings-status"></p>
+                    </form>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- Modals -->
@@ -322,6 +394,6 @@
         </div>
     </div>
 
-    <script src="/static/dashboard.js"></script>
+    <script src="/static/dashboard.js?v=4"></script>
 </body>
 </html>

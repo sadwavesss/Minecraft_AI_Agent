@@ -17,13 +17,42 @@
         </nav>
         
         <div class="settings-container">
-            <form id="settingsForm">
-                <label>Интервал анализа (мс): <input type="number" id="interval" min="100" max="5000"></label>
-                <label>Порог угроз: <input type="number" id="threshold" min="0" max="1" step="0.1"></label>
-                <label>Голосовые уведомления: <input type="checkbox" id="voice"></label>
-                <label>Макс. угроз на экране: <input type="number" id="maxThreats" min="1" max="10"></label>
-                <button type="submit">Сохранить</button>
-            </form>
+            <div class="settings-section">
+                <h2>Игровые настройки</h2>
+                <p class="section-subtitle">Базовые настройки анализа и уведомлений.</p>
+                <form id="settingsForm">
+                    <label>Интервал анализа (мс): <input type="number" id="interval" min="100" max="5000"></label>
+                    <label>Порог угроз: <input type="number" id="threshold" min="0" max="1" step="0.1"></label>
+                    <label>Голосовые уведомления: <input type="checkbox" id="voice"></label>
+                    <label>Макс. угроз на экране: <input type="number" id="maxThreats" min="1" max="10"></label>
+                    <button type="submit">Сохранить игровые настройки</button>
+                </form>
+            </div>
+
+            <div class="settings-section">
+                <h2>Промпты LLM</h2>
+                <p class="section-subtitle">Редактирование шаблонов prompt’ов для состояния, чата и tool flow.</p>
+                <form id="promptForm" class="prompt-form">
+                    <label>
+                        State prompt
+                        <textarea id="statePrompt" rows="8"></textarea>
+                    </label>
+                    <label>
+                        Chat prompt
+                        <textarea id="chatPrompt" rows="8"></textarea>
+                    </label>
+                    <label>
+                        Action prompt
+                        <textarea id="actionPrompt" rows="14"></textarea>
+                    </label>
+                    <label>
+                        Tool result prompt
+                        <textarea id="toolResultPrompt" rows="8"></textarea>
+                    </label>
+                    <button type="submit">Сохранить промпты</button>
+                </form>
+                <p id="promptStatus" class="status-message"></p>
+            </div>
         </div>
     </div>
     <script src="/frontend/js/settings.js"></script>

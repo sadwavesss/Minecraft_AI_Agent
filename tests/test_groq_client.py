@@ -70,11 +70,17 @@ class _CapturingFakeClient:
 
 
 def _build_config(provider: str = "ollama") -> LLMConfig:
+    model_name = "qwen3:8b"
+    if provider == "groq":
+        model_name = "llama-3.1-8b-instant"
+    elif provider == "openrouter":
+        model_name = "inclusionai/ling-2.6-1t:free"
+
     return LLMConfig(
         model_type="test-model",
         models={
             "test-model": ModelConfig(
-                name="qwen3:8b" if provider == "ollama" else "llama-3.1-8b-instant",
+                name=model_name,
                 provider=provider,
                 parameters={"max_tokens": 100, "temperature": 0.1},
                 description="test model",
@@ -127,6 +133,22 @@ class GroqClientTests(unittest.TestCase):
 
         self.assertEqual(client.provider, "groq")
         self.assertEqual(client.get_source_name(), "groq")
+        self.assertTrue(client.is_available())
+
+    def test_openrouter_provider_is_selected_from_config(self):
+        fake_client = _FakeClient('{"mode":"chat","spoken_response":"ok","action_type":null,"item_id":null,"count":1,"execute":false,"error":null}')
+
+        def _getenv(key, default=None):
+            if key == "OPENROUTER_API_KEY":
+                return "openrouter-test-key"
+            return default
+
+        with patch("api.groq_client.OllamaClient", return_value=fake_client), patch("api.groq_client.os.getenv", side_effect=_getenv):
+            client = GroqClient(llm_config=_build_config(provider="openrouter"))
+
+        self.assertEqual(client.provider, "openrouter")
+        self.assertEqual(client.model, "inclusionai/ling-2.6-1t:free")
+        self.assertEqual(client.get_source_name(), "openrouter")
         self.assertTrue(client.is_available())
 
     def test_generate_chat_action_parses_mock_llm_output_for_russian_command(self):

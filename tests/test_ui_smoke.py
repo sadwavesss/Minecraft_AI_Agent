@@ -106,6 +106,28 @@ class UISmokeTests(unittest.TestCase):
             "Рецепты крафта",
         )
 
+    def test_dashboard_navigates_to_settings_and_shows_prompt_form(self):
+        self.driver.get(f"{BASE_URL}/dashboard")
+        settings_nav = self.wait.until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "a.nav-item[data-page='settings']"))
+        )
+        settings_nav.click()
+
+        self.wait.until(
+            lambda driver: "active" in driver.find_element(By.ID, "settings-page").get_attribute("class").split()
+        )
+        self.wait.until(EC.presence_of_element_located((By.ID, "dashboard-prompt-form")))
+
+        self.assertEqual(
+            self.driver.find_element(By.CSS_SELECTOR, "#settings-page.active h1").text,
+            "Настройки",
+        )
+        self.assertTrue(self.driver.find_element(By.ID, "dashboard-state-prompt").is_displayed())
+        self.assertIn(
+            "role-playing Minecraft game companion",
+            self.driver.find_element(By.ID, "dashboard-state-prompt").get_attribute("value"),
+        )
+
     def test_wiki_search_shows_recipe_grid(self):
         self.driver.get(f"{BASE_URL}/admin/wiki")
         search_input = self.wait.until(EC.presence_of_element_located((By.ID, "searchInput")))

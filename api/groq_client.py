@@ -16,6 +16,7 @@ from api.player_state import get_player_state_prompt_context
 logger = logging.getLogger(__name__)
 
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
+OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
 
 # Separate passive RP polling from interactive chat/tool requests so a slow tip
 # request cannot monopolize the workers needed for /api/rp/chat.
@@ -125,7 +126,9 @@ class GroqClient:
     """Wrapper for LLM API calls (Groq or Ollama) with Minecraft game state context."""
 
     def __init__(self, llm_config=None):
-        self.api_key = os.getenv("GROQ_API_KEY")
+        self.groq_api_key = os.getenv("GROQ_API_KEY")
+        self.openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
+        self.provider_api_key = None
         self.client = None
         self.llm_config = llm_config
         self.model = None
@@ -146,10 +149,32 @@ class GroqClient:
             except Exception as e:
                 logger.error(f"Failed to initialize Ollama client: {e}")
                 self.client = None
-        else:
-            if self.api_key:
+        elif self.provider == "openrouter":
+            if self.openrouter_api_key:
                 try:
-                    self.client = Groq(api_key=self.api_key)
+                    headers = {"X-Title": os.getenv("OPENROUTER_APP_NAME", "Minecraft AI Assistant")}
+                    referer = os.getenv("OPENROUTER_SITE_URL")
+                    if referer:
+                        headers["HTTP-Referer"] = referer
+                    self.provider_api_key = self.openrouter_api_key
+                    self.client = OllamaClient(
+                        base_url=OPENROUTER_BASE_URL,
+                        api_key=self.openrouter_api_key,
+                        default_headers=headers,
+                    )
+                    print(make_console_safe(f"[LLM] Using OpenRouter | model: {self.model} | url: {OPENROUTER_BASE_URL}"))
+                    logger.info(make_console_safe(f"Initialized OpenRouter client with model: {self.model}"))
+                except Exception as e:
+                    logger.error(f"Failed to initialize OpenRouter client: {e}")
+                    self.client = None
+            else:
+                print(make_console_safe("[LLM] WARNING: OPENROUTER_API_KEY not set — OpenRouter unavailable"))
+                logger.warning("OPENROUTER_API_KEY not set")
+        else:
+            if self.groq_api_key:
+                try:
+                    self.provider_api_key = self.groq_api_key
+                    self.client = Groq(api_key=self.groq_api_key)
                     print(make_console_safe(f"[LLM] Using Groq | model: {self.model}"))
                     logger.info(make_console_safe(f"Initialized Groq client with model: {self.model}"))
                 except Exception as e:
@@ -161,13 +186,13 @@ class GroqClient:
 
     def get_source_name(self) -> str:
         """Return a stable source/provider name for logs and API responses."""
-        return "ollama" if self.provider == "ollama" else "groq"
+        return self.provider
 
     def is_available(self) -> bool:
         """Check if LLM API is configured and ready."""
         if self.provider == "ollama":
             return self.client is not None
-        return self.client is not None and self.api_key is not None
+        return self.client is not None and self.provider_api_key is not None
 
     def _get_max_tokens(self) -> int:
         """Get max tokens from config or default."""
@@ -193,8 +218,8 @@ class GroqClient:
         if self.llm_config and self.llm_config.has_parameter("temperature"):
             params["temperature"] = self._get_temperature()
         
-        # Add reasoning_effort if it exists (only for Qwen)
-        if self.llm_config and self.llm_config.has_parameter("reasoning_effort"):
+        # Add reasoning_effort only for providers known to support it in this app.
+        if self.provider in {"groq", "ollama"} and self.llm_config and self.llm_config.has_parameter("reasoning_effort"):
             params["reasoning_effort"] = self.llm_config.get_parameter("reasoning_effort")
         
         return params

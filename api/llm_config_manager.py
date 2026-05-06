@@ -1,7 +1,7 @@
 import json
 import logging
 from pathlib import Path
-from models.llm_config import LLMConfig
+from models.llm_config import LLMConfig, PromptsConfig
 
 logger = logging.getLogger(__name__)
 
@@ -73,3 +73,21 @@ def get_model_info(model_type: str) -> dict:
         "temperature": model.parameters.get("temperature"),
         "description": model.description
     }
+
+
+def get_prompt_config() -> PromptsConfig:
+    """Get the current prompt templates."""
+    if llm_config.prompts is None:
+        raise ValueError("LLM prompts are not loaded")
+    return llm_config.prompts
+
+
+def set_prompt_config(prompts: PromptsConfig) -> LLMConfig:
+    """Replace prompt templates and persist them to llm_prompts.json."""
+    global llm_config
+
+    prompt_payload = prompts.model_dump()
+    _llm_prompts_path.write_text(json.dumps(prompt_payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    llm_config.prompts = prompts
+    logger.info("Updated LLM prompt templates")
+    return llm_config

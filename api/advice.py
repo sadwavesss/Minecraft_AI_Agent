@@ -16,9 +16,10 @@ from api.logs import logs_db
 from api.settings import current_settings
 from api.groq_client import GroqClient
 from api.minecraft_catalog import resolve_item_id_from_text
-from api.llm_config_manager import get_llm_config, set_model_type, get_available_models, get_model_info
+from api.llm_config_manager import get_llm_config, set_model_type, get_available_models, get_model_info, get_prompt_config, set_prompt_config
 from api.tool_service import execute_tool_call, get_tool_registry
 from models.groq_response import GroqAdvice, ChatMessage
+from models.llm_config import PromptsConfig
 
 load_dotenv()
 
@@ -1016,6 +1017,29 @@ async def switch_llm_model(model_type: str) -> Dict[str, Any]:
             "message": str(e),
             "available_models": get_available_models()
         }
+
+
+@router.get("/prompts")
+async def get_llm_prompts() -> Dict[str, Any]:
+    prompts = get_prompt_config()
+    return {
+        "status": "success",
+        "prompts": prompts.model_dump(),
+    }
+
+
+@router.put("/prompts")
+async def update_llm_prompts(prompts: PromptsConfig) -> Dict[str, Any]:
+    global groq_client, llm_config
+
+    updated_config = set_prompt_config(prompts)
+    llm_config = updated_config
+    groq_client = GroqClient(llm_config=updated_config)
+    return {
+        "status": "success",
+        "message": "LLM prompts updated",
+        "prompts": updated_config.prompts.model_dump() if updated_config.prompts else {},
+    }
 
 
 @router.get("/history")
