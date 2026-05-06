@@ -63,6 +63,20 @@ public final class AssistantRuntime {
         this.inventoryScanTickCountdown = 20;
     }
 
+    /**
+     * Возвращает последний полученный совет от AI-ассистента
+     */
+    public String getLastAdvice() {
+        return lastAdviceShown;
+    }
+
+    /**
+     * Возвращает HTTP клиент для запросов к серверу
+     */
+    public HttpAssistantClient getHttpClient() {
+        return http;
+    }
+
     public void onClientTick(Minecraft client) {
         if (client == null || client.player == null) {
             return;

@@ -3,6 +3,7 @@ package com.example.assistant;
 import com.google.gson.Gson;
 
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -57,6 +58,46 @@ public final class HttpAssistantClient {
                 })
                 .exceptionally(ex -> {
                     System.out.println("[AI Assistant] POST /api/logs/ exception: " + ex);
+                    return null;
+                });
+    }
+
+    public CompletableFuture<CraftRecipeResponse> getCraftRecipe(String query) {
+        String q = query == null ? "" : query.trim();
+        if (q.isEmpty()) {
+            return CompletableFuture.completedFuture(null);
+        }
+
+        String encodedQuery;
+        try {
+            encodedQuery = URLEncoder.encode(q, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            encodedQuery = q;
+        }
+
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create(baseUrl() + "/api/wiki/craft?query=" + encodedQuery))
+                .timeout(Duration.ofSeconds(8))
+                .GET()
+                .build();
+
+        return http.sendAsync(req, HttpResponse.BodyHandlers.ofString())
+                .thenApply(resp -> {
+                    int code = resp.statusCode();
+                    if (code < 200 || code >= 300) {
+                        System.out.println("[AI Assistant] GET /api/wiki/craft failed: HTTP " + code);
+                        return null;
+                    }
+
+                    try {
+                        return GSON.fromJson(resp.body(), CraftRecipeResponse.class);
+                    } catch (Exception e) {
+                        System.out.println("[AI Assistant] GET /api/wiki/craft parse error: " + e);
+                        return null;
+                    }
+                })
+                .exceptionally(ex -> {
+                    System.out.println("[AI Assistant] GET /api/wiki/craft exception: " + ex);
                     return null;
                 });
     }
@@ -178,6 +219,34 @@ public final class HttpAssistantClient {
                 });
     }
 
+    public CompletableFuture<CompactResponse> getCompactStatus() {
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create(baseUrl() + "/api/rp/compact"))
+                .timeout(Duration.ofSeconds(5))
+                .GET()
+                .build();
+
+        return http.sendAsync(req, HttpResponse.BodyHandlers.ofString())
+                .thenApply(resp -> {
+                    int code = resp.statusCode();
+                    if (code < 200 || code >= 300) {
+                        System.out.println("[AI Assistant] GET /api/rp/compact failed: HTTP " + code);
+                        return null;
+                    }
+
+                    try {
+                        return GSON.fromJson(resp.body(), CompactResponse.class);
+                    } catch (Exception e) {
+                        System.out.println("[AI Assistant] GET /api/rp/compact parse error: " + e);
+                        return null;
+                    }
+                })
+                .exceptionally(ex -> {
+                    System.out.println("[AI Assistant] GET /api/rp/compact exception: " + ex);
+                    return null;
+                });
+    }
+
     public static final class RPResponse {
         public String response;
         public double confidence;
@@ -195,5 +264,34 @@ public final class HttpAssistantClient {
 
     public static final class SettingsResponse {
         public int analysis_interval;
+    }
+
+    public static final class CompactResponse {
+        public String advice;
+        public String advice_level;
+        public Double health;
+        public String last_event;
+        public ChallengeInfo challenge;
+        public String timestamp;
+
+        public static final class ChallengeInfo {
+            public String title;
+            public String status;
+            public String progress;
+            public String goal_type;
+            public String reward;
+        }
+    }
+
+    public static final class CraftRecipeResponse {
+        public String status;
+        public String message;
+        public Recipe recipe;
+
+        public static final class Recipe {
+            public String name;
+            public String description;
+            public String[][] grid;
+        }
     }
 }

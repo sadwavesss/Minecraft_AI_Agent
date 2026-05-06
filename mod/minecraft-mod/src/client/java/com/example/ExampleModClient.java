@@ -2,21 +2,45 @@ package com.example;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 
 import com.example.assistant.AssistantConfig;
+import com.example.assistant.AssistantOverlayScreen;
 import com.example.assistant.AssistantRuntime;
 import com.example.assistant.ConfigManager;
+import org.lwjgl.glfw.GLFW;
 
 public class ExampleModClient implements ClientModInitializer {
 	private static AssistantRuntime runtime;
+	private static KeyMapping overlayKey;
 
 	@Override
 	public void onInitializeClient() {
 		AssistantConfig cfg = ConfigManager.loadOrCreate();
 		runtime = new AssistantRuntime(cfg);
 
-		ClientTickEvents.END_CLIENT_TICK.register(runtime::onClientTick);
+		// Регистрация горячей клавиши для оверлея (клавиша O)
+		overlayKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+			"key.aiassistant.overlay",
+			GLFW.GLFW_KEY_O,
+			"category.aiassistant.general"
+		));
+
+		ClientTickEvents.END_CLIENT_TICK.register(client -> {
+			// Основной тик ассистента
+			runtime.onClientTick(client);
+			
+			// Проверка нажатия клавиши оверлея
+			while (overlayKey.consumeClick()) {
+				if (client.screen == null) {
+					client.setScreen(new AssistantOverlayScreen(runtime));
+				}
+			}
+		});
 
 		ClientSendMessageEvents.CHAT.register((message) -> {
 			if (runtime != null) {

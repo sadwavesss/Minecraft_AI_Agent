@@ -1111,6 +1111,43 @@ async def get_response_history(limit: int = 100) -> List[Dict[str, Any]]:
     return list(reversed(_response_history[-max(1, limit):]))
 
 
+@router.get("/compact")
+async def get_compact_status() -> Dict[str, Any]:
+    """Компактная сводка состояния для внутриигрового оверлея.
+    
+    Возвращает:
+    - последний совет
+    - здоровье игрока (из последнего лога)
+    - активный челлендж и прогресс
+    - время последнего события
+    """
+    last = _safe_last_log()
+    refresh_challenge_progress()
+    active = get_active_challenge()
+    
+    # Получаем последний совет из кэша
+    advice_text = None
+    advice_level = "INFO"
+    if _last_rp_response:
+        advice_text = _last_rp_response.get("response")
+        advice_level = _last_rp_response.get("level", "INFO")
+    
+    return {
+        "advice": advice_text,
+        "advice_level": advice_level,
+        "health": getattr(last, "player_health", None) if last else None,
+        "last_event": getattr(last, "event_type", None) if last else None,
+        "challenge": {
+            "title": active.get("title") if active else None,
+            "status": active.get("status") if active else None,
+            "progress": f"{active.get('progress_count', 0)}/{active.get('goal_count', 1)}" if active else None,
+            "goal_type": active.get("goal_type") if active else None,
+            "reward": active.get("reward_item_id") if active else None,
+        } if active else None,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+
+
 @router.websocket("/ws")
 async def responses_websocket(websocket: WebSocket):
     """WebSocket for real-time LLM response updates."""
